@@ -11,7 +11,7 @@
 .photoZone{min-height:120px;border:2px dashed #aac8e8;border-radius:16px;background:rgba(255,255,255,.78);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;cursor:pointer;color:#3275bc;transition:.2s ease}
 .photoZone:hover,.photoZone:focus{border-color:#2d79c8;background:white;transform:translateY(-1px);outline:none}
 .photoZone strong{margin-top:7px;color:#214d82;font-size:14px}.photoZone span{margin-top:5px;color:#667b98;font-size:12px}.photoZone small{margin-top:8px;color:#91a0b4;font-size:10px}
-.photoActions{grid-column:2;display:flex;gap:9px;flex-wrap:wrap;margin-top:-58px;align-self:end;padding:0 14px 14px}
+.photoActions{grid-column:2;display:flex;gap:9px;flex-wrap:wrap;margin-top:-58px;align-self:flex-end;padding:0 14px 14px}
 .photoActions button{border:1px solid #cfdff0;border-radius:10px;background:white;color:#2d6fb7;padding:9px 12px;font:inherit;font-size:11px;font-weight:850;display:flex;align-items:center;gap:6px;cursor:pointer}.photoActions button:disabled{opacity:.55;cursor:wait}.photoActions .photoBoutonDanger{color:#b3434a;border-color:#f0cfd2}
 .photoAide{grid-column:2;margin:-4px 14px 0;color:#71839d;font-size:11px;line-height:1.5}
 @media(max-width:760px){.photoBloc{grid-template-columns:1fr}.photoApercu{width:150px;height:150px;margin:auto}.photoActions,.photoAide{grid-column:1;margin:0}.photoActions{justify-content:center}.photoZone{min-height:150px}}

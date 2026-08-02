@@ -490,7 +490,7 @@
 .annulation form {
   display: flex;
   min-width: 420px;
-  align-items: end;
+  align-items: flex-end;
   gap: 10px;
 }
 
@@ -551,28 +551,4 @@
   .filtres {
     display: grid;
   }
-}
-
-
-.actionsPaiement {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-wrap: wrap;
-}
-
-.actionSecondaire {
-  display: inline-flex;
-  min-height: 36px;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 0 10px;
-  border: 1px solid #d3e1ef;
-  border-radius: 9px;
-  color: #174f91;
-  background: #f4f9ff;
-  font-size: .74rem;
-  font-weight: 850;
-  text-decoration: none;
 }

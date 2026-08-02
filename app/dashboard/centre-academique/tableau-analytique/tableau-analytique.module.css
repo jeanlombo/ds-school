@@ -71,7 +71,7 @@
 .filtres {
   display: grid;
   grid-template-columns: minmax(240px, 1.2fr) minmax(210px, 1fr) auto;
-  align-items: end;
+  align-items: flex-end;
   gap: 13px;
   flex: 1;
 }

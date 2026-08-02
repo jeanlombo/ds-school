@@ -60,7 +60,7 @@
 .filtres form {
   display: grid;
   grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr) auto;
-  align-items: end;
+  align-items: flex-end;
   gap: 14px;
 }
 

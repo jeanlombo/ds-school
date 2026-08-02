@@ -54,7 +54,7 @@
 .filters {
   display: grid;
   grid-template-columns: 1fr 1.2fr auto;
-  align-items: end;
+  align-items: flex-end;
   gap: 16px;
   padding: 22px;
 }

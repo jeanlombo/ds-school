@@ -164,8 +164,7 @@ export default async function Page({ searchParams }: Props) {
           periodeNom={periode?.nom ?? "Période"}
           anneeNom={periode?.anneeScolaire.libelle ?? ""}
           utilisateurNom={
-            `${utilisateur.nom ?? ""} ${utilisateur.prenom ?? ""}`.trim() ||
-            utilisateur.email
+            utilisateur.nom?.trim() || utilisateur.email
           }
           seuilReussite={seuilReussite}
           lignesInitiales={lignes}

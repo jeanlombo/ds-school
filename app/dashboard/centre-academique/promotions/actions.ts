@@ -103,8 +103,7 @@ export async function executerPromotion(formData: FormData) {
     inscriptions.map((inscription) => [inscription.id, inscription]),
   );
   const auteur =
-    `${utilisateur.nom ?? ""} ${utilisateur.prenom ?? ""}`.trim() ||
-    utilisateur.email;
+    utilisateur.nom?.trim() || utilisateur.email || "Utilisateur";
 
   let promus = 0;
   let redoublants = 0;

@@ -41,9 +41,12 @@ export default function CarnetNotesClient({
 
   const statistiques = useMemo(() => {
     const notes = lignes
-      .filter((ligne) => !absents[ligne.eleveId])
+      .filter((ligne) => {
+        const valeur = valeurs[ligne.eleveId];
+        return !absents[ligne.eleveId] && valeur !== undefined && valeur.trim() !== "";
+      })
       .map((ligne) => Number(valeurs[ligne.eleveId]))
-      .filter((note) => Number.isFinite(note) && valeurs[ligne.eleveId] !== "");
+      .filter((note) => Number.isFinite(note));
 
     const moyenne = notes.length
       ? notes.reduce((total, note) => total + note, 0) / notes.length

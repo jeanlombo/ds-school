@@ -1,103 +1,659 @@
 "use server";
+
 import { exigerPermission } from "@/lib/securite/rbac";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
-const n=(v:FormDataEntryValue|null)=>Number(v||0); const s=(v:FormDataEntryValue|null)=>String(v||'').trim();
-async function securiser(){const u=await obtenirUtilisateurConnecte();if(!u)redirect('/connexion');return obtenirOuCreerEcole()}
-export async function creerTypeEvaluation(fd:FormData){
-  await exigerPermission("ACADEMIQUE_AJOUTER", "app/dashboard/centre-academique/actions.ts::creerTypeEvaluation");const e=await securiser();const nom=s(fd.get('nom')),code=s(fd.get('code')).toUpperCase();if(!nom||!code)redirect('/dashboard/centre-academique/types-evaluations?erreur=champs');await prisma.typeEvaluation.create({data:{ecoleId:e.id,nom,code,coefficientParDefaut:n(fd.get('coefficient'))||1,noteMaxParDefaut:n(fd.get('noteMax'))||20,couleur:s(fd.get('couleur'))||'#1761A8'}}).catch(()=>redirect('/dashboard/centre-academique/types-evaluations?erreur=doublon'));revalidatePath('/dashboard/centre-academique');redirect('/dashboard/centre-academique/types-evaluations?succes=creation')}
-export async function supprimerTypeEvaluation(fd:FormData){
-  await exigerPermission("ACADEMIQUE_SUPPRIMER", "app/dashboard/centre-academique/actions.ts::supprimerTypeEvaluation");const e=await securiser();await prisma.typeEvaluation.deleteMany({where:{id:n(fd.get('id')),ecoleId:e.id,evaluations:{none:{}}}});revalidatePath('/dashboard/centre-academique');redirect('/dashboard/centre-academique/types-evaluations?succes=suppression')}
-export async function creerEvaluation(fd:FormData){
-  await exigerPermission("ACADEMIQUE_AJOUTER", "app/dashboard/centre-academique/actions.ts::creerEvaluation");const e=await securiser();const data={ecoleId:e.id,titre:s(fd.get('titre')),typeEvaluationId:n(fd.get('typeEvaluationId')),anneeScolaireId:n(fd.get('anneeScolaireId')),periodeAcademiqueId:n(fd.get('periodeAcademiqueId')),classeId:n(fd.get('classeId')),matiereId:n(fd.get('matiereId')),enseignantId:n(fd.get('enseignantId')),dateEvaluation:new Date(s(fd.get('dateEvaluation'))),noteMax:n(fd.get('noteMax'))||20,coefficient:n(fd.get('coefficient'))||1,dureeMinutes:n(fd.get('dureeMinutes'))||null,description:s(fd.get('description'))||null,statut:'BROUILLON'};if(!data.titre||!data.typeEvaluationId||!data.anneeScolaireId||!data.periodeAcademiqueId||!data.classeId||!data.matiereId||!data.enseignantId)redirect('/dashboard/centre-academique/evaluations/nouvelle?erreur=champs');await prisma.evaluation.create({data});revalidatePath('/dashboard/centre-academique');redirect('/dashboard/centre-academique/evaluations?succes=creation')}
-export async function changerStatutEvaluation(fd:FormData){
-  await exigerPermission("ACADEMIQUE_CHANGER_STATUT", "app/dashboard/centre-academique/actions.ts::changerStatutEvaluation");const e=await securiser();const statut=s(fd.get('statut'));if(!['BROUILLON','PUBLIEE','CLOTUREE'].includes(statut))return;await prisma.evaluation.updateMany({where:{id:n(fd.get('id')),ecoleId:e.id},data:{statut}});revalidatePath('/dashboard/centre-academique/evaluations')}
-export async function supprimerEvaluation(fd:FormData){
-  await exigerPermission("ACADEMIQUE_SUPPRIMER", "app/dashboard/centre-academique/actions.ts::supprimerEvaluation");const e=await securiser();await prisma.evaluation.deleteMany({where:{id:n(fd.get('id')),ecoleId:e.id}});revalidatePath('/dashboard/centre-academique');redirect('/dashboard/centre-academique/evaluations?succes=suppression')}
-export async function enregistrerNotes(fd:FormData){
-  await exigerPermission("ACADEMIQUE_MODIFIER", "app/dashboard/centre-academique/actions.ts::enregistrerNotes");const e=await securiser();const evaluationId=n(fd.get('evaluationId'));const ev=await prisma.evaluation.findFirst({where:{id:evaluationId,ecoleId:e.id},select:{noteMax:true}});if(!ev)redirect('/dashboard/centre-academique/notes?erreur=evaluation');const ops=[];for(const [key,val] of fd.entries()){if(!key.startsWith('note_'))continue;const inscriptionId=Number(key.slice(5));const brut=String(val).trim();const absence=fd.get(`absent_${inscriptionId}`)==='on';const note=absence?null:Number(brut);if(!absence&&(brut===''||Number.isNaN(note)||note<0||note>Number(ev.noteMax)))continue;ops.push(prisma.note.upsert({where:{evaluationId_inscriptionId:{evaluationId,inscriptionId}},create:{evaluationId,inscriptionId,note,absent:absence,appreciation:s(fd.get(`appreciation_${inscriptionId}`))||null},update:{note,absent:absence,appreciation:s(fd.get(`appreciation_${inscriptionId}`))||null}}))}await prisma.$transaction(ops);await prisma.evaluation.update({where:{id:evaluationId},data:{statut:'PUBLIEE'}});revalidatePath('/dashboard/centre-academique');redirect(`/dashboard/centre-academique/notes?evaluationId=${evaluationId}&succes=enregistrement`)}
-export async function enregistrerRegles(fd:FormData){
-  await exigerPermission("ACADEMIQUE_MODIFIER", "app/dashboard/centre-academique/actions.ts::enregistrerRegles");const e=await securiser();await prisma.regleEvaluation.upsert({where:{ecoleId:e.id},create:{ecoleId:e.id,seuilReussite:n(fd.get('seuilReussite'))||50,mentionExcellent:n(fd.get('mentionExcellent'))||80,mentionTresBien:n(fd.get('mentionTresBien'))||70,mentionBien:n(fd.get('mentionBien'))||60,mentionAssezBien:n(fd.get('mentionAssezBien'))||50,arrondiDecimales:n(fd.get('arrondiDecimales'))||2},update:{seuilReussite:n(fd.get('seuilReussite'))||50,mentionExcellent:n(fd.get('mentionExcellent'))||80,mentionTresBien:n(fd.get('mentionTresBien'))||70,mentionBien:n(fd.get('mentionBien'))||60,mentionAssezBien:n(fd.get('mentionAssezBien'))||50,arrondiDecimales:n(fd.get('arrondiDecimales'))||2}});revalidatePath('/dashboard/centre-academique');redirect('/dashboard/centre-academique/regles?succes=enregistrement')}
 
+const nombre = (valeur: FormDataEntryValue | null): number =>
+  Number(valeur ?? 0);
 
-export async function creerModeleBulletin(fd: FormData) {
-  await exigerPermission("ACADEMIQUE_AJOUTER", "app/dashboard/centre-academique/actions.ts::creerModeleBulletin");
-  const e = await securiser();
-  const nom = s(fd.get("nom"));
-  const code = s(fd.get("code")).toUpperCase().replace(/[^A-Z0-9_-]/g, "_");
-  if (!nom || !code) redirect("/dashboard/centre-academique/modeles-bulletins/nouveau?erreur=champs");
-  const parDefaut = fd.get("parDefaut") === "on";
-  await prisma.$transaction(async (tx) => {
-    if (parDefaut) await tx.modeleBulletin.updateMany({ where: { ecoleId: e.id }, data: { parDefaut: false } });
-    const modele = await tx.modeleBulletin.create({ data: {
-      ecoleId: e.id, nom, code, niveau: s(fd.get("niveau")) || null,
-      orientation: s(fd.get("orientation")) || "PORTRAIT",
-      formatPapier: s(fd.get("formatPapier")) || "A4",
-      couleurPrincipale: s(fd.get("couleurPrincipale")) || "#1761A8",
-      couleurSecondaire: s(fd.get("couleurSecondaire")) || "#F4B400",
-      titreDocument: s(fd.get("titreDocument")) || "BULLETIN SCOLAIRE",
-      afficherLogo: fd.get("afficherLogo") === "on", afficherPhoto: fd.get("afficherPhoto") === "on",
-      afficherClassement: fd.get("afficherClassement") === "on", afficherAbsences: fd.get("afficherAbsences") === "on",
-      afficherQrCode: fd.get("afficherQrCode") === "on", afficherCachet: fd.get("afficherCachet") === "on",
-      signature1: s(fd.get("signature1")) || null, signature2: s(fd.get("signature2")) || null,
-      signature3: s(fd.get("signature3")) || null, textePiedPage: s(fd.get("textePiedPage")) || null,
-      fondDocument: s(fd.get("fondDocument")) || null, parDefaut,
-      configuration: { colonnes: ["matiere", "note", "coefficient", "moyenne", "appreciation"] }
-    }});
-    await tx.versionModeleBulletin.create({ data: { modeleBulletinId: modele.id, numeroVersion: 1, configuration: modele.configuration as any, commentaire: "Création du modèle" } });
-  }).catch(() => redirect("/dashboard/centre-academique/modeles-bulletins/nouveau?erreur=doublon"));
+const texte = (valeur: FormDataEntryValue | null): string =>
+  String(valeur ?? "").trim();
+
+const estCoche = (formData: FormData, nom: string): boolean =>
+  formData.get(nom) === "on";
+
+async function securiser() {
+  const utilisateur = await obtenirUtilisateurConnecte();
+
+  if (!utilisateur) {
+    redirect("/connexion");
+  }
+
+  return obtenirOuCreerEcole();
+}
+
+function revaliderCentreAcademique() {
+  revalidatePath("/dashboard/centre-academique");
+  revalidatePath("/dashboard/centre-academique/types-evaluations");
+  revalidatePath("/dashboard/centre-academique/evaluations");
+  revalidatePath("/dashboard/centre-academique/notes");
+  revalidatePath("/dashboard/centre-academique/regles");
   revalidatePath("/dashboard/centre-academique/modeles-bulletins");
+}
+
+export async function creerTypeEvaluation(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_AJOUTER",
+    "app/dashboard/centre-academique/actions.ts::creerTypeEvaluation",
+  );
+
+  const ecole = await securiser();
+  const nom = texte(formData.get("nom"));
+  const code = texte(formData.get("code")).toUpperCase();
+  const coefficient = nombre(formData.get("coefficient")) || 1;
+  const couleur = texte(formData.get("couleur")) || "#1761A8";
+  const description = texte(formData.get("description")) || null;
+
+  if (!nom || !code) {
+    redirect(
+      "/dashboard/centre-academique/types-evaluations?erreur=champs",
+    );
+  }
+
+  try {
+    await prisma.typeEvaluation.create({
+      data: {
+        ecoleId: ecole.id,
+        nom,
+        code,
+        description,
+        coefficient,
+        couleur,
+      },
+    });
+  } catch {
+    redirect(
+      "/dashboard/centre-academique/types-evaluations?erreur=doublon",
+    );
+  }
+
+  revaliderCentreAcademique();
+  redirect(
+    "/dashboard/centre-academique/types-evaluations?succes=creation",
+  );
+}
+
+export async function supprimerTypeEvaluation(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_SUPPRIMER",
+    "app/dashboard/centre-academique/actions.ts::supprimerTypeEvaluation",
+  );
+
+  const ecole = await securiser();
+  const id = nombre(formData.get("id"));
+
+  if (!id) {
+    redirect(
+      "/dashboard/centre-academique/types-evaluations?erreur=introuvable",
+    );
+  }
+
+  const resultat = await prisma.typeEvaluation.deleteMany({
+    where: {
+      id,
+      ecoleId: ecole.id,
+      evaluations: { none: {} },
+    },
+  });
+
+  revaliderCentreAcademique();
+
+  if (resultat.count === 0) {
+    redirect(
+      "/dashboard/centre-academique/types-evaluations?erreur=utilise",
+    );
+  }
+
+  redirect(
+    "/dashboard/centre-academique/types-evaluations?succes=suppression",
+  );
+}
+
+export async function creerEvaluation(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_AJOUTER",
+    "app/dashboard/centre-academique/actions.ts::creerEvaluation",
+  );
+
+  const ecole = await securiser();
+  const titre = texte(formData.get("titre"));
+  const typeEvaluationId = nombre(formData.get("typeEvaluationId"));
+  const anneeScolaireId = nombre(formData.get("anneeScolaireId"));
+  const periodeAcademiqueId = nombre(formData.get("periodeAcademiqueId"));
+  const classeId = nombre(formData.get("classeId"));
+  const matiereId = nombre(formData.get("matiereId"));
+  const enseignantId = nombre(formData.get("enseignantId"));
+  const dateTexte = texte(formData.get("dateEvaluation"));
+  const dateEvaluation = new Date(dateTexte);
+
+  if (
+    !titre ||
+    !typeEvaluationId ||
+    !anneeScolaireId ||
+    !periodeAcademiqueId ||
+    !classeId ||
+    !matiereId ||
+    !enseignantId ||
+    !dateTexte ||
+    Number.isNaN(dateEvaluation.getTime())
+  ) {
+    redirect(
+      "/dashboard/centre-academique/evaluations/nouvelle?erreur=champs",
+    );
+  }
+
+  await prisma.evaluation.create({
+    data: {
+      ecoleId: ecole.id,
+      titre,
+      typeEvaluationId,
+      anneeScolaireId,
+      periodeAcademiqueId,
+      classeId,
+      matiereId,
+      enseignantId,
+      salleId: nombre(formData.get("salleId")) || null,
+      dateEvaluation,
+      heureDebut: texte(formData.get("heureDebut")) || null,
+      bareme: nombre(formData.get("noteMax")) || 20,
+      coefficient: nombre(formData.get("coefficient")) || 1,
+      dureeMinutes: nombre(formData.get("dureeMinutes")) || null,
+      description: texte(formData.get("description")) || null,
+      statut: "BROUILLON",
+      publiee: false,
+    },
+  });
+
+  revaliderCentreAcademique();
+  redirect("/dashboard/centre-academique/evaluations?succes=creation");
+}
+
+export async function changerStatutEvaluation(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_CHANGER_STATUT",
+    "app/dashboard/centre-academique/actions.ts::changerStatutEvaluation",
+  );
+
+  const ecole = await securiser();
+  const id = nombre(formData.get("id"));
+  const statut = texte(formData.get("statut")).toUpperCase();
+
+  if (!id || !["BROUILLON", "PUBLIEE", "CLOTUREE"].includes(statut)) {
+    return;
+  }
+
+  await prisma.evaluation.updateMany({
+    where: { id, ecoleId: ecole.id },
+    data: {
+      statut,
+      publiee: statut === "PUBLIEE" || statut === "CLOTUREE",
+    },
+  });
+
+  revaliderCentreAcademique();
+}
+
+export async function supprimerEvaluation(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_SUPPRIMER",
+    "app/dashboard/centre-academique/actions.ts::supprimerEvaluation",
+  );
+
+  const ecole = await securiser();
+  const id = nombre(formData.get("id"));
+
+  if (!id) {
+    redirect("/dashboard/centre-academique/evaluations?erreur=introuvable");
+  }
+
+  await prisma.evaluation.deleteMany({
+    where: { id, ecoleId: ecole.id },
+  });
+
+  revaliderCentreAcademique();
+  redirect("/dashboard/centre-academique/evaluations?succes=suppression");
+}
+
+export async function enregistrerNotes(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_MODIFIER",
+    "app/dashboard/centre-academique/actions.ts::enregistrerNotes",
+  );
+
+  const ecole = await securiser();
+  const evaluationId = nombre(formData.get("evaluationId"));
+
+  const evaluation = await prisma.evaluation.findFirst({
+    where: {
+      id: evaluationId,
+      ecoleId: ecole.id,
+    },
+    select: {
+      id: true,
+      bareme: true,
+      classeId: true,
+      anneeScolaireId: true,
+    },
+  });
+
+  if (!evaluation) {
+    redirect("/dashboard/centre-academique/notes?erreur=evaluation");
+  }
+
+  const donneesNotes: Array<{
+    inscriptionId: number;
+    valeur: number | null;
+    absent: boolean;
+    appreciation: string | null;
+  }> = [];
+
+  for (const [cle, valeurFormulaire] of formData.entries()) {
+    if (!cle.startsWith("note_")) {
+      continue;
+    }
+
+    const inscriptionId = Number(cle.slice(5));
+
+    if (!Number.isInteger(inscriptionId) || inscriptionId <= 0) {
+      continue;
+    }
+
+    const valeurBrute = String(valeurFormulaire).trim();
+    const absent = formData.get(`absent_${inscriptionId}`) === "on";
+    const valeurNumerique = Number(valeurBrute);
+    const valeur: number | null = absent ? null : valeurNumerique;
+
+    if (
+      !absent &&
+      (valeurBrute === "" ||
+        Number.isNaN(valeurNumerique) ||
+        valeurNumerique < 0 ||
+        valeurNumerique > Number(evaluation.bareme))
+    ) {
+      continue;
+    }
+
+    donneesNotes.push({
+      inscriptionId,
+      valeur,
+      absent,
+      appreciation:
+        texte(formData.get(`appreciation_${inscriptionId}`)) || null,
+    });
+  }
+
+  if (donneesNotes.length === 0) {
+    redirect(
+      `/dashboard/centre-academique/notes?evaluationId=${evaluationId}&erreur=notes`,
+    );
+  }
+
+  const inscriptions = await prisma.inscription.findMany({
+    where: {
+      id: { in: donneesNotes.map((item) => item.inscriptionId) },
+      classeId: evaluation.classeId,
+      anneeScolaireId: evaluation.anneeScolaireId,
+      eleve: { ecoleId: ecole.id },
+    },
+    select: {
+      id: true,
+      eleveId: true,
+    },
+  });
+
+  const eleveParInscription = new Map(
+    inscriptions.map((inscription) => [inscription.id, inscription.eleveId]),
+  );
+
+  const operations = donneesNotes.flatMap((item) => {
+    const eleveId = eleveParInscription.get(item.inscriptionId);
+
+    if (!eleveId) {
+      return [];
+    }
+
+    return [
+      prisma.noteEvaluation.upsert({
+        where: {
+          evaluationId_eleveId: {
+            evaluationId,
+            eleveId,
+          },
+        },
+        create: {
+          evaluationId,
+          eleveId,
+          valeur: item.valeur,
+          absent: item.absent,
+          appreciation: item.appreciation,
+        },
+        update: {
+          valeur: item.valeur,
+          absent: item.absent,
+          appreciation: item.appreciation,
+        },
+      }),
+    ];
+  });
+
+  if (operations.length > 0) {
+    await prisma.$transaction(operations);
+  }
+
+  await prisma.evaluation.update({
+    where: { id: evaluationId },
+    data: {
+      statut: "PUBLIEE",
+      publiee: true,
+    },
+  });
+
+  revaliderCentreAcademique();
+  redirect(
+    `/dashboard/centre-academique/notes?evaluationId=${evaluationId}&succes=enregistrement`,
+  );
+}
+
+export async function enregistrerRegles(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_MODIFIER",
+    "app/dashboard/centre-academique/actions.ts::enregistrerRegles",
+  );
+
+  const ecole = await securiser();
+  const donnees = {
+    seuilReussite: nombre(formData.get("seuilReussite")) || 50,
+    mentionExcellent: nombre(formData.get("mentionExcellent")) || 80,
+    mentionTresBien: nombre(formData.get("mentionTresBien")) || 70,
+    mentionBien: nombre(formData.get("mentionBien")) || 60,
+    mentionAssezBien: nombre(formData.get("mentionAssezBien")) || 50,
+    arrondiDecimales: nombre(formData.get("arrondiDecimales")) || 2,
+  };
+
+  await prisma.regleEvaluation.upsert({
+    where: { ecoleId: ecole.id },
+    create: {
+      ecoleId: ecole.id,
+      ...donnees,
+    },
+    update: donnees,
+  });
+
+  revaliderCentreAcademique();
+  redirect("/dashboard/centre-academique/regles?succes=enregistrement");
+}
+
+export async function creerModeleBulletin(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_AJOUTER",
+    "app/dashboard/centre-academique/actions.ts::creerModeleBulletin",
+  );
+
+  const ecole = await securiser();
+  const nom = texte(formData.get("nom"));
+  const code = texte(formData.get("code"))
+    .toUpperCase()
+    .replace(/[^A-Z0-9_-]/g, "_");
+
+  if (!nom || !code) {
+    redirect(
+      "/dashboard/centre-academique/modeles-bulletins/nouveau?erreur=champs",
+    );
+  }
+
+  const parDefaut = estCoche(formData, "parDefaut");
+  const configuration = {
+    colonnes: [
+      "matiere",
+      "note",
+      "coefficient",
+      "moyenne",
+      "appreciation",
+    ],
+  };
+
+  try {
+    await prisma.$transaction(async (transaction) => {
+      if (parDefaut) {
+        await transaction.modeleBulletin.updateMany({
+          where: { ecoleId: ecole.id },
+          data: { parDefaut: false },
+        });
+      }
+
+      const modele = await transaction.modeleBulletin.create({
+        data: {
+          ecoleId: ecole.id,
+          nom,
+          code,
+          niveau: texte(formData.get("niveau")) || null,
+          orientation: texte(formData.get("orientation")) || "PORTRAIT",
+          formatPapier: texte(formData.get("formatPapier")) || "A4",
+          couleurPrincipale:
+            texte(formData.get("couleurPrincipale")) || "#1761A8",
+          couleurSecondaire:
+            texte(formData.get("couleurSecondaire")) || "#F4B400",
+          titreDocument:
+            texte(formData.get("titreDocument")) || "BULLETIN SCOLAIRE",
+          afficherLogo: estCoche(formData, "afficherLogo"),
+          afficherPhoto: estCoche(formData, "afficherPhoto"),
+          afficherClassement: estCoche(formData, "afficherClassement"),
+          afficherAbsences: estCoche(formData, "afficherAbsences"),
+          afficherQrCode: estCoche(formData, "afficherQrCode"),
+          afficherCachet: estCoche(formData, "afficherCachet"),
+          signature1: texte(formData.get("signature1")) || null,
+          signature2: texte(formData.get("signature2")) || null,
+          signature3: texte(formData.get("signature3")) || null,
+          textePiedPage: texte(formData.get("textePiedPage")) || null,
+          fondDocument: texte(formData.get("fondDocument")) || null,
+          parDefaut,
+          configuration,
+        },
+      });
+
+      await transaction.versionModeleBulletin.create({
+        data: {
+          modeleBulletinId: modele.id,
+          numeroVersion: 1,
+          configuration,
+          commentaire: "Création du modèle",
+        },
+      });
+    });
+  } catch {
+    redirect(
+      "/dashboard/centre-academique/modeles-bulletins/nouveau?erreur=doublon",
+    );
+  }
+
+  revaliderCentreAcademique();
   redirect("/dashboard/centre-academique/modeles-bulletins?succes=creation");
 }
 
-export async function modifierModeleBulletin(fd: FormData) {
-  await exigerPermission("ACADEMIQUE_MODIFIER", "app/dashboard/centre-academique/actions.ts::modifierModeleBulletin");
-  const e = await securiser(); const id = n(fd.get("id"));
-  const modele = await prisma.modeleBulletin.findFirst({ where: { id, ecoleId: e.id } });
-  if (!modele) redirect("/dashboard/centre-academique/modeles-bulletins?erreur=introuvable");
-  const parDefaut = fd.get("parDefaut") === "on";
-  const colonnes = ["matiere","interrogation","devoir","examen","note","coefficient","moyenne","place","appreciation"].filter(c => fd.get(`colonne_${c}`) === "on");
-  await prisma.$transaction(async tx => {
-    if (parDefaut) await tx.modeleBulletin.updateMany({ where: { ecoleId: e.id, NOT: { id } }, data: { parDefaut: false } });
+export async function modifierModeleBulletin(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_MODIFIER",
+    "app/dashboard/centre-academique/actions.ts::modifierModeleBulletin",
+  );
+
+  const ecole = await securiser();
+  const id = nombre(formData.get("id"));
+
+  const modele = await prisma.modeleBulletin.findFirst({
+    where: { id, ecoleId: ecole.id },
+  });
+
+  if (!modele) {
+    redirect(
+      "/dashboard/centre-academique/modeles-bulletins?erreur=introuvable",
+    );
+  }
+
+  const parDefaut = estCoche(formData, "parDefaut");
+  const colonnes = [
+    "matiere",
+    "interrogation",
+    "devoir",
+    "examen",
+    "note",
+    "coefficient",
+    "moyenne",
+    "place",
+    "appreciation",
+  ].filter((colonne) => estCoche(formData, `colonne_${colonne}`));
+
+  await prisma.$transaction(async (transaction) => {
+    if (parDefaut) {
+      await transaction.modeleBulletin.updateMany({
+        where: {
+          ecoleId: ecole.id,
+          NOT: { id },
+        },
+        data: { parDefaut: false },
+      });
+    }
+
     const version = modele.version + 1;
     const configuration = { colonnes };
-    await tx.modeleBulletin.update({ where: { id }, data: {
-      nom: s(fd.get("nom")), niveau: s(fd.get("niveau")) || null,
-      orientation: s(fd.get("orientation")) || "PORTRAIT", formatPapier: s(fd.get("formatPapier")) || "A4",
-      couleurPrincipale: s(fd.get("couleurPrincipale")) || "#1761A8", couleurSecondaire: s(fd.get("couleurSecondaire")) || "#F4B400",
-      titreDocument: s(fd.get("titreDocument")) || "BULLETIN SCOLAIRE",
-      afficherLogo: fd.get("afficherLogo") === "on", afficherPhoto: fd.get("afficherPhoto") === "on",
-      afficherClassement: fd.get("afficherClassement") === "on", afficherAbsences: fd.get("afficherAbsences") === "on",
-      afficherQrCode: fd.get("afficherQrCode") === "on", afficherCachet: fd.get("afficherCachet") === "on",
-      signature1: s(fd.get("signature1")) || null, signature2: s(fd.get("signature2")) || null,
-      signature3: s(fd.get("signature3")) || null, textePiedPage: s(fd.get("textePiedPage")) || null,
-      fondDocument: s(fd.get("fondDocument")) || null, actif: fd.get("actif") === "on", parDefaut, version, configuration
-    }});
-    await tx.versionModeleBulletin.create({ data: { modeleBulletinId: id, numeroVersion: version, configuration, commentaire: "Mise à jour du modèle" } });
+
+    await transaction.modeleBulletin.update({
+      where: { id },
+      data: {
+        nom: texte(formData.get("nom")),
+        niveau: texte(formData.get("niveau")) || null,
+        orientation: texte(formData.get("orientation")) || "PORTRAIT",
+        formatPapier: texte(formData.get("formatPapier")) || "A4",
+        couleurPrincipale:
+          texte(formData.get("couleurPrincipale")) || "#1761A8",
+        couleurSecondaire:
+          texte(formData.get("couleurSecondaire")) || "#F4B400",
+        titreDocument:
+          texte(formData.get("titreDocument")) || "BULLETIN SCOLAIRE",
+        afficherLogo: estCoche(formData, "afficherLogo"),
+        afficherPhoto: estCoche(formData, "afficherPhoto"),
+        afficherClassement: estCoche(formData, "afficherClassement"),
+        afficherAbsences: estCoche(formData, "afficherAbsences"),
+        afficherQrCode: estCoche(formData, "afficherQrCode"),
+        afficherCachet: estCoche(formData, "afficherCachet"),
+        signature1: texte(formData.get("signature1")) || null,
+        signature2: texte(formData.get("signature2")) || null,
+        signature3: texte(formData.get("signature3")) || null,
+        textePiedPage: texte(formData.get("textePiedPage")) || null,
+        fondDocument: texte(formData.get("fondDocument")) || null,
+        actif: estCoche(formData, "actif"),
+        parDefaut,
+        version,
+        configuration,
+      },
+    });
+
+    await transaction.versionModeleBulletin.create({
+      data: {
+        modeleBulletinId: id,
+        numeroVersion: version,
+        configuration,
+        commentaire: "Mise à jour du modèle",
+      },
+    });
   });
+
   revalidatePath(`/dashboard/centre-academique/modeles-bulletins/${id}`);
-  revalidatePath("/dashboard/centre-academique/modeles-bulletins");
-  redirect(`/dashboard/centre-academique/modeles-bulletins/${id}?succes=enregistrement`);
+  revaliderCentreAcademique();
+  redirect(
+    `/dashboard/centre-academique/modeles-bulletins/${id}?succes=enregistrement`,
+  );
 }
 
-export async function dupliquerModeleBulletin(fd: FormData) {
-  await exigerPermission("ACADEMIQUE_MODIFIER", "app/dashboard/centre-academique/actions.ts::dupliquerModeleBulletin");
-  const e = await securiser(); const id=n(fd.get("id"));
-  const source=await prisma.modeleBulletin.findFirst({where:{id,ecoleId:e.id}});
-  if(!source) return;
-  let code=`${source.code}_COPIE`; let i=2;
-  while(await prisma.modeleBulletin.findFirst({where:{ecoleId:e.id,code}})){code=`${source.code}_COPIE_${i++}`}
-  const {id:_,createdAt,updatedAt,versions,...data}=source as any;
-  await prisma.modeleBulletin.create({data:{...data,code,nom:`${source.nom} (copie)`,parDefaut:false,version:1}});
-  revalidatePath("/dashboard/centre-academique/modeles-bulletins");
+export async function dupliquerModeleBulletin(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_MODIFIER",
+    "app/dashboard/centre-academique/actions.ts::dupliquerModeleBulletin",
+  );
+
+  const ecole = await securiser();
+  const id = nombre(formData.get("id"));
+
+  const source = await prisma.modeleBulletin.findFirst({
+    where: { id, ecoleId: ecole.id },
+  });
+
+  if (!source) {
+    return;
+  }
+
+  let code = `${source.code}_COPIE`;
+  let compteur = 2;
+
+  while (
+    await prisma.modeleBulletin.findFirst({
+      where: { ecoleId: ecole.id, code },
+      select: { id: true },
+    })
+  ) {
+    code = `${source.code}_COPIE_${compteur++}`;
+  }
+
+  const nouveauModele = await prisma.modeleBulletin.create({
+    data: {
+      ecoleId: source.ecoleId,
+      nom: `${source.nom} (copie)`,
+      code,
+      niveau: source.niveau,
+      orientation: source.orientation,
+      formatPapier: source.formatPapier,
+      couleurPrincipale: source.couleurPrincipale,
+      couleurSecondaire: source.couleurSecondaire,
+      titreDocument: source.titreDocument,
+      afficherLogo: source.afficherLogo,
+      afficherPhoto: source.afficherPhoto,
+      afficherClassement: source.afficherClassement,
+      afficherAbsences: source.afficherAbsences,
+      afficherQrCode: source.afficherQrCode,
+      afficherCachet: source.afficherCachet,
+      signature1: source.signature1,
+      signature2: source.signature2,
+      signature3: source.signature3,
+      textePiedPage: source.textePiedPage,
+      fondDocument: source.fondDocument,
+      configuration: source.configuration ?? undefined,
+      actif: source.actif,
+      parDefaut: false,
+      version: 1,
+    },
+  });
+
+  await prisma.versionModeleBulletin.create({
+    data: {
+      modeleBulletinId: nouveauModele.id,
+      numeroVersion: 1,
+      configuration: source.configuration ?? undefined,
+      commentaire: `Copie du modèle ${source.nom}`,
+    },
+  });
+
+  revaliderCentreAcademique();
 }
 
-export async function supprimerModeleBulletin(fd: FormData) {
-  await exigerPermission("ACADEMIQUE_SUPPRIMER", "app/dashboard/centre-academique/actions.ts::supprimerModeleBulletin");
-  const e=await securiser(); const id=n(fd.get("id"));
-  await prisma.modeleBulletin.deleteMany({where:{id,ecoleId:e.id,parDefaut:false}});
-  revalidatePath("/dashboard/centre-academique/modeles-bulletins");
+export async function supprimerModeleBulletin(formData: FormData) {
+  await exigerPermission(
+    "ACADEMIQUE_SUPPRIMER",
+    "app/dashboard/centre-academique/actions.ts::supprimerModeleBulletin",
+  );
+
+  const ecole = await securiser();
+  const id = nombre(formData.get("id"));
+
+  await prisma.modeleBulletin.deleteMany({
+    where: {
+      id,
+      ecoleId: ecole.id,
+      parDefaut: false,
+    },
+  });
+
+  revaliderCentreAcademique();
 }
