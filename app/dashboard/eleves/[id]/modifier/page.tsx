@@ -34,6 +34,6 @@ export default async function ModifierEleve({params,searchParams}:Props){
  <div className={styles.champ}><label>Groupe sanguin</label><select name="groupeSanguin" defaultValue={eleve.groupeSanguin||""}><option value="">Non renseigné</option>{["A+","A-","B+","B-","AB+","AB-","O+","O-"].map(g=><option key={g}>{g}</option>)}</select></div>
  <div className={styles.champ}><label>Contact d’urgence</label><input name="contactUrgence" defaultValue={eleve.contactUrgence||""}/></div><div className={styles.champ}><label>Téléphone d’urgence</label><input name="telephoneUrgence" defaultValue={eleve.telephoneUrgence||""}/></div>
  <div className={styles.champ}><label>Allergies</label><textarea name="allergies" defaultValue={eleve.allergies||""}/></div><div className={`${styles.champ} ${styles.champLarge}`}><label>Handicap ou besoin particulier</label><textarea name="handicap" defaultValue={eleve.handicap||""}/></div>
- </div></div></section><div className={elevesStyles.barreValidation}><span>Chaque modification est enregistrée dans l’historique.</span><BoutonSoumission texte="Enregistrer les modifications" icone={<Save size={18}/>}/></div></form>
+ </div></div></section><div className={elevesStyles.barreValidation}><span>Chaque modification est enregistrée dans l’historique.</span><BoutonSoumission texte="Enregistrer les modifications" /></div></form>
  </AdminShell>;
 }

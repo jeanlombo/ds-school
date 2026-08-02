@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { aPermission, PerimetrePermission } from "@/lib/securite/rbac";
+import type { ReactNode } from "react";
+import { aPermission, type PerimetrePermission } from "@/lib/securite/rbac";
 
 type Props = {
   permission: string;

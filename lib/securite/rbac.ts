@@ -11,6 +11,16 @@ export type ElementMenuProtege<T = unknown> = T & {
   permission: string;
 };
 
+export type PerimetrePermission = Readonly<{
+  ecoleId?: number;
+  classeId?: number;
+  anneeScolaireId?: number;
+  utilisateurId?: number;
+  module?: string;
+  ressource?: string;
+  action?: string;
+}>;
+
 const DESTINATIONS_AUTORISEES: DestinationAutorisee[] = [
   {
     permission: "DASHBOARD_VOIR",
@@ -170,7 +180,8 @@ async function journaliserAccesRefuse(
  * Vérifie si l’utilisateur connecté possède une permission.
  */
 export async function aPermission(
-  code: string
+  code: string,
+  _perimetre?: PerimetrePermission
 ): Promise<boolean> {
   const utilisateur = await obtenirUtilisateurConnecte();
 
