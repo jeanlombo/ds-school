@@ -1,0 +1,477 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 35px;
+}
+
+.hero {
+  display: flex;
+  min-height: 205px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 34px 38px;
+  border-radius: 27px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(255, 255, 255, 0.22), transparent 28%),
+    linear-gradient(135deg, #34236e, #6036a7 55%, #8b5bd4);
+  box-shadow: 0 22px 48px rgba(75, 45, 130, 0.25);
+}
+
+.hero > div {
+  max-width: 760px;
+}
+
+.hero span {
+  color: #e8dcff;
+  font-size: 0.73rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.hero h2 {
+  margin: 7px 0 11px;
+  font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+  line-height: 1.1;
+}
+
+.hero p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.65;
+}
+
+.filtres,
+.outils,
+.procesVerbal {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 21px;
+  background: #fff;
+  box-shadow: 0 11px 32px rgba(15, 23, 42, 0.065);
+}
+
+.filtres {
+  padding: 20px;
+}
+
+.filtres form {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(240px, 1fr) auto;
+  align-items: end;
+  gap: 14px;
+}
+
+.filtres label,
+.outils label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.filtres label span,
+.outils label span {
+  color: #526175;
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.filtres select,
+.outils input,
+.procesVerbal select,
+.procesVerbal input {
+  min-height: 43px;
+  padding: 0 11px;
+  border: 1px solid #d8e1eb;
+  border-radius: 10px;
+  color: #1e293b;
+  background: #f8fafc;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.filtres button,
+.actions button,
+.reinitialiser {
+  display: inline-flex;
+  min-height: 43px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, #5b31a1, #7e4ac5);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kpis article {
+  display: flex;
+  min-height: 106px;
+  align-items: center;
+  gap: 13px;
+  padding: 19px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 17px;
+  background: linear-gradient(145deg, #fff, #faf9ff);
+  box-shadow: 0 10px 27px rgba(15, 23, 42, 0.055);
+}
+
+.kpis article > svg {
+  width: 45px;
+  height: 45px;
+  padding: 11px;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(135deg, #6d3eb2, #9465d4);
+}
+
+.kpis div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.kpis small {
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.kpis strong {
+  color: #251c3f;
+  font-size: 1.55rem;
+}
+
+.message {
+  position: sticky;
+  z-index: 10;
+  top: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: #065f46;
+  background: #d1fae5;
+  box-shadow: 0 8px 24px rgba(6, 95, 70, 0.16);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.resume {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.resume article {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 15px;
+  border: 1px solid transparent;
+}
+
+.resume strong {
+  font-size: 1.5rem;
+}
+
+.resume span {
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.admis { color: #047857; background: #ecfdf5; border-color: #a7f3d0 !important; }
+.rattrapage { color: #b45309; background: #fffbeb; border-color: #fde68a !important; }
+.redouble { color: #b91c1c; background: #fef2f2; border-color: #fecaca !important; }
+.exclus { color: #7f1d1d; background: #fff1f2; border-color: #fecdd3 !important; }
+.taux { color: #5b21b6; background: #f5f3ff; border-color: #ddd6fe !important; }
+
+.outils {
+  padding: 20px;
+}
+
+.outils > div:first-child {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 17px;
+}
+
+.actions button {
+  color: #334155;
+  border: 1px solid #d8e1eb;
+  background: #fff;
+}
+
+.actions .valider {
+  color: #fff;
+  border: 0;
+  background: linear-gradient(135deg, #047857, #059669);
+}
+
+.procesVerbal {
+  padding: 25px;
+}
+
+.entetePv {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid #e9e4f5;
+}
+
+.entetePv small {
+  color: #6d3eb2;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.entetePv h2 {
+  margin: 5px 0;
+  color: #221a37;
+  font-size: 1.35rem;
+}
+
+.entetePv p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.statutValide,
+.statutBrouillon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.statutValide {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.statutBrouillon {
+  color: #9a6700;
+  background: #fef3c7;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid #e3e8ef;
+  border-radius: 14px;
+}
+
+.procesVerbal table {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+}
+
+.procesVerbal th,
+.procesVerbal td {
+  padding: 12px 11px;
+  border-bottom: 1px solid #edf1f5;
+  text-align: left;
+}
+
+.procesVerbal th {
+  color: #64748b;
+  background: #f8fafc;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.procesVerbal td {
+  color: #334155;
+  font-size: 0.79rem;
+}
+
+.procesVerbal select {
+  min-width: 125px;
+}
+
+.procesVerbal input {
+  width: 100%;
+  min-width: 190px;
+}
+
+.procesVerbal input:disabled,
+.procesVerbal select:disabled,
+.outils input:disabled {
+  opacity: 1;
+  color: #334155;
+  background: #f1f5f9;
+}
+
+.ok {
+  color: #047857;
+}
+
+.ko {
+  color: #b91c1c;
+}
+
+.signatures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 38px;
+}
+
+.signatures > div {
+  display: flex;
+  min-height: 115px;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 14px;
+  border-top: 1px solid #cbd5e1;
+  text-align: center;
+}
+
+.signatures span,
+.signatures small {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+
+.signatures strong {
+  margin: 5px 0 17px;
+  color: #1e293b;
+  font-size: 0.83rem;
+}
+
+.notePv {
+  margin-top: 24px;
+  padding: 12px;
+  border-radius: 10px;
+  color: #695780;
+  background: #f8f5fc;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.reinitialiser {
+  align-self: flex-start;
+  color: #7f1d1d;
+  border: 1px solid #fecaca;
+  background: #fff;
+}
+
+.vide {
+  padding: 32px 16px;
+  color: #8291a3;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1050px) {
+  .kpis,
+  .resume {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filtres form,
+  .outils > div:first-child {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .hero {
+    min-height: auto;
+    padding: 27px 23px;
+  }
+
+  .hero > svg {
+    display: none;
+  }
+
+  .kpis,
+  .resume,
+  .signatures {
+    grid-template-columns: 1fr;
+  }
+
+  .procesVerbal {
+    padding: 18px;
+  }
+}
+
+@media print {
+  .hero,
+  .filtres,
+  .kpis,
+  .resume,
+  .outils,
+  .reinitialiser,
+  .message {
+    display: none !important;
+  }
+
+  .page {
+    display: block;
+  }
+
+  .procesVerbal {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .procesVerbal table {
+    min-width: 0;
+    font-size: 8pt;
+  }
+
+  .procesVerbal th,
+  .procesVerbal td {
+    padding: 6px 5px;
+  }
+
+  .procesVerbal input,
+  .procesVerbal select {
+    min-width: 0;
+    width: auto;
+    min-height: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    appearance: none;
+  }
+
+  .tableWrap {
+    overflow: visible;
+    border: 0;
+  }
+}

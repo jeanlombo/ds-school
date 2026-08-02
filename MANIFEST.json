@@ -1,0 +1,14 @@
+{
+  "name": "DS SCHOOL SAFE CAMPUS CORE V1",
+  "version": "1.0.0",
+  "framework": "Next.js 15 + TypeScript + Prisma + MySQL",
+  "features": [
+    "Dashboard Safe Campus",
+    "Gestion cartes RFID/NFC",
+    "Gestion lecteurs RFID",
+    "Contrôle d'accès USB HID",
+    "Entrée/sortie automatique",
+    "Journal des passages",
+    "API REST de scan"
+  ]
+}

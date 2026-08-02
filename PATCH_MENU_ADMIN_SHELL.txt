@@ -1,0 +1,17 @@
+Dans votre composant de navigation AdminShell, ajoutez ce lien dans le tableau des menus :
+
+{
+  href: "/dashboard/safe-campus",
+  label: "Safe Campus",
+  icon: "🛡️"
+}
+
+Exemple visuel attendu :
+🛡️ Safe Campus
+
+Sous-menus disponibles :
+- /dashboard/safe-campus
+- /dashboard/safe-campus/cartes
+- /dashboard/safe-campus/lecteurs
+- /dashboard/safe-campus/controle
+- /dashboard/safe-campus/passages

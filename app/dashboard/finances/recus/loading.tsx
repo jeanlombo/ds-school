@@ -1,0 +1,1 @@
+export default function Loading(){return <div style={{minHeight:360,display:"grid",placeItems:"center",color:"#64748b",fontWeight:800}}>Chargement du module recus...</div>}

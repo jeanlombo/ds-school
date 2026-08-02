@@ -1,0 +1,28 @@
+// ============================================================
+// DS SCHOOL — MODULE MATIÈRES PREMIUM V1
+// Copier ce bloc à la fin de prisma/schema.prisma
+// ============================================================
+
+enum StatutMatiere {
+  ACTIF
+  INACTIF
+}
+
+model Matiere {
+  id                       Int            @id @default(autoincrement())
+  code                     String         @unique @db.VarChar(30)
+  nom                      String         @db.VarChar(150)
+  description              String?        @db.Text
+  departement              String?        @db.VarChar(100)
+  coefficient              Decimal        @default(1.00) @db.Decimal(6, 2)
+  volumeHoraireHebdomadaire Int           @default(1)
+  couleur                  String         @default("#2563EB") @db.VarChar(20)
+  statut                   StatutMatiere  @default(ACTIF)
+  creeLe                   DateTime       @default(now())
+  modifieLe                DateTime       @updatedAt
+
+  @@index([nom])
+  @@index([departement])
+  @@index([statut])
+  @@map("matieres")
+}

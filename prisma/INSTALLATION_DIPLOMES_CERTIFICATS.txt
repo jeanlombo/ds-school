@@ -1,0 +1,67 @@
+DS SCHOOL ENTERPRISE — DIPLÔMES & CERTIFICATS SÉCURISÉS V1
+
+CONTENU DU ZIP
+1. centre-academique\
+   Remplace entièrement :
+   app\dashboard\centre-academique\
+
+2. verifier-document\
+   Copier dans :
+   app\verifier-document\
+
+3. schema.prisma
+   Remplace :
+   prisma\schema.prisma
+
+4. migration_documents_academiques.sql
+   Solution manuelle si vous ne souhaitez pas utiliser Prisma db push.
+
+INSTALLATION RECOMMANDÉE
+
+cd /d C:\xampp\htdocs\ds-school
+
+1) Sauvegarder la base MySQL.
+2) Remplacer prisma\schema.prisma par le schema.prisma fourni.
+3) Remplacer app\dashboard\centre-academique\ par centre-academique\.
+4) Copier verifier-document\ dans app\verifier-document\.
+5) Exécuter :
+
+npx prisma format
+npx prisma db push
+npx prisma generate
+rmdir /s /q .next
+npm run dev
+
+ACCÈS ADMIN
+http://localhost:3000/dashboard/centre-academique/diplomes-certificats
+
+VÉRIFICATION PUBLIQUE
+http://localhost:3000/verifier-document
+
+VARIABLE CONSEILLÉE DANS .env
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+EN PRODUCTION
+Remplacer cette valeur par l’adresse réelle du site, par exemple :
+NEXT_PUBLIC_APP_URL="https://ecole.exemple.com"
+
+FONCTIONNALITÉS
+- Diplôme de fin d’études
+- Certificat de réussite
+- Attestation de scolarité
+- Attestation de fréquentation
+- Attestation de bonne conduite
+- Attestation de transfert
+- Numéro unique
+- Code public unique
+- QR Code
+- Impression / PDF
+- Registre officiel
+- Recherche et filtres
+- Annulation
+- Historique de l’élève
+- Vérification publique du statut
+
+IMPORTANT
+Le QR Code utilise quickchart.io pour produire l’image.
+Le code de vérification reste affiché et utilisable même si le QR ne se charge pas.

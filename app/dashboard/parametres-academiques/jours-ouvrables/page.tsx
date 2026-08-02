@@ -1,0 +1,8 @@
+import Link from "next/link";
+import prisma from "@/lib/prisma";
+import RetourDashboard from "../RetourDashboard";
+import styles from "../parametres-academiques.module.css";
+import { enregistrerJours } from "../actions";
+export const dynamic="force-dynamic";
+const libelles={LUNDI:"Lundi",MARDI:"Mardi",MERCREDI:"Mercredi",JEUDI:"Jeudi",VENDREDI:"Vendredi",SAMEDI:"Samedi",DIMANCHE:"Dimanche"} as const;
+export default async function Page(){const ecole=await prisma.ecole.findFirst({select:{id:true}});if(!ecole)return <div className={styles.empty}>Créez d'abord une école.</div>;const existants=await prisma.jourOuvrable.findMany({where:{ecoleId:ecole.id}});const actifs=new Map(existants.map(j=>[j.jour,j.actif]));return <div className={styles.page}><RetourDashboard/><section className={styles.section}><div className={styles.sectionHead}><div><h2>Jours ouvrables</h2><p>Ces jours seront utilisés par l'emploi du temps.</p></div></div><form action={enregistrerJours}><input type="hidden" name="ecoleId" value={ecole.id}/><div className={styles.switchGrid}>{Object.entries(libelles).map(([jour,label])=><label className={styles.switchCard} key={jour}><strong>{label}</strong><input type="checkbox" name={jour} defaultChecked={actifs.has(jour)?actifs.get(jour):!["SAMEDI","DIMANCHE"].includes(jour)}/></label>)}</div><div className={styles.actions} style={{marginTop:18}}><button className={styles.primary}>Enregistrer les jours</button></div></form></section></div>}

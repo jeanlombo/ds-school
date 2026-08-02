@@ -1,0 +1,22 @@
+DS SCHOOL ENTERPRISE — RELEVÉS DE NOTES OFFICIELS ENTERPRISE V1
+
+REMPLACER ENTIÈREMENT :
+app\dashboard\centre-academique\
+
+NOUVEAU DOSSIER :
+app\dashboard\centre-academique\releves-notes\
+
+AUCUNE MIGRATION PRISMA NÉCESSAIRE.
+Le module lit les modèles existants : Ecole, Eleve, Inscription, Classe, Section, AnneeScolaire, PeriodeAcademique, Evaluation et NoteEvaluation.
+
+COMMANDES :
+cd /d C:\xampp\htdocs\ds-school
+rmdir /s /q .next
+npx prisma generate
+npm run dev
+
+ACCÈS :
+http://localhost:3000/dashboard/centre-academique/releves-notes
+
+NOTE QR :
+Le QR est généré par quickchart.io. Le numéro officiel reste affiché sur le document en cas d'absence de connexion Internet.

@@ -1,0 +1,19 @@
+CORRECTION BUILD NEXT.JS 15
+
+Erreur corrigée :
+Selector "table" is not pure.
+
+Cause :
+Dans un fichier CSS Module, le sélecteur global `table` n'est pas accepté.
+
+Correction :
+`table{...}` a été remplacé par `.tableWrap table{...}`.
+
+REMPLACEMENT :
+Remplacez entièrement :
+app\dashboard\centre-academique\
+
+COMMANDES :
+cd /d C:\xampp\htdocs\ds-school
+rmdir /s /q .next
+npm run dev

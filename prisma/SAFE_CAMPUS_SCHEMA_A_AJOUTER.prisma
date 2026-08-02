@@ -1,0 +1,116 @@
+// =========================================================
+// DS SCHOOL ENTERPRISE — SAFE CAMPUS CORE V1
+// À AJOUTER À LA FIN DE prisma/schema.prisma
+// =========================================================
+
+enum TypeProprietaireRfid {
+  ELEVE
+  ENSEIGNANT
+  PERSONNEL
+  VISITEUR
+}
+
+enum StatutCarteRfid {
+  ACTIVE
+  SUSPENDUE
+  PERDUE
+  EXPIREE
+  ARCHIVEE
+}
+
+enum TypeLecteurRfid {
+  USB_HID
+  NFC
+  RESEAU
+  ZKTECO
+  HID
+  ACS
+  AUTRE
+}
+
+enum StatutLecteurRfid {
+  ACTIF
+  INACTIF
+  MAINTENANCE
+}
+
+enum DirectionPassage {
+  ENTREE
+  SORTIE
+}
+
+enum ResultatPassage {
+  AUTORISE
+  REFUSE
+  CARTE_INCONNUE
+  CARTE_INACTIVE
+}
+
+model CarteRfid {
+  id                  Int                  @id @default(autoincrement())
+  uid                 String               @unique @db.VarChar(191)
+  numeroInterne       String?              @unique @db.VarChar(100)
+  typeProprietaire    TypeProprietaireRfid
+  proprietaireId      Int
+  nomProprietaire     String               @db.VarChar(191)
+  photoProprietaire   String?              @db.VarChar(500)
+  classeOuFonction    String?              @db.VarChar(191)
+  statut              StatutCarteRfid      @default(ACTIVE)
+  dateActivation      DateTime             @default(now())
+  dateExpiration      DateTime?
+  motifDesactivation String?              @db.Text
+  creeLe              DateTime             @default(now())
+  modifieLe           DateTime             @updatedAt
+
+  passages            PassageRfid[]
+
+  @@index([typeProprietaire, proprietaireId])
+  @@index([statut])
+  @@map("cartes_rfid")
+}
+
+model LecteurRfid {
+  id               Int                @id @default(autoincrement())
+  code             String             @unique @db.VarChar(80)
+  nom              String             @db.VarChar(191)
+  type             TypeLecteurRfid    @default(USB_HID)
+  emplacement      String             @db.VarChar(191)
+  adresseIp        String?            @db.VarChar(100)
+  port             Int?
+  cleApi           String?            @db.VarChar(191)
+  directionDefaut  DirectionPassage?
+  statut           StatutLecteurRfid  @default(ACTIF)
+  derniereActivite DateTime?
+  creeLe           DateTime           @default(now())
+  modifieLe        DateTime           @updatedAt
+
+  passages         PassageRfid[]
+
+  @@index([statut])
+  @@map("lecteurs_rfid")
+}
+
+model PassageRfid {
+  id                 Int               @id @default(autoincrement())
+  carteId            Int?
+  lecteurId          Int?
+  uidLu               String            @db.VarChar(191)
+  typeProprietaire   TypeProprietaireRfid?
+  proprietaireId     Int?
+  nomProprietaire    String?            @db.VarChar(191)
+  photoProprietaire  String?            @db.VarChar(500)
+  classeOuFonction   String?            @db.VarChar(191)
+  direction          DirectionPassage
+  resultat           ResultatPassage
+  message            String?            @db.VarChar(500)
+  dateHeure           DateTime           @default(now())
+  adresseIpSource    String?             @db.VarChar(100)
+
+  carte              CarteRfid?          @relation(fields: [carteId], references: [id], onDelete: SetNull)
+  lecteur            LecteurRfid?        @relation(fields: [lecteurId], references: [id], onDelete: SetNull)
+
+  @@index([dateHeure])
+  @@index([proprietaireId, typeProprietaire])
+  @@index([resultat])
+  @@map("passages_rfid")
+}

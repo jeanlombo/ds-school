@@ -1,0 +1,89 @@
+DS SCHOOL ENTERPRISE — SAFE CAMPUS CORE V1
+==========================================
+
+OBJECTIF
+--------
+Ce ZIP ajoute le noyau SAFE CAMPUS :
+- cartes RFID/NFC ;
+- lecteurs et points de contrôle ;
+- écran de scan ;
+- entrées/sorties automatiques ;
+- journal des passages ;
+- tableau de bord sécurité ;
+- architecture prête pour élèves et enseignants.
+
+IMPORTANT — REMPLACEMENT
+------------------------
+NE REMPLACEZ PAS TOUT LE PROJET.
+
+1. Copiez entièrement le dossier :
+   app/dashboard/safe-campus/
+   vers :
+   C:\xampp\htdocs\ds-school\app\dashboard\safe-campus\
+
+2. Copiez entièrement le dossier :
+   app/api/safe-campus/
+   vers :
+   C:\xampp\htdocs\ds-school\app\api\safe-campus\
+
+3. Copiez :
+   components/safe-campus/
+   vers :
+   C:\xampp\htdocs\ds-school\components\safe-campus\
+
+4. Prisma :
+   NE REMPLACEZ PAS votre fichier prisma/schema.prisma.
+   Ouvrez :
+   prisma/SAFE_CAMPUS_SCHEMA_A_AJOUTER.prisma
+   et copiez uniquement les enums et modèles à la fin de votre schema.prisma.
+
+5. Menu :
+   Consultez :
+   PATCH_MENU_ADMIN_SHELL.txt
+   puis ajoutez le lien SAFE CAMPUS dans votre navigation existante.
+
+COMMANDES APRÈS COPIE
+---------------------
+Dans CMD :
+
+cd C:\xampp\htdocs\ds-school
+npx prisma format
+npx prisma migrate dev --name safe_campus_core_v1
+npx prisma generate
+rmdir /S /Q .next
+npm run dev
+
+URLS
+----
+Tableau de bord :
+http://localhost:3000/dashboard/safe-campus
+
+Cartes RFID :
+http://localhost:3000/dashboard/safe-campus/cartes
+
+Lecteurs :
+http://localhost:3000/dashboard/safe-campus/lecteurs
+
+Contrôle d'accès :
+http://localhost:3000/dashboard/safe-campus/controle
+
+Journal :
+http://localhost:3000/dashboard/safe-campus/passages
+
+TEST SANS LECTEUR PHYSIQUE
+--------------------------
+Le champ de contrôle accepte la saisie manuelle.
+Vous pouvez saisir le UID d'une carte puis appuyer sur Entrée.
+
+LECTEUR USB HID
+---------------
+Un lecteur RFID USB configuré comme clavier fonctionne directement :
+- cliquez dans le champ de scan ;
+- approchez le badge ;
+- le lecteur saisit le UID ;
+- la touche Entrée déclenche automatiquement le contrôle.
+
+NOTE
+----
+Cette V1 ne contient pas encore le pilote réseau propriétaire ZKTeco/HID.
+Elle fournit le noyau universel USB HID et l'API REST prête pour les lecteurs réseau.

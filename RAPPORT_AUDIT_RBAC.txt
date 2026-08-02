@@ -1,0 +1,49 @@
+RBAC GLOBAL V3 — RAPPORT
+========================
+
+Actions serveur modifiées : 42
+Fichiers API sécurisés : exports + scan Safe Campus par clé API.
+Routes principales protégées par layout.tsx.
+
+PAGES AVEC BOUTONS SENSIBLES À CONTRÔLER VISUELLEMENT
+------------------------------------------------------
+- app/dashboard/sections/page.tsx
+- app/dashboard/matieres/page.tsx
+- app/dashboard/emploi-du-temps/page.tsx
+- app/dashboard/classes/page.tsx
+- app/dashboard/annees-scolaires/page.tsx
+- app/dashboard/parents/page.tsx
+- app/dashboard/enseignants/page.tsx
+- app/dashboard/centre-academique/page.tsx
+- app/dashboard/centre-academique/types-evaluations/page.tsx
+- app/dashboard/centre-academique/diplomes-certificats/page.tsx
+- app/dashboard/centre-academique/modeles-bulletins/page.tsx
+- app/dashboard/centre-academique/evaluations/page.tsx
+- app/dashboard/centre-academique/document-designer/page.tsx
+- app/dashboard/centre-academique/evaluations/nouvelle/page.tsx
+- app/dashboard/centre-academique/modeles-bulletins/[id]/page.tsx
+- app/dashboard/eleves/[id]/page.tsx
+- app/dashboard/eleves/[id]/modifier/page.tsx
+- app/dashboard/enseignants/nouveau/page.tsx
+- app/dashboard/enseignants/[id]/page.tsx
+- app/dashboard/enseignants/[id]/modifier/page.tsx
+- app/dashboard/parents/nouveau/page.tsx
+- app/dashboard/parents/[id]/page.tsx
+- app/dashboard/parametres-academiques/periodes/page.tsx
+- app/dashboard/parametres-academiques/calendrier/page.tsx
+- app/dashboard/parametres-academiques/pauses/page.tsx
+- app/dashboard/parametres-academiques/salles/page.tsx
+- app/dashboard/parametres-academiques/creneaux/page.tsx
+- app/dashboard/parametres-academiques/types-cours/page.tsx
+- app/dashboard/emploi-du-temps/nouveau/page.tsx
+- app/dashboard/crm/prospects/[id]/page.tsx
+- app/dashboard/safe-campus/lecteurs/page.tsx
+- app/dashboard/finances/frais-scolaires/page.tsx
+- app/dashboard/finances/paiements/[id]/page.tsx
+- app/dashboard/finances/frais-scolaires/[id]/page.tsx
+- app/dashboard/matieres/[id]/modifier/page.tsx
+
+IMPORTANT
+---------
+La sécurité serveur est appliquée automatiquement aux mutations détectées.
+Les pages listées ci-dessus peuvent encore afficher un bouton avant que l’action soit refusée côté serveur. Elles doivent progressivement utiliser components/securite/Permission.tsx pour une disparition visuelle parfaite.

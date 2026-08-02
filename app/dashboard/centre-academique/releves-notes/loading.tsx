@@ -1,0 +1,1 @@
+export default function Loading(){return <div style={{minHeight:420,display:"grid",placeItems:"center",fontWeight:800,color:"#64748b"}}>Chargement des relevés officiels…</div>}

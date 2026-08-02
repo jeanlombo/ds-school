@@ -1,0 +1,6 @@
+Dans app/globals.css, ajoutez exactement ces deux lignes AU TOUT DÉBUT du fichier :
+
+@import "./connexion/connexion.css";
+@import "./dashboard/dashboard.css";
+
+Ne supprimez pas le CSS de la vitrine V3.
