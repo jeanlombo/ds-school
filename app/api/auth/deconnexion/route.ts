@@ -2,14 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { NOM_COOKIE_SESSION, supprimerSession } from "@/lib/session";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   const magasinCookies = await cookies();
   const jeton = magasinCookies.get(NOM_COOKIE_SESSION)?.value;
 
   await supprimerSession(jeton);
 
+  // Utilise toujours l'URL publique de l'application
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXTAUTH_URL ||
+    "http://localhost:3000";
+
   const reponse = NextResponse.redirect(
-    new URL("/connexion", request.url),
+    `${appUrl}/connexion`,
     { status: 303 }
   );
 
