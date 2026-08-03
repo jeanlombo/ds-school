@@ -20,7 +20,6 @@ import {
   LayoutDashboard,
   LibraryBig,
   ListTree,
-  LogOut,
   Menu,
   ReceiptText,
   ScanLine,
@@ -38,6 +37,7 @@ import {
   X,
 } from "lucide-react";
 import { ReactNode, useMemo, useState } from "react";
+import BoutonDeconnexion from "./BoutonDeconnexion";
 import styles from "./admin.module.css";
 
 type UtilisateurAdmin = {
@@ -369,16 +369,9 @@ export default function AdminShell({
           )}
         </nav>
 
-        <form
-          action="/api/auth/deconnexion"
-          method="post"
-          className={styles.deconnexion}
-        >
-          <button type="submit">
-            <LogOut size={18} />
-            Déconnexion
-          </button>
-        </form>
+        <div className={styles.deconnexion}>
+          <BoutonDeconnexion />
+        </div>
       </aside>
 
       <section className={styles.contenu}>
