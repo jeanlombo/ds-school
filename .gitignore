@@ -4,3 +4,46 @@ node_modules
 .env.local
 *.log
 .DS_Store
+
+# Dépendances
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Variables sensibles
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+
+# Journaux
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Prisma / sauvegardes locales
+prisma/*.db
+prisma/*.db-journal
+*.sql
+backups/
+sauvegardes/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Éditeurs
+.vscode/
+.idea/
+
+# Archives et fichiers temporaires
+*.zip
+*.rar
+*.7z
+*.tmp
+*.bak

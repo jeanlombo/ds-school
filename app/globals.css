@@ -36,3 +36,75 @@
 @media(max-width:800px){.ds-scan-demo{grid-template-columns:1fr;padding:22px}.ds-document-virtuel{transform:none}.ds-hero-grille{transform:none}.ds-tableau{transition:none}}
 @media(max-width:560px){.ds-scan-demo{padding:16px;border-radius:20px}.ds-document-virtuel{min-height:220px;padding:18px}.ds-document-corps-mini b{font-size:19px}.ds-faux-qr{width:72px;height:72px;right:16px;bottom:16px}.ds-resultat-scan{align-items:flex-start;padding:19px}.ds-resultat-scan strong{font-size:20px}.ds-coche-scan{width:50px;height:50px}}
 @media(prefers-reduced-motion:reduce){.ds-particules,.ds-ligne-scan{display:none}.ds-document-virtuel,.ds-coche-scan{animation:none}.ds-hero-grille,.ds-tableau,.ds-halo-dashboard{transform:none!important}}
+
+/* =========================================================
+   RELEASE CANDIDATE — HEADER VITRINE COMPACT ET RESPONSIVE
+   Correction ciblée : aucun changement des modules internes.
+========================================================= */
+@media (min-width: 801px) {
+  .ds-conteneur.ds-navigation {
+    width: min(1320px, calc(100% - 28px));
+  }
+
+  .ds-navigation {
+    gap: 12px;
+  }
+
+  .ds-logo {
+    gap: 8px;
+  }
+
+  .ds-logo-bouclier {
+    width: 42px;
+    height: 45px;
+  }
+
+  .ds-logo strong {
+    font-size: 18px;
+  }
+
+  .ds-logo small {
+    margin-top: 4px;
+    font-size: 7px;
+    letter-spacing: .24em;
+  }
+
+  .ds-menu {
+    min-width: 0;
+    flex: 1 1 auto;
+    justify-content: center;
+    gap: clamp(8px, .85vw, 15px);
+    font-size: clamp(10px, .76vw, 12px);
+  }
+
+  .ds-menu a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding-top: 29px;
+  }
+
+  .ds-actions-nav {
+    flex: 0 0 auto;
+    gap: 7px;
+  }
+
+  .ds-actions-nav .ds-btn {
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1320px) {
+  .ds-actions-nav .ds-btn-verification {
+    display: none;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1120px) {
+  .ds-actions-nav .ds-btn-jaune {
+    display: none;
+  }
+}

@@ -10,7 +10,8 @@ import {
 import { prisma } from "@/lib/prisma";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
-import BoutonImprimer from "../../releves-notes/BoutonImprimer";
+import BoutonImprimerPDF from "../BoutonImprimerPDF";
+import LogoEcole from "../LogoEcole";
 import styles from "../documents.module.css";
 
 export const dynamic = "force-dynamic";
@@ -163,7 +164,7 @@ export default async function Page({
           Retour au registre
         </Link>
 
-        <BoutonImprimer />
+        <BoutonImprimerPDF />
       </div>
 
       <article className={styles.documentPremium}>
@@ -177,14 +178,10 @@ export default async function Page({
 
         <header className={styles.entetePremium}>
           <div className={styles.logoPremium}>
-            {logo ? (
-              <img
-                src={logo}
-                alt={`Logo ${ecole.nom}`}
-              />
-            ) : (
-              <span>{initiales || "DS"}</span>
-            )}
+            <LogoEcole
+              source={logo}
+              nomEcole={ecole.nom}
+            />
           </div>
 
           <div className={styles.identiteEcole}>

@@ -6,7 +6,11 @@ import styles from "./verifier.module.css";
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ code?: string; numero?: string }>;
+  searchParams: Promise<{
+    recherche?: string;
+    code?: string;
+    numero?: string;
+  }>;
 };
 
 const libelles: Record<string, string> = {
@@ -18,27 +22,87 @@ const libelles: Record<string, string> = {
   ATTESTATION_TRANSFERT: "Attestation de transfert",
 };
 
+function normaliserReference(valeur: string): string {
+  return valeur
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+}
+
+async function trouverDocument(reference: string) {
+  const normalisee = normaliserReference(reference);
+
+  if (!normalisee) {
+    return null;
+  }
+
+  const correspondances = await prisma.$queryRaw<Array<{ id: number }>>`
+    SELECT id
+    FROM documents_academiques
+    WHERE
+      UPPER(
+        REPLACE(
+          REPLACE(
+            REPLACE(
+              REPLACE(TRIM(numero), '-', ''),
+              ' ',
+              ''
+            ),
+            '/',
+            ''
+          ),
+          '.',
+          ''
+        )
+      ) = ${normalisee}
+      OR UPPER(
+        REPLACE(
+          REPLACE(
+            REPLACE(
+              REPLACE(TRIM(code_verification), '-', ''),
+              ' ',
+              ''
+            ),
+            '/',
+            ''
+          ),
+          '.',
+          ''
+        )
+      ) = ${normalisee}
+    ORDER BY id DESC
+    LIMIT 1
+  `;
+
+  const id = correspondances[0]?.id;
+
+  if (!id) {
+    return null;
+  }
+
+  return prisma.documentAcademique.findUnique({
+    where: { id },
+    include: {
+      ecole: true,
+      eleve: true,
+      anneeScolaire: true,
+      classe: { include: { section: true } },
+    },
+  });
+}
+
 export default async function Page({ searchParams }: Props) {
   const q = await searchParams;
-  const code = (q.code ?? "").trim();
-  const numero = (q.numero ?? "").trim();
-  const rechercheLancee = Boolean(code || numero);
-
+  const recherche = (
+    q.recherche ??
+    q.numero ??
+    q.code ??
+    ""
+  ).trim();
+  const rechercheLancee = Boolean(recherche);
   const document = rechercheLancee
-    ? await prisma.documentAcademique.findFirst({
-        where: {
-          OR: [
-            ...(code ? [{ codeVerification: code }] : []),
-            ...(numero ? [{ numero }] : []),
-          ],
-        },
-        include: {
-          ecole: true,
-          eleve: true,
-          anneeScolaire: true,
-          classe: { include: { section: true } },
-        },
-      })
+    ? await trouverDocument(recherche)
     : null;
 
   return (
@@ -53,21 +117,25 @@ export default async function Page({ searchParams }: Props) {
         </div>
 
         <p className={styles.intro}>
-          Saisissez le code de vérification ou le numéro officiel figurant sur
-          le diplôme, certificat ou l’attestation.
+          Saisissez le numéro officiel ou le code de vérification figurant sur
+          le diplôme, le certificat ou l’attestation. Les espaces, tirets et
+          différences entre majuscules et minuscules sont acceptés.
         </p>
 
         <form className={styles.formulaire}>
           <label>
-            <span>Code de vérification</span>
-            <input name="code" defaultValue={code} placeholder="Ex. 9A4F..." />
+            <span>Numéro ou code de vérification</span>
+            <input
+              name="recherche"
+              defaultValue={recherche}
+              placeholder="Ex. DSS-DIP-2026-0000001"
+              autoComplete="off"
+              required
+            />
           </label>
-          <div className={styles.ou}>OU</div>
-          <label>
-            <span>Numéro officiel</span>
-            <input name="numero" defaultValue={numero} placeholder="Ex. CER-ECOLE-..." />
-          </label>
-          <button type="submit"><Search size={18} /> Vérifier</button>
+          <button type="submit">
+            <Search size={18} /> Vérifier
+          </button>
         </form>
 
         {rechercheLancee && !document && (
@@ -76,14 +144,22 @@ export default async function Page({ searchParams }: Props) {
             <div>
               <strong>Document introuvable</strong>
               <p>
-                Aucun document académique ne correspond aux informations saisies.
+                Aucun document académique ne correspond à « {recherche} ».
+                Vérifiez que ce numéro provient réellement d’un document créé
+                dans le Centre académique.
               </p>
             </div>
           </div>
         )}
 
         {document && (
-          <section className={document.statut === "VALIDE" ? styles.valide : styles.annule}>
+          <section
+            className={
+              document.statut === "VALIDE"
+                ? styles.valide
+                : styles.annule
+            }
+          >
             <div className={styles.statut}>
               {document.statut === "VALIDE" ? (
                 <CheckCircle2 size={34} />
@@ -93,14 +169,16 @@ export default async function Page({ searchParams }: Props) {
               <div>
                 <small>Résultat de la vérification</small>
                 <strong>
-                  Document {document.statut === "VALIDE" ? "authentique et valide" : "annulé"}
+                  Document {document.statut === "VALIDE"
+                    ? "authentique et valide"
+                    : document.statut.toLowerCase()}
                 </strong>
               </div>
             </div>
 
             <dl>
               <div><dt>Établissement</dt><dd>{document.ecole.nom}</dd></div>
-              <div><dt>Type</dt><dd>{libelles[document.type] ?? document.type}</dd></div>
+              <div><dt>Type</dt><dd>{libelles[document.type] ?? document.type.replaceAll("_", " ")}</dd></div>
               <div><dt>Numéro</dt><dd>{document.numero}</dd></div>
               <div>
                 <dt>Élève</dt>
