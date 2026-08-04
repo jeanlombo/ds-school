@@ -1,79 +1,9 @@
 import Link from "next/link";
+import { AlertTriangle, ArrowRight, Clock3, LogIn, LogOut, QrCode, ScanLine, ShieldCheck, UserCheck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-
-export const dynamic = "force-dynamic";
-
-export default async function SafeCampusDashboard() {
-  const db = prisma as any;
-  const debutJour = new Date();
-  debutJour.setHours(0, 0, 0, 0);
-
-  let cartesActives = 0;
-  let lecteursActifs = 0;
-  let passagesJour = 0;
-  let autorisesJour = 0;
-  let alertesJour = 0;
-  let derniersPassages: any[] = [];
-
-  try {
-    [cartesActives, lecteursActifs, passagesJour, autorisesJour, alertesJour, derniersPassages] = await Promise.all([
-      db.carteRfid.count({ where: { statut: "ACTIVE" } }),
-      db.lecteurRfid.count({ where: { statut: "ACTIF" } }),
-      db.passageRfid.count({ where: { dateHeure: { gte: debutJour } } }),
-      db.passageRfid.count({ where: { dateHeure: { gte: debutJour }, resultat: "AUTORISE" } }),
-      db.passageRfid.count({ where: { dateHeure: { gte: debutJour }, resultat: { not: "AUTORISE" } } }),
-      db.passageRfid.findMany({ orderBy: { dateHeure: "desc" }, take: 8, include: { lecteur: true } }),
-    ]);
-  } catch (error) {
-    console.error("SAFE CAMPUS DASHBOARD:", error);
-  }
-
-  return (
-    <main>
-      <section className="safe-hero">
-        <div>
-          <span className="safe-badge">SÉCURITÉ EN TEMPS RÉEL</span>
-          <h2>Un campus plus sûr, connecté et intelligent.</h2>
-          <p>Gérez les cartes RFID/NFC, les entrées, les sorties et les points de contrôle.</p>
-          <div className="safe-actions">
-            <Link href="/dashboard/safe-campus/controle">Ouvrir le contrôle d'accès</Link>
-            <Link href="/dashboard/safe-campus/cartes">Gérer les cartes RFID</Link>
-          </div>
-        </div>
-        <div className="safe-shield">🛡️</div>
-      </section>
-
-      <section className="safe-stats">
-        <article><span>Cartes actives</span><strong>{cartesActives}</strong></article>
-        <article><span>Lecteurs actifs</span><strong>{lecteursActifs}</strong></article>
-        <article><span>Passages du jour</span><strong>{passagesJour}</strong></article>
-        <article><span>Accès autorisés</span><strong>{autorisesJour}</strong></article>
-        <article><span>Alertes</span><strong>{alertesJour}</strong></article>
-      </section>
-
-      <section className="safe-grid">
-        <article className="safe-panel">
-          <div className="safe-title"><h3>Derniers passages</h3><Link href="/dashboard/safe-campus/passages">Voir tout</Link></div>
-          {derniersPassages.length === 0 ? <div className="safe-empty">Aucun passage enregistré.</div> : (
-            <div className="safe-list">
-              {derniersPassages.map((passage) => (
-                <div className="safe-row" key={passage.id}>
-                  <div><strong>{passage.nomProprietaire || passage.uidLu}</strong><span>{passage.classeOuFonction || "Carte inconnue"}</span></div>
-                  <div><b>{passage.direction}</b><span>{new Date(passage.dateHeure).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</span></div>
-                </div>
-              ))}
-            </div>
-          )}
-        </article>
-
-        <article className="safe-panel safe-shortcuts">
-          <h3>Accès rapide</h3>
-          <Link href="/dashboard/safe-campus/controle">📡 Scanner une carte</Link>
-          <Link href="/dashboard/safe-campus/cartes">💳 Cartes RFID</Link>
-          <Link href="/dashboard/safe-campus/lecteurs">📟 Lecteurs RFID</Link>
-          <Link href="/dashboard/safe-campus/passages">📋 Journal des passages</Link>
-        </article>
-      </section>
-    </main>
-  );
-}
+export const dynamic="force-dynamic";
+export default async function SafeCampusDashboard(){const db=prisma as any;const debut=new Date();debut.setHours(0,0,0,0);let cartes=0,passages=0,entrees=0,sorties=0,alertes=0;let derniers:any[]=[];try{[cartes,passages,entrees,sorties,alertes,derniers]=await Promise.all([
+db.carteRfid.count({where:{statut:"ACTIVE"}}),db.passageRfid.count({where:{dateHeure:{gte:debut},resultat:"AUTORISE"}}),db.passageRfid.count({where:{dateHeure:{gte:debut},resultat:"AUTORISE",direction:"ENTREE"}}),db.passageRfid.count({where:{dateHeure:{gte:debut},resultat:"AUTORISE",direction:"SORTIE"}}),db.passageRfid.count({where:{dateHeure:{gte:debut},resultat:{not:"AUTORISE"}}}),db.passageRfid.findMany({orderBy:{dateHeure:"desc"},take:8})])}catch(e){console.error("SAFE CAMPUS",e)}return <main>
+<section className="safe-hero"><div><span className="safe-badge"><ShieldCheck size={15}/> SÉCURITÉ EN TEMPS RÉEL</span><h2>Un campus plus sûr grâce aux cartes QR Code.</h2><p>Scannez la carte scolaire avec un téléphone ou une webcam pour enregistrer automatiquement l’entrée et la sortie.</p><div className="safe-actions"><Link href="/dashboard/safe-campus/controle" className="primary"><ScanLine size={18}/>Scanner maintenant</Link><Link href="/dashboard/safe-campus/cartes"><QrCode size={18}/>Cartes QR</Link></div></div><div className="safe-phone"><ScanLine size={48}/><span>QR</span></div></section>
+<section className="safe-stats"><article><span className="blue"><QrCode/></span><div><small>Cartes QR actives</small><strong>{cartes}</strong></div></article><article><span className="green"><UserCheck/></span><div><small>Passages autorisés</small><strong>{passages}</strong></div></article><article><span className="cyan"><LogIn/></span><div><small>Entrées</small><strong>{entrees}</strong></div></article><article><span className="violet"><LogOut/></span><div><small>Sorties</small><strong>{sorties}</strong></div></article><article><span className="red"><AlertTriangle/></span><div><small>Alertes</small><strong>{alertes}</strong></div></article></section>
+<section className="safe-grid"><article className="safe-panel"><div className="safe-title"><div><span>ACTIVITÉ RÉCENTE</span><h3>Derniers passages</h3></div><Link href="/dashboard/safe-campus/passages">Voir tout <ArrowRight size={15}/></Link></div>{derniers.length===0?<div className="safe-empty"><Clock3 size={34}/><strong>Aucun passage aujourd’hui</strong><span>Les scans apparaîtront ici.</span></div>:<div className="safe-list">{derniers.map(p=><div className="safe-row" key={p.id}><div className="safe-avatar"><span>{(p.nomProprietaire||"?").slice(0,1)}</span></div><div className="safe-person"><strong>{p.nomProprietaire||"Carte inconnue"}</strong><span>{p.classeOuFonction||p.uidLu}</span></div><b className={`safe-direction ${p.direction.toLowerCase()}`}>{p.direction}</b><time>{new Date(p.dateHeure).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</time></div>)}</div>}</article><article className="safe-panel safe-shortcuts"><div className="safe-title"><div><span>ACCÈS RAPIDE</span><h3>Actions principales</h3></div></div><Link href="/dashboard/safe-campus/controle"><span><ScanLine/></span><div><strong>Scanner une carte</strong><small>Caméra ou saisie manuelle</small></div><ArrowRight/></Link><Link href="/dashboard/safe-campus/cartes"><span><QrCode/></span><div><strong>Cartes QR élèves</strong><small>Activation et suivi</small></div><ArrowRight/></Link><Link href="/dashboard/safe-campus/passages"><span><Clock3/></span><div><strong>Journal des passages</strong><small>Entrées, sorties et alertes</small></div><ArrowRight/></Link></article></section></main>}
