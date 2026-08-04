@@ -34,6 +34,72 @@ const avantages = [
   { icon: Heart, titre: "Satisfaction", texte: "Améliorez la satisfaction des parents et élèves" },
 ];
 
+/* =========================================================
+   TARIFS COMMERCIAUX — MODIFIEZ LES PRIX UNIQUEMENT ICI
+   =========================================================
+   Exemple : prixStarter: "150 USD", prixProfessional: "300 USD"
+   Utilisez "Sur devis" lorsque vous ne souhaitez pas afficher un montant.
+*/
+const TARIFS_COMMERCIAUX = {
+  devise: "USD",
+  prixStarter: "À définir",
+  prixProfessional: "À définir",
+  prixEnterprise: "Sur devis",
+  prixParEleveStarter: 0,
+  prixParEleveProfessional: 0,
+  prixParEleveEnterprise: 0,
+  fraisInstallation: "À définir",
+  contactCommercial: "contact@dsschool.com",
+};
+
+const offresTarifaires = [
+  {
+    code: "STARTER",
+    nom: "Starter",
+    cible: "Petites écoles et centres de formation",
+    prix: TARIFS_COMMERCIAUX.prixStarter,
+    couleur: "bleu",
+    fonctionnalites: [
+      "Élèves, parents et inscriptions",
+      "Classes, sections et matières",
+      "Évaluations, notes et bulletins",
+      "Utilisateurs et permissions",
+      "Support de démarrage",
+    ],
+  },
+  {
+    code: "PROFESSIONAL",
+    nom: "Professional",
+    cible: "Établissements scolaires en croissance",
+    prix: TARIFS_COMMERCIAUX.prixProfessional,
+    couleur: "jaune",
+    recommande: true,
+    fonctionnalites: [
+      "Tous les modules Starter",
+      "Finance, caisse, reçus et rapports",
+      "Emploi du temps intelligent",
+      "Portail Parent et espace Titulaire",
+      "CRM scolaire et documents sécurisés",
+      "Accompagnement prioritaire",
+    ],
+  },
+  {
+    code: "ENTERPRISE",
+    nom: "Enterprise",
+    cible: "Groupes scolaires et grands établissements",
+    prix: TARIFS_COMMERCIAUX.prixEnterprise,
+    couleur: "violet",
+    fonctionnalites: [
+      "Tous les modules Professional",
+      "Multi-écoles et besoins personnalisés",
+      "Déploiement Cloud ou serveur privé",
+      "Formation complète des équipes",
+      "Maintenance et assistance renforcées",
+      "Intégrations et développements sur mesure",
+    ],
+  },
+];
+
 type Props = {
   donnees: DonneesDashboardPublic;
 };
@@ -45,6 +111,17 @@ export default function AccueilClient({
   const [enteteCompacte, setEnteteCompacte] = useState(false);
   const [compteurs, setCompteurs] = useState({ etablissements: 0, modules: 0, espaces: 0, gain: 0 });
   const [parallaxe, setParallaxe] = useState({ x: 0, y: 0 });
+  const [nombreEleves, setNombreEleves] = useState(300);
+  const [hebergement, setHebergement] = useState("cloud");
+  const [formation, setFormation] = useState(true);
+  const [maintenance, setMaintenance] = useState(true);
+
+  const offreRecommandee =
+    nombreEleves <= 250
+      ? offresTarifaires[0]
+      : nombreEleves <= 1000
+        ? offresTarifaires[1]
+        : offresTarifaires[2];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -203,6 +280,99 @@ export default function AccueilClient({
         </div>
       </section>
 
+      <section className="ds-section ds-tarifs" id="tarifs">
+        <div className="ds-conteneur">
+          <div className="ds-entete-tarifs ds-reveal">
+            <div>
+              <span className="ds-mini-etiquette"><CreditCard size={15}/> OFFRES FLEXIBLES</span>
+              <h2>Une formule adaptée à la taille de votre établissement</h2>
+              <p>Les prix peuvent être affichés directement ou laissés « Sur devis ». Le calculateur vous aide à identifier l’offre la plus adaptée.</p>
+            </div>
+            <a href={`mailto:${TARIFS_COMMERCIAUX.contactCommercial}?subject=Demande de devis DS School`} className="ds-btn ds-btn-principal">
+              Demander un devis <ArrowRight size={18}/>
+            </a>
+          </div>
+
+          <div className="ds-grille-tarifs">
+            {offresTarifaires.map((offre) => (
+              <article className={`ds-carte-tarif ds-tarif-${offre.couleur} ${offre.recommande ? "ds-tarif-recommande" : ""} ds-reveal`} key={offre.code}>
+                {offre.recommande && <span className="ds-badge-recommande">RECOMMANDÉE</span>}
+                <div className="ds-icone-tarif">
+                  {offre.code === "STARTER" ? <School size={25}/> : offre.code === "PROFESSIONAL" ? <Building2 size={25}/> : <Sparkles size={25}/>} 
+                </div>
+                <span className="ds-code-offre">OFFRE {offre.code}</span>
+                <h3>{offre.nom}</h3>
+                <p className="ds-cible-offre">{offre.cible}</p>
+                <div className="ds-prix-offre">
+                  <strong>{offre.prix}</strong>
+                  {offre.prix !== "Sur devis" && offre.prix !== "À définir" && <small> / établissement</small>}
+                </div>
+                <ul>
+                  {offre.fonctionnalites.map((fonctionnalite) => (
+                    <li key={fonctionnalite}><CheckCircle2 size={16}/><span>{fonctionnalite}</span></li>
+                  ))}
+                </ul>
+                <a href={`mailto:${TARIFS_COMMERCIAUX.contactCommercial}?subject=Demande offre ${offre.nom} DS School`} className="ds-btn ds-btn-offre">
+                  Choisir cette offre <ArrowRight size={17}/>
+                </a>
+              </article>
+            ))}
+          </div>
+
+          <div className="ds-calculateur-offre ds-reveal">
+            <div className="ds-calculateur-intro">
+              <span className="ds-mini-etiquette"><BarChart3 size={15}/> CALCULATEUR D’OFFRE</span>
+              <h3>Quelle formule correspond à votre école ?</h3>
+              <p>Renseignez simplement votre nombre d’élèves et vos besoins. Cette estimation sert d’orientation commerciale et ne remplace pas le devis final.</p>
+              <div className="ds-note-installation">
+                <Cloud size={20}/>
+                <span>Frais d’installation configurés : <strong>{TARIFS_COMMERCIAUX.fraisInstallation}</strong></span>
+              </div>
+            </div>
+
+            <div className="ds-form-calculateur">
+              <label>
+                <span>Nombre approximatif d’élèves</span>
+                <input type="number" min="1" max="100000" value={nombreEleves} onChange={(evenement) => setNombreEleves(Math.max(1, Number(evenement.target.value) || 1))}/>
+              </label>
+
+              <label>
+                <span>Mode d’hébergement</span>
+                <select value={hebergement} onChange={(evenement) => setHebergement(evenement.target.value)}>
+                  <option value="cloud">Cloud sécurisé</option>
+                  <option value="local">Serveur local de l’école</option>
+                  <option value="hybride">Installation hybride</option>
+                </select>
+              </label>
+
+              <div className="ds-options-calculateur">
+                <label><input type="checkbox" checked={formation} onChange={(evenement) => setFormation(evenement.target.checked)}/><span>Formation des utilisateurs</span></label>
+                <label><input type="checkbox" checked={maintenance} onChange={(evenement) => setMaintenance(evenement.target.checked)}/><span>Maintenance et assistance</span></label>
+              </div>
+            </div>
+
+            <div className="ds-resultat-offre">
+              <small>OFFRE RECOMMANDÉE</small>
+              <strong>{offreRecommandee.nom}</strong>
+              <p>{offreRecommandee.cible}</p>
+              <div className="ds-resume-besoins">
+                <span><UsersRound size={15}/>{nombreEleves.toLocaleString("fr-FR")} élève(s)</span>
+                <span><Cloud size={15}/>{hebergement === "cloud" ? "Cloud" : hebergement === "local" ? "Serveur local" : "Hybride"}</span>
+                {formation && <span><GraduationCap size={15}/>Formation</span>}
+                {maintenance && <span><Headphones size={15}/>Maintenance</span>}
+              </div>
+              <div className="ds-estimation-prix">
+                <span>Tarification indicative</span>
+                <b>{offreRecommandee.prix}</b>
+              </div>
+              <a href={`mailto:${TARIFS_COMMERCIAUX.contactCommercial}?subject=Devis DS School - Offre ${offreRecommandee.nom}&body=Nombre d'élèves : ${nombreEleves}%0AHébergement : ${hebergement}%0AFormation : ${formation ? "Oui" : "Non"}%0AMaintenance : ${maintenance ? "Oui" : "Non"}`} className="ds-btn ds-btn-principal">
+                Recevoir une proposition <ArrowRight size={17}/>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="ds-section ds-documents" id="verification-documents">
         <div className="ds-conteneur">
           <div className="ds-documents-entete ds-reveal">
@@ -211,54 +381,19 @@ export default function AccueilClient({
               <h2>Vérifiez instantanément l’authenticité d’un document</h2>
               <p>Diplômes, certificats et attestations sont protégés par un numéro officiel, un code unique et un QR Code de vérification publique.</p>
             </div>
-            <Link
-              href={
-                donnees.documentVerification
-                  ? `/verifier-document?numero=${encodeURIComponent(
-                      donnees.documentVerification.numero
-                    )}`
-                  : "/verifier-document"
-              }
-              className="ds-btn ds-btn-principal"
-            >
-              <ShieldCheck size={19}/> Vérifier maintenant <ArrowRight size={18}/>
-            </Link>
+            <Link href="/verifier-document" className="ds-btn ds-btn-principal"><ShieldCheck size={19}/> Vérifier maintenant <ArrowRight size={18}/></Link>
           </div>
 
           <div className="ds-scan-demo ds-reveal">
             <div className="ds-document-virtuel">
               <div className="ds-document-entete-mini"><School size={22}/><span>DS SCHOOL PREMIUM</span></div>
-              <div className="ds-document-corps-mini">
-                <b>
-                  {donnees.documentVerification?.type
-                    ?.replaceAll("_", " ") ??
-                    "DOCUMENT SÉCURISÉ"}
-                </b>
-                <span>
-                  N° {donnees.documentVerification?.numero ?? "À générer"}
-                </span>
-                <small>
-                  Code : {donnees.documentVerification?.code ?? "Aucun document valide"}
-                </small>
-              </div>
+              <div className="ds-document-corps-mini"><b>DIPLÔME SÉCURISÉ</b><span>N° DS-2026-00487</span><small>Code : VRF-8K2M-91XQ</small></div>
               <div className="ds-faux-qr"><i/><i/><i/><i/><i/><i/><i/><i/><i/></div>
               <div className="ds-ligne-scan"/>
             </div>
             <div className="ds-resultat-scan">
               <span className="ds-coche-scan"><CheckCircle2 size={30}/></span>
-              <div>
-                <small>VÉRIFICATION EN DIRECT</small>
-                <strong>
-                  {donnees.documentVerification
-                    ? "Document authentique"
-                    : "Aucun document de démonstration"}
-                </strong>
-                <p>
-                  {donnees.documentVerification
-                    ? "Cette référence réelle est enregistrée dans le registre académique sécurisé."
-                    : "Créez un document valide dans le Centre académique pour activer cette démonstration."}
-                </p>
-              </div>
+              <div><small>VÉRIFICATION EN DIRECT</small><strong>Document authentique</strong><p>Référence trouvée dans le registre académique sécurisé.</p></div>
             </div>
           </div>
 
@@ -300,7 +435,7 @@ export default function AccueilClient({
       <footer className="ds-pied" id="ressources">
         <div className="ds-conteneur ds-pied-grille">
           <div><Link href="/" className="ds-logo"><span className="ds-logo-bouclier"><School size={23}/></span><span><strong>DS School</strong><small>PREMIUM</small></span></Link><p>La plateforme tout-en-un pour une gestion scolaire moderne, efficace et sécurisée.</p></div>
-          <div><b>Navigation</b><a href="#accueil">Accueil</a><a href="#fonctionnalites">Fonctionnalités</a><a href="#solutions">Solutions</a><Link href="/verifier-document">Vérifier un document</Link><a href="#contact">Contact</a></div>
+          <div><b>Navigation</b><a href="#accueil">Accueil</a><a href="#fonctionnalites">Fonctionnalités</a><a href="#solutions">Solutions</a><a href="#tarifs">Tarifs</a><Link href="/verifier-document">Vérifier un document</Link><a href="#contact">Contact</a></div>
           <div><b>Fonctionnalités</b><a href="#fonctionnalites">Gestion des élèves</a><a href="#fonctionnalites">Gestion des enseignants</a><a href="#fonctionnalites">Notes & Bulletins</a><Link href="/verifier-document">Diplômes & certificats</Link><a href="#fonctionnalites">Rapports & Statistiques</a></div>
           <div><b>Solutions</b><span>Écoles privées</span><span>Collèges & Lycées</span><span>Centres de formation</span><span>Universités</span></div>
           <div><b>Contact</b><span>✉ contact@dsschool.com</span><span>⌖ +243 00 00 00 00</span><span>⌖ Kinshasa, RDC</span></div>

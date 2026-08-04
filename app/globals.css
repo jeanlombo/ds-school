@@ -38,73 +38,38 @@
 @media(prefers-reduced-motion:reduce){.ds-particules,.ds-ligne-scan{display:none}.ds-document-virtuel,.ds-coche-scan{animation:none}.ds-hero-grille,.ds-tableau,.ds-halo-dashboard{transform:none!important}}
 
 /* =========================================================
-   RELEASE CANDIDATE — HEADER VITRINE COMPACT ET RESPONSIVE
-   Correction ciblée : aucun changement des modules internes.
-========================================================= */
-@media (min-width: 801px) {
-  .ds-conteneur.ds-navigation {
-    width: min(1320px, calc(100% - 28px));
-  }
+   AJUSTEMENT FINAL DE LISIBILITÉ + SECTION TARIFS
+   Les prix se modifient dans :
+   components/vitrine/AccueilClient.tsx -> TARIFS_COMMERCIAUX
+   ========================================================= */
+.ds-vitrine .ds-menu{font-size:13.5px}
+.ds-vitrine .ds-btn{font-size:12.5px}
+.ds-vitrine .ds-carte-module h3{font-size:12px}
+.ds-vitrine .ds-carte-module p{font-size:9px}
+.ds-vitrine .ds-chiffres span{font-size:10px}
+.ds-vitrine .ds-preuve p{font-size:11px}
 
-  .ds-navigation {
-    gap: 12px;
-  }
-
-  .ds-logo {
-    gap: 8px;
-  }
-
-  .ds-logo-bouclier {
-    width: 42px;
-    height: 45px;
-  }
-
-  .ds-logo strong {
-    font-size: 18px;
-  }
-
-  .ds-logo small {
-    margin-top: 4px;
-    font-size: 7px;
-    letter-spacing: .24em;
-  }
-
-  .ds-menu {
-    min-width: 0;
-    flex: 1 1 auto;
-    justify-content: center;
-    gap: clamp(8px, .85vw, 15px);
-    font-size: clamp(10px, .76vw, 12px);
-  }
-
-  .ds-menu a {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    padding-top: 29px;
-  }
-
-  .ds-actions-nav {
-    flex: 0 0 auto;
-    gap: 7px;
-  }
-
-  .ds-actions-nav .ds-btn {
-    min-height: 40px;
-    padding: 0 12px;
-    border-radius: 10px;
-    font-size: 10px;
-    white-space: nowrap;
-  }
-}
-
-@media (min-width: 801px) and (max-width: 1320px) {
-  .ds-actions-nav .ds-btn-verification {
-    display: none;
-  }
-}
-
-@media (min-width: 801px) and (max-width: 1120px) {
-  .ds-actions-nav .ds-btn-jaune {
-    display: none;
-  }
-}
+.ds-tarifs{position:relative;background:linear-gradient(180deg,#f7fbff 0%,#eef7ff 52%,#fff9e4 100%)}
+.ds-tarifs:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at 14% 20%,rgba(18,104,243,.1),transparent 28%),radial-gradient(circle at 88% 78%,rgba(255,191,36,.16),transparent 26%)}
+.ds-entete-tarifs{position:relative;display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:34px}
+.ds-entete-tarifs>div{max-width:760px}.ds-entete-tarifs h2{font-size:clamp(32px,4vw,50px);line-height:1.14;letter-spacing:-.04em;margin:17px 0 13px}.ds-entete-tarifs p{font-size:16px;line-height:1.75;color:#536b84;margin:0}
+.ds-grille-tarifs{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.ds-carte-tarif{position:relative;display:flex;flex-direction:column;min-height:540px;padding:27px;border:1px solid #d7e7f5;border-radius:24px;background:rgba(255,255,255,.94);box-shadow:0 18px 45px rgba(32,91,145,.1);transition:.35s;overflow:hidden}
+.ds-carte-tarif:hover{transform:translateY(-9px);box-shadow:0 28px 60px rgba(32,91,145,.18)}
+.ds-carte-tarif:after{content:"";position:absolute;width:190px;height:190px;right:-100px;top:-100px;border-radius:50%;background:radial-gradient(circle,rgba(18,104,243,.16),transparent 70%)}
+.ds-tarif-recommande{border:2px solid #f3b720;transform:translateY(-8px);box-shadow:0 25px 65px rgba(243,183,32,.18)}
+.ds-tarif-recommande:hover{transform:translateY(-14px)}
+.ds-badge-recommande{position:absolute;right:17px;top:17px;z-index:2;padding:7px 10px;border-radius:999px;color:#14284b;background:linear-gradient(135deg,#ffe174,#ffb719);font-size:9px;font-weight:950;letter-spacing:.08em}
+.ds-icone-tarif{position:relative;z-index:1;width:54px;height:54px;display:grid;place-items:center;border-radius:16px;color:#fff;background:linear-gradient(145deg,#3199ff,#1268f3);box-shadow:0 13px 27px rgba(18,104,243,.24)}
+.ds-tarif-jaune .ds-icone-tarif{color:#173b6f;background:linear-gradient(145deg,#ffe16d,#ffb718)}.ds-tarif-violet .ds-icone-tarif{background:linear-gradient(145deg,#9a68f5,#6038d9)}
+.ds-code-offre{margin-top:21px;color:#1268f3;font-size:10px;font-weight:900;letter-spacing:.12em}.ds-carte-tarif h3{font-size:28px;margin:7px 0 7px}.ds-cible-offre{min-height:46px;margin:0;color:#627992;font-size:14px;line-height:1.55}
+.ds-prix-offre{display:flex;align-items:flex-end;gap:5px;min-height:62px;margin:19px 0;padding-bottom:18px;border-bottom:1px solid #e4edf6}.ds-prix-offre strong{font-size:30px;line-height:1;color:#123368}.ds-prix-offre small{color:#71869b;font-size:11px}
+.ds-carte-tarif ul{display:grid;gap:12px;margin:0 0 24px;padding:0;list-style:none}.ds-carte-tarif li{display:flex;align-items:flex-start;gap:9px;color:#455f79;font-size:13px;line-height:1.45}.ds-carte-tarif li svg{flex:0 0 auto;color:#16aa68;margin-top:1px}
+.ds-btn-offre{width:100%;margin-top:auto;color:#1268f3;border-color:#a7caea;background:#eef7ff}.ds-tarif-recommande .ds-btn-offre{color:#fff;border-color:transparent;background:linear-gradient(135deg,#1674ff,#075be0)}
+.ds-calculateur-offre{position:relative;display:grid;grid-template-columns:1fr 1.05fr .9fr;gap:24px;margin-top:30px;padding:30px;border:1px solid #cfe2f3;border-radius:26px;background:rgba(255,255,255,.94);box-shadow:0 25px 65px rgba(35,92,145,.13)}
+.ds-calculateur-intro h3{font-size:28px;margin:16px 0 10px}.ds-calculateur-intro>p{color:#5e748c;font-size:14px;line-height:1.7}.ds-note-installation{display:flex;align-items:center;gap:10px;margin-top:18px;padding:12px;border-radius:12px;color:#275681;background:#edf7ff;font-size:12px}
+.ds-form-calculateur{display:grid;gap:15px;padding:3px 0}.ds-form-calculateur>label{display:grid;gap:7px}.ds-form-calculateur>label>span{color:#405978;font-size:12px;font-weight:850}.ds-form-calculateur input[type=number],.ds-form-calculateur select{width:100%;min-height:45px;padding:0 13px;border:1px solid #cdddec;border-radius:11px;background:#f9fcff;color:#173b6f;font:inherit;font-size:14px;outline:none}.ds-form-calculateur input:focus,.ds-form-calculateur select:focus{border-color:#4c98e8;box-shadow:0 0 0 4px rgba(76,152,232,.12)}
+.ds-options-calculateur{display:grid;gap:10px;padding-top:3px}.ds-options-calculateur label{display:flex;align-items:center;gap:9px;color:#48617a;font-size:13px}.ds-options-calculateur input{width:17px;height:17px;accent-color:#1268f3}
+.ds-resultat-offre{padding:22px;border-radius:20px;color:#fff;background:linear-gradient(145deg,#0e3274,#1767c4);box-shadow:0 18px 40px rgba(14,50,116,.24)}.ds-resultat-offre>small{font-size:9px;font-weight:900;letter-spacing:.12em;color:#ffd85d}.ds-resultat-offre>strong{display:block;margin-top:6px;font-size:30px}.ds-resultat-offre>p{margin:6px 0 15px;color:rgba(255,255,255,.78);font-size:12px;line-height:1.5}.ds-resume-besoins{display:flex;flex-wrap:wrap;gap:7px}.ds-resume-besoins span{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,.12);font-size:9px}.ds-estimation-prix{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:18px 0;padding:13px 0;border-top:1px solid rgba(255,255,255,.16);border-bottom:1px solid rgba(255,255,255,.16)}.ds-estimation-prix span{font-size:10px;color:rgba(255,255,255,.75)}.ds-estimation-prix b{font-size:18px}.ds-resultat-offre .ds-btn{width:100%;background:linear-gradient(135deg,#ffd85d,#ffb10d);color:#14284b;box-shadow:none}
+@media(max-width:1100px){.ds-grille-tarifs{grid-template-columns:repeat(2,minmax(0,1fr))}.ds-carte-tarif:last-child{grid-column:1/-1;min-height:auto}.ds-calculateur-offre{grid-template-columns:1fr 1fr}.ds-resultat-offre{grid-column:1/-1}.ds-tarif-recommande{transform:none}.ds-tarif-recommande:hover{transform:translateY(-9px)}}
+@media(max-width:800px){.ds-entete-tarifs{align-items:flex-start;flex-direction:column}.ds-grille-tarifs,.ds-calculateur-offre{grid-template-columns:1fr}.ds-carte-tarif:last-child,.ds-resultat-offre{grid-column:auto}.ds-carte-tarif{min-height:auto}.ds-vitrine .ds-menu{font-size:15px}.ds-vitrine .ds-carte-module h3{font-size:17px}.ds-vitrine .ds-carte-module p{font-size:14px}}
