@@ -5,11 +5,17 @@ export function middleware(request: NextRequest) {
   const chemin = request.nextUrl.pathname;
 
   if (chemin.startsWith("/dashboard") && !jeton) {
-    return NextResponse.redirect(new URL("/connexion", request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = "/connexion";
+    url.search = "";
+    return NextResponse.redirect(url);
   }
 
   if (chemin === "/connexion" && jeton) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
+    url.search = "";
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
