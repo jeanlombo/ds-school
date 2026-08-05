@@ -1,27 +1,10 @@
 "use client";
 
-import {
-  FormEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-
-import {
-  Camera,
-  CheckCircle2,
-  CloudOff,
-  RefreshCw,
-  ScanLine,
-  Wifi,
-  XCircle,
-} from "lucide-react";
-
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { Camera, CheckCircle2, CloudOff, RefreshCw, ScanLine, Wifi, XCircle } from "lucide-react";
 import styles from "./scanner-mobile.module.css";
 
 type Direction = "AUTO" | "ENTREE" | "SORTIE";
-
 type ResultatScan = {
   ok: boolean;
   resultat?: string;
@@ -35,6 +18,8 @@ type ResultatScan = {
   };
   dateHeure?: string;
   horsLigne?: boolean;
+  plage?: string;
+  doublon?: boolean;
 };
 
 type ScanEnAttente = {
@@ -44,68 +29,41 @@ type ScanEnAttente = {
   createdAt: string;
 };
 
-type CodeBarreDetecte = {
-  rawValue?: string;
-};
-
-type DetecteurCodeBarre = {
+type BarcodeDetectorLike = {
   detect(
-    source: HTMLVideoElement | ImageBitmap | HTMLCanvasElement,
-  ): Promise<CodeBarreDetecte[]>;
+    source: ImageBitmapSource
+  ): Promise<Array<{ rawValue?: string }>>;
 };
 
-type ConstructeurDetecteurCodeBarre = new (
+type BarcodeDetectorConstructor = new (
   options?: {
     formats?: string[];
-  },
-) => DetecteurCodeBarre;
+  }
+) => BarcodeDetectorLike;
 
-type GlobalAvecBarcodeDetector = typeof globalThis & {
-  BarcodeDetector?: ConstructeurDetecteurCodeBarre;
-};
+function obtenirBarcodeDetector():
+  | BarcodeDetectorConstructor
+  | undefined {
+  return (
+    window as typeof window & {
+      BarcodeDetector?: BarcodeDetectorConstructor;
+    }
+  ).BarcodeDetector;
+}
 
 const CLE_FILE = "ds_school_scans_en_attente_v1";
 
-function obtenirConstructeurBarcodeDetector():
-  | ConstructeurDetecteurCodeBarre
-  | undefined {
-  return (globalThis as GlobalAvecBarcodeDetector).BarcodeDetector;
-}
-
 function lireFile(): ScanEnAttente[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
+  if (typeof window === "undefined") return [];
   try {
-    const contenu = localStorage.getItem(CLE_FILE);
-
-    if (!contenu) {
-      return [];
-    }
-
-    const donnees: unknown = JSON.parse(contenu);
-
-    return Array.isArray(donnees)
-      ? (donnees as ScanEnAttente[])
-      : [];
+    return JSON.parse(localStorage.getItem(CLE_FILE) || "[]") as ScanEnAttente[];
   } catch {
     return [];
   }
 }
 
-function sauverFile(file: ScanEnAttente[]): void {
-  if (typeof window === "undefined") {
-    return;
-  }
-
+function sauverFile(file: ScanEnAttente[]) {
   localStorage.setItem(CLE_FILE, JSON.stringify(file));
-}
-
-function creerIdentifiantScan(): string {
-  return `${Date.now()}-${Math.random()
-    .toString(36)
-    .slice(2, 10)}`;
 }
 
 export default function ScannerMobileClient() {
@@ -113,416 +71,190 @@ export default function ScannerMobileClient() {
   const fluxRef = useRef<MediaStream | null>(null);
   const boucleRef = useRef<number | null>(null);
   const verrouRef = useRef(false);
-
+  const scanEnCoursRef = useRef(false);
   const [uid, setUid] = useState("");
-  const [direction, setDirection] =
-    useState<Direction>("AUTO");
-  const [cameraActive, setCameraActive] =
-    useState(false);
-  const [chargement, setChargement] =
-    useState(false);
+  const [direction, setDirection] = useState<Direction>("AUTO");
+  const [cameraActive, setCameraActive] = useState(false);
+  const [chargement, setChargement] = useState(false);
   const [enLigne, setEnLigne] = useState(true);
   const [attente, setAttente] = useState(0);
+  const [resultat, setResultat] = useState<ResultatScan | null>(null);
+  const [messageCamera, setMessageCamera] = useState("");
 
-  const [resultat, setResultat] =
-    useState<ResultatScan | null>(null);
+  const actualiserAttente = useCallback(() => setAttente(lireFile().length), []);
 
-  const [messageCamera, setMessageCamera] =
-    useState("");
+  const envoyer = useCallback(async (code: string, sens: Direction, depuisFile = false) => {
+    const codeNettoye = code.trim();
+    if (!codeNettoye) return false;
 
-  const actualiserAttente = useCallback(() => {
-    setAttente(lireFile().length);
-  }, []);
+    if (!navigator.onLine) {
+      if (!depuisFile) {
+        const file = lireFile();
+        file.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          uid: codeNettoye,
+          direction: sens,
+          createdAt: new Date().toISOString(),
+        });
+        sauverFile(file);
+        actualiserAttente();
+        setResultat({ ok: true, message: "Scan enregistré hors connexion. Synchronisation automatique dès le retour d’Internet.", horsLigne: true });
+      }
+      return false;
+    }
 
-  const ajouterDansFile = useCallback(
-    (
-      code: string,
-      sens: Direction,
-      message: string,
-    ) => {
-      const file = lireFile();
-
-      file.push({
-        id: creerIdentifiantScan(),
-        uid: code,
-        direction: sens,
-        createdAt: new Date().toISOString(),
+    setChargement(true);
+    try {
+      const reponse = await fetch("/api/mobile/scanner", {
+        method: "POST",
+        credentials: "include",
+        cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid: codeNettoye,
+          direction: sens,
+          dateScan: depuisFile
+            ? lireFile().find((item) => item.uid === codeNettoye)?.createdAt
+            : new Date().toISOString(),
+        }),
       });
-
-      sauverFile(file);
-      actualiserAttente();
-
-      setResultat({
-        ok: true,
-        message,
-        horsLigne: true,
-      });
-    },
-    [actualiserAttente],
-  );
-
-  const envoyer = useCallback(
-    async (
-      code: string,
-      sens: Direction,
-      depuisFile = false,
-    ): Promise<boolean> => {
-      const codeNettoye = code.trim();
-
-      if (!codeNettoye) {
-        return false;
+      const donnees = (await reponse.json()) as ResultatScan;
+      setResultat(donnees);
+      if (reponse.ok && donnees.ok) {
+        if (navigator.vibrate) navigator.vibrate(100);
+        setUid("");
+        return true;
       }
-
-      if (!navigator.onLine) {
-        if (!depuisFile) {
-          ajouterDansFile(
-            codeNettoye,
-            sens,
-            "Scan enregistré hors connexion. La synchronisation se fera automatiquement au retour d’Internet.",
-          );
-        }
-
-        return false;
+      return false;
+    } catch {
+      if (!depuisFile) {
+        const file = lireFile();
+        file.push({ id: `${Date.now()}`, uid: codeNettoye, direction: sens, createdAt: new Date().toISOString() });
+        sauverFile(file);
+        actualiserAttente();
+        setResultat({ ok: true, message: "Réseau indisponible : scan placé dans la file de synchronisation.", horsLigne: true });
       }
-
-      setChargement(true);
-
-      try {
-        const reponse = await fetch(
-          "/api/mobile/scanner",
-          {
-            method: "POST",
-            credentials: "include",
-            cache: "no-store",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({
-              uid: codeNettoye,
-              direction: sens,
-            }),
-          },
-        );
-
-        let donnees: ResultatScan;
-
-        try {
-          donnees =
-            (await reponse.json()) as ResultatScan;
-        } catch {
-          donnees = {
-            ok: false,
-            message:
-              "Le serveur a renvoyé une réponse invalide.",
-          };
-        }
-
-        setResultat(donnees);
-
-        if (reponse.ok && donnees.ok) {
-          if (
-            typeof navigator.vibrate === "function"
-          ) {
-            navigator.vibrate(100);
-          }
-
-          setUid("");
-          return true;
-        }
-
-        return false;
-      } catch (erreur) {
-        console.error(
-          "Erreur d’envoi du scan :",
-          erreur,
-        );
-
-        if (!depuisFile) {
-          ajouterDansFile(
-            codeNettoye,
-            sens,
-            "Réseau indisponible : le scan a été placé dans la file de synchronisation.",
-          );
-        }
-
-        return false;
-      } finally {
-        setChargement(false);
-      }
-    },
-    [ajouterDansFile],
-  );
+      return false;
+    } finally {
+      setChargement(false);
+    }
+  }, [actualiserAttente]);
 
   const synchroniser = useCallback(async () => {
-    if (
-      !navigator.onLine ||
-      verrouRef.current
-    ) {
-      return;
-    }
-
+    if (!navigator.onLine || verrouRef.current) return;
     const file = lireFile();
-
-    if (!file.length) {
-      actualiserAttente();
-      return;
-    }
-
+    if (!file.length) return;
     verrouRef.current = true;
-
-    try {
-      const restants: ScanEnAttente[] = [];
-
-      for (const element of file) {
-        const synchronise = await envoyer(
-          element.uid,
-          element.direction,
-          true,
-        );
-
-        if (!synchronise) {
-          restants.push(element);
-        }
-      }
-
-      sauverFile(restants);
-      actualiserAttente();
-    } finally {
-      verrouRef.current = false;
+    const restants: ScanEnAttente[] = [];
+    for (const element of file) {
+      const ok = await envoyer(element.uid, element.direction, true);
+      if (!ok) restants.push(element);
     }
+    sauverFile(restants);
+    actualiserAttente();
+    verrouRef.current = false;
   }, [actualiserAttente, envoyer]);
 
   const arreterCamera = useCallback(() => {
-    if (boucleRef.current !== null) {
-      cancelAnimationFrame(boucleRef.current);
-    }
-
+    if (boucleRef.current) cancelAnimationFrame(boucleRef.current);
     boucleRef.current = null;
-
-    fluxRef.current
-      ?.getTracks()
-      .forEach((track) => track.stop());
-
+    fluxRef.current?.getTracks().forEach((track) => track.stop());
     fluxRef.current = null;
-
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-
     setCameraActive(false);
   }, []);
 
   const demarrerCamera = useCallback(async () => {
     setMessageCamera("");
     setResultat(null);
-
     if (!navigator.mediaDevices?.getUserMedia) {
-      setMessageCamera(
-        "La caméra n’est pas disponible dans ce navigateur.",
-      );
+      setMessageCamera("La caméra n’est pas disponible dans ce navigateur.");
       return;
     }
-
-    const BarcodeDetector =
-      obtenirConstructeurBarcodeDetector();
+    const BarcodeDetector = obtenirBarcodeDetector();
 
     if (!BarcodeDetector) {
       setMessageCamera(
-        "Le scan automatique QR n’est pas pris en charge par ce navigateur. Utilisez Chrome sur Android ou la saisie manuelle.",
+        "Le scan automatique QR n’est pas pris en charge ici. Utilisez Chrome Android ou la saisie manuelle."
       );
       return;
     }
-
     try {
-      arreterCamera();
-
-      const flux =
-        await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: {
-              ideal: "environment",
-            },
-            width: {
-              ideal: 1280,
-            },
-            height: {
-              ideal: 720,
-            },
-          },
-          audio: false,
-        });
-
+      const flux = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false,
+      });
       fluxRef.current = flux;
-
-      const video = videoRef.current;
-
-      if (!video) {
-        flux
-          .getTracks()
-          .forEach((track) => track.stop());
-
-        setMessageCamera(
-          "Le lecteur vidéo n’est pas disponible.",
-        );
-
-        return;
-      }
-
-      video.srcObject = flux;
-      await video.play();
-
+      if (!videoRef.current) return;
+      videoRef.current.srcObject = flux;
+      await videoRef.current.play();
       setCameraActive(true);
-
       const detecteur = new BarcodeDetector({
         formats: ["qr_code"],
       });
-
       let dernierScan = "";
       let derniereDate = 0;
-      let analyseEnCours = false;
-
-      const analyser = async (): Promise<void> => {
-        const videoActuelle = videoRef.current;
-
-        if (
-          !videoActuelle ||
-          !fluxRef.current
-        ) {
+      const analyser = async () => {
+        const video = videoRef.current;
+        if (!video || video.readyState < 2) {
+          boucleRef.current = requestAnimationFrame(analyser);
           return;
         }
-
-        if (
-          videoActuelle.readyState < 2 ||
-          analyseEnCours
-        ) {
-          boucleRef.current =
-            requestAnimationFrame(analyser);
-          return;
-        }
-
-        analyseEnCours = true;
-
         try {
-          const codes =
-            await detecteur.detect(
-              videoActuelle,
-            );
-
-          const valeur =
-            codes[0]?.rawValue?.trim();
-
+          const codes = await detecteur.detect(video);
+          const valeur = codes[0]?.rawValue?.trim();
           const maintenant = Date.now();
-
-          const nouveauScan =
+          if (
             valeur &&
-            (valeur !== dernierScan ||
-              maintenant - derniereDate > 3000);
-
-          if (nouveauScan) {
+            !scanEnCoursRef.current &&
+            (
+              valeur !== dernierScan ||
+              maintenant - derniereDate > 10000
+            )
+          ) {
             dernierScan = valeur;
             derniereDate = maintenant;
-
+            scanEnCoursRef.current = true;
             setUid(valeur);
 
-            await envoyer(
-              valeur,
-              direction,
-            );
+            try {
+              await envoyer(valeur, direction);
+            } finally {
+              window.setTimeout(() => {
+                scanEnCoursRef.current = false;
+              }, 1500);
+            }
           }
-        } catch (erreur) {
-          console.debug(
-            "Analyse QR temporairement impossible :",
-            erreur,
-          );
-        } finally {
-          analyseEnCours = false;
+        } catch {
+          // La boucle continue : certains appareils échouent ponctuellement pendant l’autofocus.
         }
-
-        if (fluxRef.current) {
-          boucleRef.current =
-            requestAnimationFrame(analyser);
-        }
+        boucleRef.current = requestAnimationFrame(analyser);
       };
-
-      boucleRef.current =
-        requestAnimationFrame(analyser);
-    } catch (erreur) {
-      console.error(
-        "Erreur d’accès à la caméra :",
-        erreur,
-      );
-
-      setMessageCamera(
-        "Autorisez l’accès à la caméra, puis réessayez.",
-      );
-
+      analyser();
+    } catch {
+      setMessageCamera("Autorisez l’accès à la caméra, puis réessayez.");
       arreterCamera();
     }
-  }, [
-    arreterCamera,
-    direction,
-    envoyer,
-  ]);
+  }, [arreterCamera, direction, envoyer]);
 
   useEffect(() => {
     setEnLigne(navigator.onLine);
     actualiserAttente();
-
-    const gererConnexion = () => {
-      setEnLigne(true);
-      void synchroniser();
-    };
-
-    const gererDeconnexion = () => {
-      setEnLigne(false);
-    };
-
-    window.addEventListener(
-      "online",
-      gererConnexion,
-    );
-
-    window.addEventListener(
-      "offline",
-      gererDeconnexion,
-    );
-
+    const online = () => { setEnLigne(true); void synchroniser(); };
+    const offline = () => setEnLigne(false);
+    window.addEventListener("online", online);
+    window.addEventListener("offline", offline);
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw-ds-scanner.js")
-        .catch((erreur) => {
-          console.warn(
-            "Service Worker non enregistré :",
-            erreur,
-          );
-        });
+      navigator.serviceWorker.register("/sw-ds-scanner.js").catch(() => undefined);
     }
-
     void synchroniser();
-
     return () => {
-      window.removeEventListener(
-        "online",
-        gererConnexion,
-      );
-
-      window.removeEventListener(
-        "offline",
-        gererDeconnexion,
-      );
-
+      window.removeEventListener("online", online);
+      window.removeEventListener("offline", offline);
       arreterCamera();
     };
-  }, [
-    actualiserAttente,
-    arreterCamera,
-    synchroniser,
-  ]);
+  }, [actualiserAttente, arreterCamera, synchroniser]);
 
-  function soumettre(
-    event: FormEvent<HTMLFormElement>,
-  ): void {
+  function soumettre(event: FormEvent) {
     event.preventDefault();
     void envoyer(uid, direction);
   }
@@ -531,273 +263,75 @@ export default function ScannerMobileClient() {
     <section className={styles.grille}>
       <article className={styles.scanner}>
         <div className={styles.etat}>
-          <span
-            className={
-              enLigne
-                ? styles.online
-                : styles.offline
-            }
-          >
-            {enLigne ? (
-              <Wifi size={16} />
-            ) : (
-              <CloudOff size={16} />
-            )}
-
-            {enLigne
-              ? "En ligne"
-              : "Hors connexion"}
+          <span className={enLigne ? styles.online : styles.offline}>
+            {enLigne ? <Wifi size={16} /> : <CloudOff size={16} />}
+            {enLigne ? "En ligne" : "Hors connexion"}
           </span>
-
-          <button
-            type="button"
-            onClick={() =>
-              void synchroniser()
-            }
-            disabled={
-              attente === 0 || chargement
-            }
-          >
-            <RefreshCw size={16} />
-            {attente} en attente
+          <button type="button" onClick={() => void synchroniser()} disabled={!attente || chargement}>
+            <RefreshCw size={16} /> {attente} en attente
           </button>
         </div>
 
         <div className={styles.videoWrap}>
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            className={styles.video}
-          />
-
+          <video ref={videoRef} playsInline muted className={styles.video} />
           {!cameraActive && (
-            <div
-              className={
-                styles.placeholder
-              }
-            >
+            <div className={styles.placeholder}>
               <ScanLine size={58} />
-
-              <strong>
-                Caméra arrêtée
-              </strong>
-
-              <span>
-                Appuyez sur « Ouvrir la
-                caméra ».
-              </span>
+              <strong>Caméra arrêtée</strong>
+              <span>Appuyez sur « Ouvrir la caméra ».</span>
             </div>
           )}
-
-          {cameraActive && (
-            <div className={styles.cadre}>
-              <i />
-              <i />
-              <i />
-              <i />
-            </div>
-          )}
+          {cameraActive && <div className={styles.cadre}><i /><i /><i /><i /></div>}
         </div>
 
-        <div
-          className={
-            styles.actionsCamera
-          }
-        >
+        <div className={styles.actionsCamera}>
           {!cameraActive ? (
-            <button
-              type="button"
-              className={styles.primaire}
-              onClick={() =>
-                void demarrerCamera()
-              }
-            >
-              <Camera size={19} />
-              Ouvrir la caméra
+            <button type="button" className={styles.primaire} onClick={() => void demarrerCamera()}>
+              <Camera size={19} /> Ouvrir la caméra
             </button>
           ) : (
-            <button
-              type="button"
-              className={styles.secondaire}
-              onClick={arreterCamera}
-            >
-              Arrêter la caméra
-            </button>
+            <button type="button" className={styles.secondaire} onClick={arreterCamera}>Arrêter la caméra</button>
           )}
         </div>
+        {messageCamera && <p className={styles.avertissement}>{messageCamera}</p>}
 
-        {messageCamera && (
-          <p
-            className={
-              styles.avertissement
-            }
-          >
-            {messageCamera}
-          </p>
-        )}
-
-        <form
-          onSubmit={soumettre}
-          className={styles.formulaire}
-        >
-          <label>
-            Direction du passage
-          </label>
-
-          <div
-            className={styles.directions}
-          >
-            {(
-              [
-                "AUTO",
-                "ENTREE",
-                "SORTIE",
-              ] as Direction[]
-            ).map((sens) => (
-              <button
-                type="button"
-                key={sens}
-                className={
-                  direction === sens
-                    ? styles.actif
-                    : ""
-                }
-                onClick={() =>
-                  setDirection(sens)
-                }
-              >
-                {sens}
-              </button>
+        <form onSubmit={soumettre} className={styles.formulaire}>
+          <label>Direction du passage</label>
+          <div className={styles.directions}>
+            {(["AUTO", "ENTREE", "SORTIE"] as Direction[]).map((sens) => (
+              <button type="button" key={sens} className={direction === sens ? styles.actif : ""} onClick={() => setDirection(sens)}>{sens}</button>
             ))}
           </div>
-
-          <label htmlFor="uid">
-            Code QR / UID manuel
-          </label>
-
+          <label htmlFor="uid">Code QR / UID manuel</label>
           <div className={styles.saisie}>
-            <input
-              id="uid"
-              value={uid}
-              onChange={(event) =>
-                setUid(
-                  event.target.value,
-                )
-              }
-              placeholder="Scannez ou saisissez le code"
-              autoComplete="off"
-            />
-
-            <button
-              type="submit"
-              disabled={
-                !uid.trim() ||
-                chargement
-              }
-            >
-              {chargement
-                ? "Envoi..."
-                : "Valider"}
-            </button>
+            <input id="uid" value={uid} onChange={(event) => setUid(event.target.value)} placeholder="Scannez ou saisissez le code" autoComplete="off" />
+            <button type="submit" disabled={!uid.trim() || chargement}>{chargement ? "Envoi..." : "Valider"}</button>
           </div>
         </form>
       </article>
 
       <aside className={styles.resultat}>
         {!resultat ? (
-          <div className={styles.vide}>
-            <ScanLine size={42} />
-
-            <strong>
-              En attente d’un scan
-            </strong>
-
-            <span>
-              Le résultat apparaîtra ici.
-            </span>
-          </div>
+          <div className={styles.vide}><ScanLine size={42} /><strong>En attente d’un scan</strong><span>Le résultat apparaîtra ici.</span></div>
         ) : (
-          <div
-            className={
-              resultat.ok
-                ? styles.succes
-                : styles.echec
-            }
-          >
-            {resultat.ok ? (
-              <CheckCircle2 size={48} />
-            ) : (
-              <XCircle size={48} />
-            )}
-
-            <strong>
-              {resultat.message}
-            </strong>
-
+          <div className={resultat.ok ? styles.succes : styles.echec}>
+            {resultat.ok ? <CheckCircle2 size={48} /> : <XCircle size={48} />}
+            <strong>{resultat.message}</strong>
             {resultat.direction && (
-              <span
-                className={styles.pill}
-              >
+              <span className={styles.pill}>
                 {resultat.direction}
               </span>
             )}
-
+            {resultat.plage && (
+              <small>Plage : {resultat.plage}</small>
+            )}
             {resultat.personne?.nom && (
-              <div
-                className={
-                  styles.personne
-                }
-              >
-                {resultat.personne
-                  .photo ? (
-                  <img
-                    src={
-                      resultat.personne
-                        .photo
-                    }
-                    alt={
-                      resultat.personne
-                        .nom
-                    }
-                  />
-                ) : (
-                  <div
-                    className={
-                      styles.avatar
-                    }
-                  >
-                    {resultat.personne.nom
-                      .charAt(0)
-                      .toUpperCase()}
-                  </div>
-                )}
-
-                <div>
-                  <b>
-                    {
-                      resultat.personne
-                        .nom
-                    }
-                  </b>
-
-                  <span>
-                    {resultat.personne
-                      .classeOuFonction ||
-                      resultat.personne
-                        .type ||
-                      ""}
-                  </span>
-                </div>
+              <div className={styles.personne}>
+                {resultat.personne.photo ? <img src={resultat.personne.photo} alt="" /> : <div className={styles.avatar}>{resultat.personne.nom.charAt(0)}</div>}
+                <div><b>{resultat.personne.nom}</b><span>{resultat.personne.classeOuFonction || resultat.personne.type}</span></div>
               </div>
             )}
-
-            {resultat.horsLigne && (
-              <small>
-                Le scan sera envoyé
-                automatiquement plus tard.
-              </small>
-            )}
+            {resultat.horsLigne && <small>Le scan sera envoyé automatiquement plus tard.</small>}
           </div>
         )}
       </aside>

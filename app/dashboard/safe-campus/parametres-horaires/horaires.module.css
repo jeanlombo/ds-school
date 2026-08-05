@@ -1,0 +1,289 @@
+.retour {
+  margin-bottom: 16px;
+}
+
+.retour a {
+  display: inline-flex;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #245f9f;
+  background: #eef7ff;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.succes,
+.erreur {
+  margin-bottom: 16px;
+  padding: 13px 15px;
+  border-radius: 11px;
+  font-weight: 800;
+}
+
+.succes {
+  color: #06603f;
+  background: #d9fbe9;
+}
+
+.erreur {
+  color: #9d2020;
+  background: #fee2e2;
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.panel {
+  overflow: hidden;
+  border: 1px solid #d9e5f1;
+  border-radius: 19px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(16, 55, 95, .08);
+}
+
+.panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  color: #fff;
+  background: linear-gradient(135deg, #174b83, #2e81cd);
+}
+
+.panel header span {
+  font-size: .66rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.panel header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 5px 0 0;
+  font-size: 1.15rem;
+}
+
+.formulaire {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  padding: 22px;
+}
+
+.formulaire > label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.formulaire label > span,
+.formulaire legend {
+  color: #4b607b;
+  font-size: .74rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.formulaire input,
+.formulaire select {
+  min-height: 45px;
+  padding: 10px 12px;
+  border: 1px solid #d5e1ed;
+  border-radius: 10px;
+  outline: none;
+  background: #f8fafc;
+  font: inherit;
+}
+
+.formulaire input:focus,
+.formulaire select:focus {
+  border-color: #2d78c5;
+  box-shadow: 0 0 0 4px rgba(45, 120, 197, .12);
+}
+
+.formulaire small {
+  color: #77869a;
+}
+
+.large {
+  grid-column: 1 / -1;
+}
+
+.formulaire fieldset {
+  margin: 0;
+  padding: 13px;
+  border: 1px solid #d9e5f1;
+  border-radius: 12px;
+}
+
+.jours {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 9px;
+}
+
+.jours label {
+  position: relative;
+}
+
+.jours input {
+  position: absolute;
+  opacity: 0;
+}
+
+.jours span {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 0 11px;
+  border: 1px solid #d7e2ed;
+  border-radius: 9px;
+  color: #52667e;
+  background: #fff;
+  cursor: pointer;
+}
+
+.jours input:checked + span {
+  color: #fff;
+  border-color: #2877c2;
+  background: #2877c2;
+}
+
+.primaire {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(135deg, #16774f, #21a36c);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.liste {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+}
+
+.plage {
+  padding: 15px;
+  border: 1px solid #dce7f1;
+  border-radius: 13px;
+  background: #fbfdff;
+}
+
+.inactive {
+  opacity: .58;
+}
+
+.plageTitre {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plageTitre strong,
+.plageTitre span {
+  display: block;
+}
+
+.plageTitre strong {
+  color: #173a65;
+}
+
+.plageTitre span {
+  margin-top: 4px;
+  color: #75869a;
+  font-size: .78rem;
+}
+
+.plageTitre b {
+  padding: 6px 8px;
+  border-radius: 7px;
+  font-size: .66rem;
+}
+
+.entree {
+  color: #067647;
+  background: #d8f7e8;
+}
+
+.sortie {
+  color: #9a3412;
+  background: #ffedd5;
+}
+
+.heure {
+  margin: 13px 0 7px;
+  color: #245f9f;
+  font-size: 1.2rem;
+  font-weight: 950;
+}
+
+.plage > small {
+  color: #75869a;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.actions button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid #d7e2ed;
+  border-radius: 8px;
+  color: #315777;
+  background: #fff;
+  font: inherit;
+  font-size: .75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.actions .danger {
+  color: #b42318;
+  border-color: #fecaca;
+  background: #fff1f2;
+}
+
+.vide {
+  padding: 32px;
+  color: #76889d;
+  text-align: center;
+}
+
+@media (max-width: 980px) {
+  .grille {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .formulaire {
+    grid-template-columns: 1fr;
+  }
+
+  .large,
+  .primaire {
+    grid-column: auto;
+  }
+}
