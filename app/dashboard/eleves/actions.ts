@@ -2,13 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { randomUUID } from "crypto";
-import { mkdir, unlink, writeFile } from "fs/promises";
-import path from "path";
 import { prisma } from "@/lib/prisma";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
 import { exigerPermission } from "@/lib/securite/rbac";
+import {
+  enregistrerPhotoEleve,
+  supprimerPhotoEleve,
+} from "@/lib/uploads/photo-eleve";
 
 function texte(formData: FormData, cle: string) {
   const valeur = formData.get(cle);
@@ -20,70 +21,6 @@ function dateValide(valeur: string) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-const TYPES_PHOTO = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
-const TAILLE_MAX_PHOTO = 3 * 1024 * 1024;
-
-async function enregistrerPhotoEleve(formData: FormData) {
-  const valeur = formData.get("photoFichier");
-
-  if (!(valeur instanceof File) || valeur.size === 0) {
-    return null;
-  }
-
-  if (!TYPES_PHOTO.has(valeur.type)) {
-    throw new Error("Format de photo non autorisé");
-  }
-
-  if (valeur.size > TAILLE_MAX_PHOTO) {
-    throw new Error("La photo traitée dépasse 3 Mo");
-  }
-
-  const extension =
-    valeur.type === "image/png"
-      ? "png"
-      : valeur.type === "image/webp"
-        ? "webp"
-        : "jpg";
-
-  const nomFichier = `${Date.now()}-${randomUUID()}.${extension}`;
-  const dossier = path.join(
-    process.cwd(),
-    "public",
-    "uploads",
-    "eleves"
-  );
-
-  await mkdir(dossier, { recursive: true });
-
-  await writeFile(
-    path.join(dossier, nomFichier),
-    Buffer.from(await valeur.arrayBuffer())
-  );
-
-  return `/uploads/eleves/${nomFichier}`;
-}
-
-async function supprimerPhotoLocale(photo?: string | null) {
-  if (!photo || !photo.startsWith("/uploads/eleves/")) return;
-
-  const nom = path.basename(photo);
-
-  try {
-    await unlink(
-      path.join(
-        process.cwd(),
-        "public",
-        "uploads",
-        "eleves",
-        nom
-      )
-    );
-  } catch {}
-}
 
 export async function creerEleve(formData: FormData) {
   await exigerPermission("ELEVES_AJOUTER");
@@ -164,7 +101,11 @@ export async function creerEleve(formData: FormData) {
   let photo: string | null = null;
 
   try {
-    photo = await enregistrerPhotoEleve(formData);
+    photo = await enregistrerPhotoEleve({
+      eleveId: compteur + 1,
+      fichier: formData.get("photoFichier"),
+      anciennePhoto: null,
+    });
   } catch {
     redirect(
       "/dashboard/eleves/nouveau?erreur=La photo est invalide ou trop volumineuse"
@@ -292,7 +233,11 @@ export async function modifierEleve(formData: FormData) {
   let nouvellePhoto: string | null = null;
 
   try {
-    nouvellePhoto = await enregistrerPhotoEleve(formData);
+    nouvellePhoto = await enregistrerPhotoEleve({
+      eleveId: id,
+      fichier: formData.get("photoFichier"),
+      anciennePhoto: eleve.photo,
+    });
   } catch {
     redirect(
       `/dashboard/eleves/${id}/modifier?erreur=La photo est invalide ou trop volumineuse`
@@ -343,11 +288,11 @@ export async function modifierEleve(formData: FormData) {
   ]);
 
   if (
-    (nouvellePhoto || retirerPhoto) &&
-    eleve.photo &&
-    eleve.photo !== photoFinale
+    retirerPhoto &&
+    !nouvellePhoto &&
+    eleve.photo
   ) {
-    await supprimerPhotoLocale(eleve.photo);
+    await supprimerPhotoEleve(eleve.photo);
   }
 
   revalidatePath(`/dashboard/eleves/${id}`);
