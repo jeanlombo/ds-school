@@ -47,6 +47,10 @@ const DESTINATIONS_AUTORISEES: DestinationAutorisee[] = [
     href: "/dashboard/parents",
   },
   {
+    permission: "SUIVI_PARENT_VOIR",
+    href: "/dashboard/suivi-parent",
+  },
+  {
     permission: "ENSEIGNANTS_VOIR",
     href: "/dashboard/enseignants",
   },

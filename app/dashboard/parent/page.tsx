@@ -50,6 +50,24 @@ export default async function Page() {
     ORDER BY pe.principal DESC, e.nom ASC
   `;
 
+  const alertesNonLues = await prisma.$queryRaw<
+    Array<{ total: bigint | number }>
+  >`
+    SELECT COUNT(*) AS total
+    FROM suivi_parent_evenements s
+    INNER JOIN parents_eleves pe
+      ON pe.eleve_id = s.eleve_id
+      AND pe.parent_id = ${contexte.parentId}
+      AND pe.ecole_id = ${contexte.ecoleId}
+      AND pe.autorise_communication = 1
+    LEFT JOIN suivi_parent_lectures l
+      ON l.evenement_id = s.id
+      AND l.parent_id = ${contexte.parentId}
+    WHERE s.ecole_id = ${contexte.ecoleId}
+      AND s.visible_parent = 1
+      AND l.id IS NULL
+  `.catch(() => [{ total: 0 }]);
+
   return (
     <AdminShell
       utilisateur={contexte.utilisateur}
@@ -93,8 +111,8 @@ export default async function Page() {
         <article>
           <Bell />
           <div>
-            <small>Notifications</small>
-            <strong>Actives</strong>
+            <small>Alertes non lues</small>
+            <strong>{Number(alertesNonLues[0]?.total ?? 0)}</strong>
           </div>
         </article>
       </section>
@@ -158,12 +176,20 @@ export default async function Page() {
               )}
 
               {Boolean(enfant.autorise_communication) && (
-                <Link
-                  href={`/dashboard/parent/observations?eleveId=${enfant.eleve_id}`}
-                >
-                  <MessageSquareText size={16} />
-                  Observations
-                </Link>
+                <>
+                  <Link
+                    href={`/dashboard/parent/observations?eleveId=${enfant.eleve_id}`}
+                  >
+                    <MessageSquareText size={16} />
+                    Observations
+                  </Link>
+                  <Link
+                    href={`/dashboard/parent/alertes?eleveId=${enfant.eleve_id}`}
+                  >
+                    <Bell size={16} />
+                    Alertes et convocations
+                  </Link>
+                </>
               )}
             </div>
           </article>

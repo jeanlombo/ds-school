@@ -2,18 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import {
   BadgePercent,
+  Bell,
   BookOpen,
   BookOpenCheck,
-  CalendarDays,
-  CalendarClock,
   Building2,
+  CalendarCheck2,
+  CalendarClock,
+  CalendarDays,
   ChartNoAxesCombined,
   CircleDollarSign,
   ContactRound,
-  FileBarChart,
   FileBadge2,
+  FileBarChart,
   GraduationCap,
   HandCoins,
   Landmark,
@@ -21,8 +24,10 @@ import {
   LibraryBig,
   ListTree,
   Menu,
+  Presentation,
   ReceiptText,
   ScanLine,
+  Search,
   School,
   Settings,
   ShieldAlert,
@@ -30,14 +35,19 @@ import {
   SlidersHorizontal,
   UserRoundCheck,
   UserRoundCog,
-  CalendarCheck2,
   UsersRound,
-  Presentation,
   WalletCards,
   X,
 } from "lucide-react";
-import { ReactNode, useMemo, useState } from "react";
+
+import {
+  ReactNode,
+  useMemo,
+  useState,
+} from "react";
+
 import BoutonDeconnexion from "./BoutonDeconnexion";
+
 import styles from "./admin.module.css";
 
 type UtilisateurAdmin = {
@@ -69,90 +79,113 @@ const liens: LienMenu[] = [
     icon: LayoutDashboard,
     permission: "DASHBOARD_VOIR",
   },
+
   {
     href: "/dashboard/annees-scolaires",
     label: "Années scolaires",
     icon: CalendarDays,
     permission: "ANNEES_SCOLAIRES_VOIR",
   },
+
   {
     href: "/dashboard/sections",
     label: "Sections",
     icon: BookOpenCheck,
     permission: "SECTIONS_VOIR",
   },
+
   {
     href: "/dashboard/classes",
     label: "Classes",
     icon: School,
     permission: "CLASSES_VOIR",
   },
+
   {
     href: "/dashboard/eleves",
     label: "Élèves",
     icon: UsersRound,
     permission: "ELEVES_VOIR",
   },
+
   {
     href: "/dashboard/parents",
     label: "Parents",
     icon: UserRoundCog,
     permission: "PARENTS_VOIR",
   },
+
+  {
+    href: "/dashboard/suivi-parent",
+    label: "Suivi et communication Parent",
+    icon: Bell,
+    permission: "SUIVI_PARENT_VOIR",
+  },
+
   {
     href: "/dashboard/enseignants",
     label: "Enseignants",
     icon: UserRoundCheck,
     permission: "ENSEIGNANTS_VOIR",
   },
+
   {
     href: "/dashboard/matieres",
     label: "Matières",
     icon: BookOpen,
     permission: "MATIERES_VOIR",
   },
+
   {
     href: "/dashboard/parametres-academiques",
     label: "Paramètres académiques",
     icon: SlidersHorizontal,
     permission: "PARAMETRES_ACADEMIQUES_VOIR",
   },
+
   {
     href: "/dashboard/emploi-du-temps",
     label: "Emploi du temps",
     icon: CalendarClock,
     permission: "EMPLOI_DU_TEMPS_VOIR",
   },
+
   {
     href: "/dashboard/salles",
     label: "Salles",
     icon: Building2,
     permission: "SALLES_VOIR",
   },
+
   {
     href: "/dashboard/disponibilites-enseignants",
     label: "Disponibilités enseignants",
     icon: CalendarCheck2,
     permission: "DISPONIBILITES_ENSEIGNANTS_VOIR",
   },
+
   {
     href: "/dashboard/centre-academique",
     label: "Centre académique",
     icon: LibraryBig,
     permission: "ACADEMIQUE_VOIR",
   },
+
   {
-    href: "/dashboard/centre-academique/documents",
+    href:
+      "/dashboard/centre-academique/documents",
     label: "Documents sécurisés",
     icon: FileBadge2,
     permission: "DOCUMENTS_ACADEMIQUES_VOIR",
   },
+
   {
     href: "/dashboard/titulaire",
     label: "Espace titulaire",
     icon: Presentation,
     permission: "TITULAIRE_ESPACE_VOIR",
   },
+
   {
     href: "/dashboard/titulaires",
     label: "Affectation titulaires",
@@ -160,12 +193,36 @@ const liens: LienMenu[] = [
     permission: "TITULAIRES_GERER",
   },
 
+  /*
+   * BIBLIOTHÈQUE NUMÉRIQUE
+   */
+
+  {
+    href: "/dashboard/bibliotheque",
+    label: "Bibliothèque numérique",
+    icon: LibraryBig,
+    permission: "BIBLIOTHEQUE_VOIR",
+  },
+
+  {
+    href:
+      "/dashboard/bibliotheque/recherche-mondiale",
+    label: "Recherche mondiale",
+    icon: Search,
+    permission: "BIBLIOTHEQUE_VOIR",
+  },
+
+  /*
+   * CRM ET SAFE CAMPUS
+   */
+
   {
     href: "/dashboard/crm",
     label: "CRM scolaire",
     icon: ContactRound,
     permission: "CRM_VOIR",
   },
+
   {
     href: "/dashboard/safe-campus",
     label: "Safe Campus",
@@ -175,58 +232,69 @@ const liens: LienMenu[] = [
 
   /*
    * MODULE FINANCES
-   *
-   * FINANCES_VOIR affiche le tableau de bord général Finances.
-   * Chaque sous-module possède ensuite sa propre permission.
    */
+
   {
     href: "/dashboard/finances",
     label: "Finances",
     icon: ChartNoAxesCombined,
     permission: "FINANCES_VOIR",
   },
+
   {
-    href: "/dashboard/finances/categories-frais",
+    href:
+      "/dashboard/finances/categories-frais",
     label: "Catégories des frais",
     icon: ListTree,
     permission: "FINANCES_CATEGORIES_VOIR",
   },
+
   {
-    href: "/dashboard/finances/frais-scolaires",
+    href:
+      "/dashboard/finances/frais-scolaires",
     label: "Frais scolaires",
     icon: WalletCards,
     permission: "FINANCES_FRAIS_VOIR",
   },
+
   {
     href: "/dashboard/finances/paiements",
     label: "Paiements scolaires",
     icon: CircleDollarSign,
     permission: "FINANCES_PAIEMENTS_VOIR",
   },
+
   {
     href: "/dashboard/finances/recus",
     label: "Reçus",
     icon: ReceiptText,
     permission: "FINANCES_RECUS_VOIR",
   },
+
   {
     href: "/dashboard/finances/caisse",
     label: "Caisse scolaire",
     icon: Landmark,
     permission: "FINANCES_CAISSE_VOIR",
   },
+
   {
-    href: "/dashboard/finances/echeanciers",
+    href:
+      "/dashboard/finances/echeanciers",
     label: "Échéanciers",
     icon: HandCoins,
     permission: "FINANCES_ECHEANCIERS_VOIR",
   },
+
   {
-    href: "/dashboard/finances/bourses-remises",
+    href:
+      "/dashboard/finances/bourses-remises",
     label: "Bourses et remises",
     icon: BadgePercent,
-    permission: "FINANCES_BOURSES_REMISES_VOIR",
+    permission:
+      "FINANCES_BOURSES_REMISES_VOIR",
   },
+
   {
     href: "/dashboard/finances/rapports",
     label: "Rapports financiers",
@@ -234,12 +302,17 @@ const liens: LienMenu[] = [
     permission: "FINANCES_RAPPORTS_VOIR",
   },
 
+  /*
+   * SÉCURITÉ ET PARAMÈTRES
+   */
+
   {
     href: "/dashboard/securite",
     label: "Centre de Sécurité",
     icon: ShieldAlert,
     permission: "SECURITE_VOIR",
   },
+
   {
     href: "/dashboard/parametres",
     label: "Paramètres",
@@ -252,11 +325,14 @@ function possedePermission(
   utilisateur: UtilisateurAdmin,
   permission: string
 ): boolean {
-  if (utilisateur.superAdministrateur === true) {
+  if (
+    utilisateur.superAdministrateur === true
+  ) {
     return true;
   }
 
-  const permissions = utilisateur.permissions ?? [];
+  const permissions =
+    utilisateur.permissions ?? [];
 
   return (
     permissions.includes("*") ||
@@ -272,11 +348,16 @@ export default function AdminShell({
   action,
 }: Props) {
   const pathname = usePathname();
-  const [menuOuvert, setMenuOuvert] = useState(false);
+
+  const [menuOuvert, setMenuOuvert] =
+    useState(false);
 
   const liensVisibles = useMemo(() => {
     return liens.filter((lien) =>
-      possedePermission(utilisateur, lien.permission)
+      possedePermission(
+        utilisateur,
+        lien.permission
+      )
     );
   }, [
     utilisateur.permissions,
@@ -293,13 +374,17 @@ export default function AdminShell({
           type="button"
           className={styles.overlay}
           aria-label="Fermer le menu"
-          onClick={() => setMenuOuvert(false)}
+          onClick={() =>
+            setMenuOuvert(false)
+          }
         />
       )}
 
       <aside
         className={`${styles.sidebar} ${
-          menuOuvert ? styles.sidebarOuverte : ""
+          menuOuvert
+            ? styles.sidebarOuverte
+            : ""
         }`}
       >
         <div className={styles.logoLigne}>
@@ -320,7 +405,9 @@ export default function AdminShell({
           <button
             type="button"
             className={styles.fermer}
-            onClick={() => setMenuOuvert(false)}
+            onClick={() =>
+              setMenuOuvert(false)
+            }
             aria-label="Fermer le menu"
           >
             <X size={22} />
@@ -331,7 +418,9 @@ export default function AdminShell({
           <ShieldCheck size={18} />
 
           <div>
-            <strong>Administration</strong>
+            <strong>
+              Administration
+            </strong>
 
             <small>
               {utilisateur.superAdministrateur
@@ -343,25 +432,34 @@ export default function AdminShell({
 
         <nav className={styles.nav}>
           {liensVisibles.map(
-            ({ href, label, icon: Icon }) => {
+            ({
+              href,
+              label,
+              icon: Icon,
+            }) => {
               const actif =
                 href === "/dashboard"
                   ? pathname === href
                   : pathname === href ||
-                    pathname.startsWith(`${href}/`);
+                    pathname.startsWith(
+                      `${href}/`
+                    );
 
               return (
                 <Link
                   key={href}
                   href={href}
                   className={
-                    actif ? styles.actif : ""
+                    actif
+                      ? styles.actif
+                      : ""
                   }
                   onClick={() =>
                     setMenuOuvert(false)
                   }
                 >
                   <Icon size={19} />
+
                   <span>{label}</span>
                 </Link>
               );
@@ -369,7 +467,9 @@ export default function AdminShell({
           )}
         </nav>
 
-        <div className={styles.deconnexion}>
+        <div
+          className={styles.deconnexion}
+        >
           <BoutonDeconnexion />
         </div>
       </aside>
@@ -379,7 +479,9 @@ export default function AdminShell({
           <button
             type="button"
             className={styles.menu}
-            onClick={() => setMenuOuvert(true)}
+            onClick={() =>
+              setMenuOuvert(true)
+            }
             aria-label="Ouvrir le menu"
           >
             <Menu size={22} />

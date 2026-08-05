@@ -481,11 +481,23 @@ export async function creerRole(formData: FormData) {
 }
 
 export async function enregistrerPermissionsRole(
-  roleId: number,
   formData: FormData
 ) {
-  await exigerPermission("SECURITE_MODIFIER", "app/dashboard/securite/actions.ts::enregistrerPermissionsRole");
-  const { utilisateur, ecole } = await verifierAccesSecurite();
+  await exigerPermission(
+    "SECURITE_MODIFIER",
+    "app/dashboard/securite/actions.ts::enregistrerPermissionsRole"
+  );
+
+  const { utilisateur, ecole } =
+    await verifierAccesSecurite();
+
+  const roleId = entier(formData, "role_id");
+
+  if (roleId <= 0) {
+    redirect(
+      "/dashboard/securite/permissions?erreur=role_introuvable"
+    );
+  }
 
   const roles = await prisma.$queryRaw<
     Array<{
@@ -498,18 +510,21 @@ export async function enregistrerPermissionsRole(
     FROM roles_securite
     WHERE id = ${roleId}
       AND ecole_id = ${ecole.id}
+      AND actif = 1
     LIMIT 1
   `;
 
   const role = roles[0];
 
   if (!role) {
-    redirect("/dashboard/securite/permissions?erreur=role_introuvable");
+    redirect(
+      "/dashboard/securite/permissions?erreur=role_introuvable"
+    );
   }
 
   if (role.code === "SUPER_ADMIN") {
     redirect(
-      "/dashboard/securite/permissions?erreur=super_admin_protege"
+      `/dashboard/securite/permissions?erreur=super_admin_protege&roleId=${roleId}`
     );
   }
 
@@ -520,48 +535,60 @@ export async function enregistrerPermissionsRole(
         .map((valeur) => Number(valeur))
         .filter(
           (valeur) =>
-            Number.isInteger(valeur) && valeur > 0
+            Number.isInteger(valeur) &&
+            valeur > 0
         )
     ),
   ];
 
-  await prisma.$transaction(async (tx) => {
-    await tx.$executeRaw`
-      DELETE FROM roles_permissions_securite
-      WHERE role_id = ${roleId}
-    `;
-
-    for (const permissionId of permissions) {
-      const permissionExiste = await tx.$queryRaw<
-        Array<{ id: number }>
-      >`
-        SELECT id
-        FROM permissions_securite
-        WHERE id = ${permissionId}
-          AND actif = 1
-        LIMIT 1
-      `;
-
-      if (!permissionExiste.length) {
-        continue;
-      }
-
+  try {
+    await prisma.$transaction(async (tx) => {
       await tx.$executeRaw`
-        INSERT INTO roles_permissions_securite
-        (
-          role_id,
-          permission_id,
-          created_at
-        )
-        VALUES
-        (
-          ${roleId},
-          ${permissionId},
-          NOW()
-        )
+        DELETE FROM roles_permissions_securite
+        WHERE role_id = ${roleId}
       `;
-    }
-  });
+
+      for (const permissionId of permissions) {
+        const permissionExiste = await tx.$queryRaw<
+          Array<{ id: number }>
+        >`
+          SELECT id
+          FROM permissions_securite
+          WHERE id = ${permissionId}
+            AND actif = 1
+          LIMIT 1
+        `;
+
+        if (!permissionExiste.length) {
+          continue;
+        }
+
+        await tx.$executeRaw`
+          INSERT INTO roles_permissions_securite
+          (
+            role_id,
+            permission_id,
+            created_at
+          )
+          VALUES
+          (
+            ${roleId},
+            ${permissionId},
+            NOW()
+          )
+        `;
+      }
+    });
+  } catch (erreur) {
+    console.error(
+      "Erreur lors de l'enregistrement des permissions :",
+      erreur
+    );
+
+    redirect(
+      `/dashboard/securite/permissions?erreur=enregistrement&roleId=${roleId}`
+    );
+  }
 
   await journal(
     ecole.id,

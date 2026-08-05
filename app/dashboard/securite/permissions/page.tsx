@@ -1,21 +1,33 @@
 import { redirect } from "next/navigation";
-import { KeyRound, Save } from "lucide-react";
+import {
+  KeyRound,
+  Save,
+  ShieldCheck,
+} from "lucide-react";
+
 import { prisma } from "@/lib/prisma";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
+
 import AdminShell from "@/components/admin/AdminShell";
 import RetourDashboard from "../RetourDashboard";
 import { enregistrerPermissionsRole } from "../actions";
+
 import styles from "../securite.module.css";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ roleId?: string; succes?: string }>;
+  searchParams: Promise<{
+    roleId?: string;
+    succes?: string;
+    erreur?: string;
+  }>;
 };
 
 type Role = {
   id: number;
+  code: string;
   nom: string;
 };
 
@@ -27,41 +39,98 @@ type Permission = {
   action: string;
 };
 
-export default async function PagePermissions({ searchParams }: Props) {
-  const utilisateur = await obtenirUtilisateurConnecte();
-  if (!utilisateur) redirect("/connexion");
+export default async function PagePermissions({
+  searchParams,
+}: Props) {
+  const utilisateur =
+    await obtenirUtilisateurConnecte();
+
+  if (!utilisateur) {
+    redirect("/connexion");
+  }
 
   const ecole = await obtenirOuCreerEcole();
   const params = await searchParams;
 
   const roles = await prisma.$queryRaw<Role[]>`
-    SELECT id, nom
+    SELECT
+      id,
+      code,
+      nom
     FROM roles_securite
     WHERE ecole_id = ${ecole.id}
       AND actif = 1
-    ORDER BY nom ASC
+    ORDER BY
+      CASE
+        WHEN code = 'SUPER_ADMIN' THEN 0
+        ELSE 1
+      END,
+      nom ASC
   `;
 
-  const roleId = Number(params.roleId ?? roles[0]?.id ?? 0);
+  const premierRoleId =
+    roles[0]?.id ?? 0;
 
-  const [permissions, selectionnees] = await Promise.all([
-    prisma.$queryRaw<Permission[]>`
-      SELECT id, module, code, nom, action
-      FROM permissions_securite
-      WHERE actif = 1
-      ORDER BY module ASC, action ASC
-    `,
-    roleId
-      ? prisma.$queryRaw<Array<{ permission_id: number }>>`
-          SELECT permission_id
-          FROM roles_permissions_securite
-          WHERE role_id = ${roleId}
-        `
-      : Promise.resolve([]),
-  ]);
+  const roleIdBrut = Number(
+    params.roleId ?? premierRoleId
+  );
 
-  const setSelection = new Set(selectionnees.map((x) => Number(x.permission_id)));
-  const modules = [...new Set(permissions.map((p) => p.module))];
+  const roleId =
+    Number.isInteger(roleIdBrut) &&
+    roleIdBrut > 0
+      ? roleIdBrut
+      : premierRoleId;
+
+  const roleSelectionne =
+    roles.find((role) => role.id === roleId) ??
+    null;
+
+  const estSuperAdministrateur =
+    roleSelectionne?.code === "SUPER_ADMIN";
+
+  const [permissions, selectionnees] =
+    await Promise.all([
+      prisma.$queryRaw<Permission[]>`
+        SELECT
+          id,
+          module,
+          code,
+          nom,
+          action
+        FROM permissions_securite
+        WHERE actif = 1
+        ORDER BY
+          module ASC,
+          action ASC,
+          nom ASC
+      `,
+
+      roleId && !estSuperAdministrateur
+        ? prisma.$queryRaw<
+            Array<{
+              permission_id: number;
+            }>
+          >`
+            SELECT permission_id
+            FROM roles_permissions_securite
+            WHERE role_id = ${roleId}
+          `
+        : Promise.resolve([]),
+    ]);
+
+  const setSelection = new Set(
+    selectionnees.map((selection) =>
+      Number(selection.permission_id)
+    )
+  );
+
+  const modules = [
+    ...new Set(
+      permissions.map(
+        (permission) => permission.module
+      )
+    ),
+  ];
 
   return (
     <AdminShell
@@ -71,61 +140,225 @@ export default async function PagePermissions({ searchParams }: Props) {
     >
       <RetourDashboard />
 
-      {params.succes && <div className={styles.succes}>Permissions enregistrées.</div>}
+      {params.succes === "enregistrement" && (
+        <div className={styles.succes}>
+          Permissions enregistrées avec succès.
+        </div>
+      )}
+
+      {params.erreur ===
+        "role_introuvable" && (
+        <div className={styles.erreur}>
+          Le rôle sélectionné est introuvable.
+        </div>
+      )}
+
+      {params.erreur ===
+        "enregistrement" && (
+        <div className={styles.erreur}>
+          Une erreur a empêché
+          l’enregistrement des permissions.
+          Consultez le terminal pour voir le
+          détail.
+        </div>
+      )}
 
       <section className={styles.panel}>
         <form className={styles.filtres}>
           <label>
             <span>Rôle à configurer</span>
-            <select name="roleId" defaultValue={roleId}>
+
+            <select
+              name="roleId"
+              defaultValue={roleId}
+            >
               {roles.map((role) => (
-                <option key={role.id} value={role.id}>{role.nom}</option>
+                <option
+                  key={role.id}
+                  value={role.id}
+                >
+                  {role.nom}
+                </option>
               ))}
             </select>
           </label>
-          <button type="submit">Afficher</button>
+
+          <button type="submit">
+            Afficher
+          </button>
         </form>
       </section>
 
-      {roleId ? (
-        <form action={enregistrerPermissionsRole.bind(null, roleId)}>
-          <section className={styles.matricePermissions}>
-            {modules.map((module) => (
-              <article key={module}>
-                <header>
-                  <KeyRound size={20}/>
-                  <h3>{module}</h3>
-                </header>
+      {!roleId || !roleSelectionne ? (
+        <div className={styles.erreur}>
+          Créez d’abord un rôle.
+        </div>
+      ) : estSuperAdministrateur ? (
+        <>
+          <div className={styles.succes}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <ShieldCheck size={22} />
 
-                <div>
-                  {permissions
-                    .filter((permission) => permission.module === module)
-                    .map((permission) => (
-                      <label key={permission.id}>
-                        <input
-                          type="checkbox"
-                          name="permissions"
-                          value={permission.id}
-                          defaultChecked={setSelection.has(permission.id)}
-                        />
-                        <span>{permission.nom}</span>
-                        <small>{permission.action}</small>
-                      </label>
-                    ))}
+              <div>
+                <strong>
+                  Accès intégral automatique
+                </strong>
+
+                <div
+                  style={{
+                    marginTop: 4,
+                    fontWeight: 600,
+                  }}
+                >
+                  Le rôle Super Administrateur
+                  possède automatiquement toutes
+                  les permissions. Ses droits sont
+                  protégés et ne doivent pas être
+                  enregistrés manuellement.
                 </div>
-              </article>
-            ))}
+              </div>
+            </div>
+          </div>
+
+          <section
+            className={
+              styles.matricePermissions
+            }
+          >
+            {modules.map((module) => {
+              const permissionsModule =
+                permissions.filter(
+                  (permission) =>
+                    permission.module === module
+                );
+
+              return (
+                <article key={module}>
+                  <header>
+                    <KeyRound size={20} />
+                    <h3>{module}</h3>
+                  </header>
+
+                  <div>
+                    {permissionsModule.map(
+                      (permission) => (
+                        <label
+                          key={permission.id}
+                          style={{
+                            cursor: "default",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked
+                            disabled
+                            readOnly
+                          />
+
+                          <span>
+                            {permission.nom}
+                          </span>
+
+                          <small>
+                            {permission.action}
+                          </small>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </section>
 
-          <div className={styles.actionsFinales}>
-            <button type="submit" className={styles.primaire}>
-              <Save size={17}/>
+          <div className={styles.succes}>
+            Toutes les {permissions.length}{" "}
+            permissions actives sont accordées
+            automatiquement au Super
+            Administrateur.
+          </div>
+        </>
+      ) : (
+        <form
+          action={enregistrerPermissionsRole}
+        >
+          <input
+            type="hidden"
+            name="role_id"
+            value={roleId}
+          />
+
+          <section
+            className={
+              styles.matricePermissions
+            }
+          >
+            {modules.map((module) => {
+              const permissionsModule =
+                permissions.filter(
+                  (permission) =>
+                    permission.module === module
+                );
+
+              return (
+                <article key={module}>
+                  <header>
+                    <KeyRound size={20} />
+
+                    <h3>{module}</h3>
+                  </header>
+
+                  <div>
+                    {permissionsModule.map(
+                      (permission) => (
+                        <label
+                          key={permission.id}
+                        >
+                          <input
+                            type="checkbox"
+                            name="permissions"
+                            value={permission.id}
+                            defaultChecked={setSelection.has(
+                              permission.id
+                            )}
+                          />
+
+                          <span>
+                            {permission.nom}
+                          </span>
+
+                          <small>
+                            {permission.action}
+                          </small>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+
+          <div
+            className={
+              styles.actionsFinales
+            }
+          >
+            <button
+              type="submit"
+              className={styles.primaire}
+            >
+              <Save size={17} />
               Enregistrer les permissions
             </button>
           </div>
         </form>
-      ) : (
-        <div className={styles.erreur}>Créez d’abord un rôle.</div>
       )}
     </AdminShell>
   );

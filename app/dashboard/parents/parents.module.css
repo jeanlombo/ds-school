@@ -528,3 +528,384 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   COMPTES PARENTS V2 — DESIGN PREMIUM
+========================================================= */
+
+.heroComptesParents {
+  display: flex;
+  min-height: 190px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 20px;
+  padding: 32px 36px;
+  overflow: hidden;
+  border-radius: 24px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 88% 15%, rgba(255, 255, 255, .23), transparent 28%),
+    linear-gradient(135deg, #0f3b72, #1764ad 58%, #e6ad26);
+  box-shadow: 0 20px 46px rgba(20, 79, 145, .22);
+}
+
+.heroComptesParents span,
+.entetePanelParent span,
+.enteteListeParents > div > span {
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.heroComptesParents h2 {
+  max-width: 780px;
+  margin: 8px 0 10px;
+  font-size: clamp(1.7rem, 3vw, 2.45rem);
+}
+
+.heroComptesParents p {
+  max-width: 760px;
+  margin: 0;
+  color: rgba(255, 255, 255, .86);
+  line-height: 1.65;
+}
+
+.heroComptesParents > svg {
+  flex: 0 0 auto;
+  opacity: .95;
+}
+
+.statsComptesParents {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.statsComptesParents article {
+  display: flex;
+  min-height: 105px;
+  align-items: center;
+  gap: 13px;
+  padding: 18px;
+  border: 1px solid #dbe7f3;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fff, #f7fbff);
+  box-shadow: 0 11px 28px rgba(15, 23, 42, .055);
+}
+
+.statsComptesParents article > span {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, #1c63ae, #3184d4);
+}
+
+.statsComptesParents article:nth-child(3) > span {
+  background: linear-gradient(135deg, #078560, #22b884);
+}
+
+.statsComptesParents article:nth-child(4) > span {
+  background: linear-gradient(135deg, #b77900, #e5a91d);
+}
+
+.statsComptesParents small,
+.statsComptesParents strong {
+  display: block;
+}
+
+.statsComptesParents small {
+  margin-bottom: 5px;
+  color: #64748b;
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.statsComptesParents strong {
+  color: #10254a;
+  font-size: 1.5rem;
+}
+
+.panelLiaisonParent {
+  border-top: 4px solid #236db9;
+}
+
+.entetePanelParent {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.iconeTitreParent {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(135deg, #1e5795, #2f80cf);
+}
+
+.entetePanelParent span,
+.enteteListeParents > div > span {
+  color: #2870b7;
+}
+
+.entetePanelParent h2,
+.enteteListeParents h2 {
+  margin: 4px 0 5px;
+  color: #172b50;
+}
+
+.entetePanelParent p,
+.enteteListeParents p {
+  margin: 0;
+  color: #6b7d94;
+  line-height: 1.55;
+}
+
+.formulaireLiaisonParent {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 15px;
+  padding: 18px;
+  border: 1px solid #dbe7f3;
+  border-radius: 16px;
+  background: #f8fbff;
+}
+
+.formulaireLiaisonParent label {
+  display: grid;
+  gap: 7px;
+}
+
+.formulaireLiaisonParent label > span {
+  color: #526175;
+  font-size: .72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.formulaireLiaisonParent select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid #cfddeb;
+  border-radius: 11px;
+  outline: none;
+  color: #1f365d;
+  background: #fff;
+  font: inherit;
+}
+
+.formulaireLiaisonParent select:focus {
+  border-color: #2b76bf;
+  box-shadow: 0 0 0 3px rgba(43, 118, 191, .12);
+}
+
+.formulaireLiaisonParent label small {
+  color: #8190a3;
+  font-size: .7rem;
+}
+
+.boutonLiaisonParent {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(135deg, #087b59, #11a878);
+  box-shadow: 0 9px 20px rgba(8, 123, 89, .2);
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 850;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.boutonLiaisonParent:hover {
+  transform: translateY(-1px);
+}
+
+.enteteListeParents {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 17px;
+}
+
+.enteteListeParents > strong {
+  display: inline-flex;
+  min-height: 35px;
+  align-items: center;
+  padding: 0 11px;
+  border-radius: 999px;
+  color: #185eaa;
+  background: #e6f1fc;
+  font-size: .75rem;
+}
+
+.tableauComptesParents {
+  overflow-x: auto;
+  border: 1px solid #e0e8f1;
+  border-radius: 14px;
+}
+
+.tableauComptesParents table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+}
+
+.tableauComptesParents th,
+.tableauComptesParents td {
+  padding: 14px 13px;
+  border-bottom: 1px solid #e8eef5;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tableauComptesParents th {
+  color: #53677f;
+  background: #f5f9fd;
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+
+.tableauComptesParents td {
+  color: #34465e;
+  font-size: .8rem;
+}
+
+.tableauComptesParents tbody tr:hover {
+  background: #f8fbff;
+}
+
+.tableauComptesParents tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.identiteParentLiaison {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.identiteParentLiaison > span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(135deg, #1f5d9c, #3a8bd6);
+  font-weight: 900;
+}
+
+.identiteParentLiaison strong {
+  color: #17325d;
+}
+
+.statutCompteActif,
+.statutCompteInactif {
+  display: inline-flex;
+  min-height: 27px;
+  align-items: center;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: .67rem;
+  font-weight: 900;
+}
+
+.statutCompteActif {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.statutCompteInactif {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.videCompteParent {
+  display: grid;
+  min-height: 210px;
+  place-items: center;
+  padding: 28px;
+  text-align: center;
+  color: #708198;
+}
+
+.videCompteParent svg {
+  color: #2870b7;
+}
+
+.videCompteParent h3 {
+  margin: 10px 0 4px;
+  color: #17325d;
+}
+
+.videCompteParent p {
+  margin: 0;
+}
+
+@media (max-width: 1050px) {
+  .statsComptesParents {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .formulaireLiaisonParent {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .boutonLiaisonParent {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .heroComptesParents {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 26px 22px;
+  }
+
+  .heroComptesParents > svg {
+    display: none;
+  }
+
+  .statsComptesParents,
+  .formulaireLiaisonParent {
+    grid-template-columns: 1fr;
+  }
+
+  .boutonLiaisonParent {
+    grid-column: auto;
+  }
+
+  .enteteListeParents {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .enteteListeParents > strong {
+    align-self: flex-start;
+  }
+}
