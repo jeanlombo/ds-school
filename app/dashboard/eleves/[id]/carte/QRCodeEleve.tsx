@@ -8,26 +8,42 @@ type QRCodeEleveProps = {
   nomEleve: string;
 };
 
-export default function QRCodeEleve({ contenu, nomEleve }: QRCodeEleveProps) {
+export default function QRCodeEleve({
+  contenu,
+  nomEleve,
+}: QRCodeEleveProps) {
   const [qrCode, setQrCode] = useState("");
+  const [erreur, setErreur] = useState(false);
 
   useEffect(() => {
     let actif = true;
 
+    setQrCode("");
+    setErreur(false);
+
     QRCode.toDataURL(contenu, {
-      width: 320,
-      margin: 1,
-      errorCorrectionLevel: "H",
+      width: 512,
+      margin: 3,
+      errorCorrectionLevel: "M",
       color: {
-        dark: "#173f72",
+        dark: "#000000",
         light: "#ffffff",
       },
     })
       .then((url) => {
-        if (actif) setQrCode(url);
+        if (actif) {
+          setQrCode(url);
+        }
       })
-      .catch((erreur) => {
-        console.error("Impossible de générer le QR Code de l’élève :", erreur);
+      .catch((cause) => {
+        console.error(
+          "Impossible de générer le QR Code de l’élève :",
+          cause
+        );
+
+        if (actif) {
+          setErreur(true);
+        }
       });
 
     return () => {
@@ -35,16 +51,29 @@ export default function QRCodeEleve({ contenu, nomEleve }: QRCodeEleveProps) {
     };
   }, [contenu]);
 
+  if (erreur) {
+    return (
+      <div className="qr-error">
+        QR indisponible
+      </div>
+    );
+  }
+
   if (!qrCode) {
-    return <div className="qr-loading">Génération…</div>;
+    return (
+      <div className="qr-loading">
+        Génération…
+      </div>
+    );
   }
 
   return (
     <img
       src={qrCode}
-      alt={`QR Code de ${nomEleve}`}
-      width={132}
-      height={132}
+      alt={`QR Code Safe Campus de ${nomEleve}`}
+      width={160}
+      height={160}
+      draggable={false}
     />
   );
 }
