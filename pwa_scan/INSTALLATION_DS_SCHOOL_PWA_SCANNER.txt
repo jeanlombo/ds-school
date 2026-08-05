@@ -1,0 +1,72 @@
+DS SCHOOL PWA SCANNER V1 — INSTALLATION
+=======================================
+
+TYPE DE MISE À JOUR
+-------------------
+Mise à jour PARTIELLE. Ne supprimez pas le projet DS School existant.
+Copiez le contenu du ZIP à la racine de :
+C:\xampp\htdocs\ds-school
+Puis acceptez le remplacement des deux fichiers existants :
+- app\layout.tsx
+- app\dashboard\safe-campus\page.tsx
+
+NOUVEAUX FICHIERS
+-----------------
+- app\mobile\scanner\page.tsx
+- app\mobile\scanner\scanner.module.css
+- app\api\mobile\scanner\route.ts
+- components\mobile\ScannerPwaClient.tsx
+- public\manifest.webmanifest
+- public\sw-ds-school.js
+- public\icons\ds-scanner-192.png
+- public\icons\ds-scanner-512.png
+
+FONCTIONNEMENT
+--------------
+1. L'utilisateur se connecte normalement à DS School.
+2. Il ouvre : https://ds-school.digigroupe.dev/mobile/scanner
+3. Il autorise la caméra.
+4. Il scanne un QR Code contenant l'UID d'une carte déjà enregistrée dans cartes_rfid.
+5. Le passage est synchronisé immédiatement dans passages_rfid.
+6. Sans Internet, le scan est stocké dans IndexedDB.
+7. Au retour de la connexion, la synchronisation reprend automatiquement.
+
+COMPATIBILITÉ
+-------------
+- QR caméra : navigateurs proposant BarcodeDetector (Chrome/Edge récents principalement).
+- NFC Web : disponible seulement sur les appareils/navigateurs compatibles.
+- Tous appareils : saisie manuelle et lecteurs USB HID fonctionnent.
+- iPhone : l'installation PWA se fait via Safari > Partager > Sur l'écran d'accueil.
+
+SÉCURITÉ
+--------
+- Aucun secret API n'est exposé dans la PWA.
+- La route mobile utilise la session DS School et la permission SAFE_CAMPUS_VOIR.
+- Les utilisateurs non connectés ne peuvent pas enregistrer de passage.
+
+COMMANDES DE TEST
+-----------------
+cd /d C:\xampp\htdocs\ds-school
+npm run build
+npm run dev
+
+DÉPLOIEMENT
+-----------
+git add .
+git commit -m "Ajout PWA Scanner Safe Campus"
+git push origin main
+
+AJOUTS FUTURS — OÙ MODIFIER
+---------------------------
+- Interface mobile : components\mobile\ScannerPwaClient.tsx
+- Design : app\mobile\scanner\scanner.module.css
+- Traitement serveur d'un scan : app\api\mobile\scanner\route.ts
+- Nom/icônes PWA : public\manifest.webmanifest et public\icons\
+- Cache hors connexion : public\sw-ds-school.js
+- Accès depuis Safe Campus : app\dashboard\safe-campus\page.tsx
+
+IMPORTANT
+---------
+Cette V1 synchronise les passages Safe Campus existants (QR/RFID/NFC).
+Les modules Bus, Cantine, Bibliothèque et Infirmerie pourront être ajoutés ensuite
+sur la même base PWA, avec leurs propres routes API et écrans.
