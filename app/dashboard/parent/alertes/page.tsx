@@ -3,7 +3,7 @@ import { Bell } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { exigerEnfantDuParent } from "@/lib/parent-portail";
 import AdminShell from "@/components/admin/AdminShell";
-import styles from "../../parent.module.css";
+import styles from "../parent.module.css";
 
 export const dynamic = "force-dynamic";
 type Props = {

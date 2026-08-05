@@ -11,7 +11,7 @@ import {
   marquerAlerteCommeLue,
   repondreAlerteParent,
 } from "../actions";
-import styles from "../../../parent.module.css";
+import styles from "../../parent.module.css";
 
 export const dynamic = "force-dynamic";
 type Props = {
