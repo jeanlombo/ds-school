@@ -31,16 +31,14 @@ export async function GET(
     );
   }
 
-  return new NextResponse(contenu, {
-    status: 200,
-    headers: {
-      "Content-Type": typeMimeLogo(nom),
-      "Content-Length": String(
-        contenu.byteLength
-      ),
-      "Cache-Control":
-        "public, max-age=3600, stale-while-revalidate=86400",
-      "X-Content-Type-Options": "nosniff",
-    },
-  });
+const corps = new Uint8Array(contenu);
+
+return new NextResponse(corps, {
+  status: 200,
+  headers: {
+    "Content-Type": typeMimeLogo(nom),
+    "Content-Length": String(corps.byteLength),
+    "Cache-Control": "public, max-age=3600",
+  },
+});;
 }
