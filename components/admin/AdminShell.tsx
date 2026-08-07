@@ -342,6 +342,14 @@ const liens: LienMenu[] = [
   },
 
   {
+    href: "/dashboard/etablissements",
+    label: "Établissements",
+    icon: Building2,
+    permission: "SUPER_ADMIN_ETABLISSEMENTS",
+    superAdminOnly: true,
+  },
+
+  {
     href: "/dashboard/organisations",
     label: "Clients & groupes",
     icon: Network,
