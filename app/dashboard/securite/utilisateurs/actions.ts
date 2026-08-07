@@ -6,7 +6,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hacherMotDePasse } from "@/lib/mot-de-passe";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
-import { verifierQuota } from "@/lib/licence";
+import { exigerEcoleActive } from "@/lib/multi-etablissement";
+import { verifierQuotaUtilisateurs } from "@/lib/isolation-saas";
 
 /* =========================================================
    OUTILS
@@ -73,20 +74,7 @@ async function contexteAdministrateur() {
     );
   }
 
-  const ecole = await prisma.ecole.findFirst({
-    orderBy: {
-      id: "asc",
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (!ecole) {
-    throw new Error(
-      "Aucune école n’est configurée dans le système."
-    );
-  }
+  const ecole = await exigerEcoleActive();
 
   return {
     utilisateur,
@@ -149,8 +137,6 @@ export async function creerUtilisateurEnterprise(
     utilisateur: administrateur,
     ecoleId,
   } = await contexteAdministrateur();
-  const quota = await verifierQuota(ecoleId, "utilisateurs");
-  if (!quota.autorise) redirect(`/dashboard/securite/utilisateurs?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
 
   const nom = texte(formData, "nom");
   const email = texte(
@@ -245,11 +231,13 @@ export async function creerUtilisateurEnterprise(
     );
   }
 
+  await verifierQuotaUtilisateurs(ecoleId);
+
   const motDePasseHash =
     await hacherMotDePasse(motDePasse);
 
   await prisma.$transaction(async (tx) => {
-    await tx.utilisateur.create({
+    const comptePrincipalCree = await tx.utilisateur.create({
       data: {
         nom,
         email,
@@ -260,6 +248,17 @@ export async function creerUtilisateurEnterprise(
         ),
       },
     });
+
+    await tx.$executeRaw`
+      INSERT INTO utilisateurs_etablissements
+        (utilisateur_id, ecole_id, role_etablissement, principal, actif)
+      VALUES
+        (${comptePrincipalCree.id}, ${ecoleId}, ${role.nom}, 1, 1)
+      ON DUPLICATE KEY UPDATE
+        role_etablissement=VALUES(role_etablissement),
+        principal=VALUES(principal),
+        actif=1
+    `;
 
     await tx.$executeRaw`
       INSERT INTO utilisateurs_securite

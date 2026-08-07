@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
+import { exigerEcoleActive } from "@/lib/multi-etablissement";
 import AdminShell from "@/components/admin/AdminShell";
 import RetourDashboard from "../RetourDashboard";
 import {
@@ -37,14 +38,7 @@ export default async function PageUtilisateurs({ searchParams }: Props) {
   const recherche = String(params.q ?? "").trim();
   const statut = String(params.statut ?? "").trim();
 
-  const ecole = await prisma.ecole.findFirst({
-    orderBy: { id: "asc" },
-    select: { id: true },
-  });
-
-  if (!ecole) {
-    throw new Error("Aucune école configurée.");
-  }
+  const ecole = await exigerEcoleActive();
 
   const [roles, utilisateurs] = await Promise.all([
     prisma.$queryRaw<Array<{ id: number; nom: string; code: string }>>`

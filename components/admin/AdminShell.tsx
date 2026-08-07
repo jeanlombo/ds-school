@@ -38,6 +38,7 @@ import {
   SlidersHorizontal,
   UserRoundCheck,
   UserRoundCog,
+  Users,
   UsersRound,
   WalletCards,
   X,
@@ -329,6 +330,14 @@ const liens: LienMenu[] = [
     label: "Centre SaaS DIGIGROUPE",
     icon: LayoutDashboard,
     permission: "SUPER_ADMIN_SAAS",
+    superAdminOnly: true,
+  },
+
+  {
+    href: "/dashboard/comptes-clients",
+    label: "Comptes clients",
+    icon: Users,
+    permission: "SUPER_ADMIN_COMPTES_CLIENTS",
     superAdminOnly: true,
   },
 
