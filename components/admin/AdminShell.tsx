@@ -21,6 +21,8 @@ import {
   HandCoins,
   Landmark,
   KeyRound,
+  Network,
+  ChevronsUpDown,
   LayoutDashboard,
   LibraryBig,
   ListTree,
@@ -313,6 +315,29 @@ const liens: LienMenu[] = [
     label: "Centre de Sécurité",
     icon: ShieldAlert,
     permission: "SECURITE_VOIR",
+  },
+
+  {
+    href: "/dashboard/mes-etablissements",
+    label: "Mes établissements",
+    icon: ChevronsUpDown,
+    permission: "DASHBOARD_VOIR",
+  },
+
+  {
+    href: "/dashboard/saas",
+    label: "Centre SaaS DIGIGROUPE",
+    icon: LayoutDashboard,
+    permission: "SUPER_ADMIN_SAAS",
+    superAdminOnly: true,
+  },
+
+  {
+    href: "/dashboard/organisations",
+    label: "Clients & groupes",
+    icon: Network,
+    permission: "SUPER_ADMIN_ORGANISATIONS",
+    superAdminOnly: true,
   },
 
   {
