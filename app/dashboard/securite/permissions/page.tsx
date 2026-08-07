@@ -132,12 +132,12 @@ export default async function PagePermissions({
             ${proprietaire ? 1 : 0} = 0
             OR (
               code <> '*'
-              AND code NOT LIKE 'SECURITE\_%' ESCAPE '\\'
-              AND code NOT LIKE 'SUPER_ADMIN\_%' ESCAPE '\\'
-              AND code NOT LIKE 'SAAS\_%' ESCAPE '\\'
-              AND code NOT LIKE 'LICENCE\_%' ESCAPE '\\'
-              AND code NOT LIKE 'ABONNEMENT\_%' ESCAPE '\\'
-              AND code NOT LIKE 'ORGANISATION\_%' ESCAPE '\\'
+              AND LEFT(code, 9) <> 'SECURITE_'
+              AND LEFT(code, 12) <> 'SUPER_ADMIN_'
+              AND LEFT(code, 5) <> 'SAAS_'
+              AND LEFT(code, 8) <> 'LICENCE_'
+              AND LEFT(code, 11) <> 'ABONNEMENT_'
+              AND LEFT(code, 13) <> 'ORGANISATION_'
             )
           )
         ORDER BY
