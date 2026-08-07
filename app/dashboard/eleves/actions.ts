@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
+import { verifierQuota } from "@/lib/licence";
 import { exigerPermission } from "@/lib/securite/rbac";
 import {
   enregistrerPhotoEleve,
@@ -29,6 +30,8 @@ export async function creerEleve(formData: FormData) {
   if (!utilisateur) redirect("/connexion");
 
   const ecole = await obtenirOuCreerEcole();
+  const quota = await verifierQuota(ecole.id, "eleves");
+  if (!quota.autorise) redirect(`/dashboard/eleves/nouveau?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
   const nom = texte(formData, "nom");
   const prenom = texte(formData, "prenom");
   const sexe = texte(formData, "sexe");

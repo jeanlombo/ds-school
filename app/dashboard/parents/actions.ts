@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
+import { verifierQuota } from "@/lib/licence";
 
 function texte(formData: FormData, cle: string): string {
   return String(formData.get(cle) ?? "").trim();
@@ -75,6 +76,8 @@ async function identifiantUnique(
 export async function creerParent(formData: FormData) {
   await exigerPermission("PARENTS_AJOUTER", "app/dashboard/parents/actions.ts::creerParent");
   const { utilisateur, ecole } = await contexte();
+  const quota = await verifierQuota(ecole.id, "parents");
+  if (!quota.autorise) redirect(`/dashboard/parents/nouveau?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
 
   const nom = texte(formData, "nom");
   const postnom = texte(formData, "postnom") || null;

@@ -1,5 +1,6 @@
 "use server";
 import { exigerPermission } from "@/lib/securite/rbac";
+import { verifierQuota } from "@/lib/licence";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 const t=(f:FormData,k:string)=>String(f.get(k)??"").trim();
@@ -25,7 +26,10 @@ export async function ajouterPause(f:FormData){
 export async function supprimerPause(f:FormData){
   await exigerPermission("PARAMETRES_ACADEMIQUES_SUPPRIMER", "app/dashboard/parametres-academiques/actions.ts::supprimerPause");await prisma.pauseAcademique.delete({where:{id:id(f)}});revalidatePath("/dashboard/parametres-academiques/pauses")}
 export async function ajouterSalle(f:FormData){
-  await exigerPermission("PARAMETRES_ACADEMIQUES_AJOUTER", "app/dashboard/parametres-academiques/actions.ts::ajouterSalle");await prisma.salle.create({data:{ecoleId:n(f,"ecoleId"),code:t(f,"code").toUpperCase(),nom:t(f,"nom"),type:t(f,"type"),capacite:n(f,"capacite",40),batiment:t(f,"batiment")||null,etage:t(f,"etage")||null,responsable:t(f,"responsable")||null,statut:"ACTIVE"}});revalidatePath("/dashboard/parametres-academiques/salles")}
+  await exigerPermission("PARAMETRES_ACADEMIQUES_AJOUTER", "app/dashboard/parametres-academiques/actions.ts::ajouterSalle");
+  const ecoleId=n(f,"ecoleId"); const quota=await verifierQuota(ecoleId,"salles"); if(!quota.autorise) throw new Error(quota.message || "Limite de licence atteinte");
+  await prisma.salle.create({data:{ecoleId,code:t(f,"code").toUpperCase(),nom:t(f,"nom"),type:t(f,"type"),capacite:n(f,"capacite",40),batiment:t(f,"batiment")||null,etage:t(f,"etage")||null,responsable:t(f,"responsable")||null,statut:"ACTIVE"}});revalidatePath("/dashboard/parametres-academiques/salles")
+}
 export async function supprimerSalle(f:FormData){
   await exigerPermission("PARAMETRES_ACADEMIQUES_SUPPRIMER", "app/dashboard/parametres-academiques/actions.ts::supprimerSalle");await prisma.salle.delete({where:{id:id(f)}});revalidatePath("/dashboard/parametres-academiques/salles")}
 export async function ajouterTypeCours(f:FormData){

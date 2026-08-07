@@ -20,6 +20,7 @@ import {
   GraduationCap,
   HandCoins,
   Landmark,
+  KeyRound,
   LayoutDashboard,
   LibraryBig,
   ListTree,
@@ -70,6 +71,7 @@ type LienMenu = {
   label: string;
   icon: typeof LayoutDashboard;
   permission: string;
+  superAdminOnly?: boolean;
 };
 
 const liens: LienMenu[] = [
@@ -314,6 +316,14 @@ const liens: LienMenu[] = [
   },
 
   {
+    href: "/dashboard/licences",
+    label: "Gestion des licences",
+    icon: KeyRound,
+    permission: "SUPER_ADMIN_LICENCES",
+    superAdminOnly: true,
+  },
+
+  {
     href: "/dashboard/parametres",
     label: "Paramètres",
     icon: Settings,
@@ -353,12 +363,10 @@ export default function AdminShell({
     useState(false);
 
   const liensVisibles = useMemo(() => {
-    return liens.filter((lien) =>
-      possedePermission(
-        utilisateur,
-        lien.permission
-      )
-    );
+    return liens.filter((lien) => {
+      if (lien.superAdminOnly && utilisateur.superAdministrateur !== true) return false;
+      return possedePermission(utilisateur, lien.permission);
+    });
   }, [
     utilisateur.permissions,
     utilisateur.superAdministrateur,

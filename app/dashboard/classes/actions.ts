@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
+import { verifierQuota } from "@/lib/licence";
 
 export async function creerClasse(formData: FormData) {
   await exigerPermission("CLASSES_AJOUTER", "app/dashboard/classes/actions.ts::creerClasse");
@@ -13,6 +14,8 @@ export async function creerClasse(formData: FormData) {
   if (!utilisateur) redirect("/connexion");
 
   const ecole = await obtenirOuCreerEcole();
+  const quota = await verifierQuota(ecole.id, "classes");
+  if (!quota.autorise) redirect(`/dashboard/classes?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
   const nom = formData.get("nom")?.toString().trim();
   const code = formData.get("code")?.toString().trim().toUpperCase();
   const sectionId = Number(formData.get("sectionId"));

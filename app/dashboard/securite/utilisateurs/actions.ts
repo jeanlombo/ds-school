@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { hacherMotDePasse } from "@/lib/mot-de-passe";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
+import { verifierQuota } from "@/lib/licence";
 
 /* =========================================================
    OUTILS
@@ -148,6 +149,8 @@ export async function creerUtilisateurEnterprise(
     utilisateur: administrateur,
     ecoleId,
   } = await contexteAdministrateur();
+  const quota = await verifierQuota(ecoleId, "utilisateurs");
+  if (!quota.autorise) redirect(`/dashboard/securite/utilisateurs?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
 
   const nom = texte(formData, "nom");
   const email = texte(

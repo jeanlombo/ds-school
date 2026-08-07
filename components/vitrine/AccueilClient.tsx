@@ -438,7 +438,7 @@ export default function AccueilClient({
           <div><b>Navigation</b><a href="#accueil">Accueil</a><a href="#fonctionnalites">Fonctionnalités</a><a href="#solutions">Solutions</a><a href="#tarifs">Tarifs</a><Link href="/verifier-document">Vérifier un document</Link><a href="#contact">Contact</a></div>
           <div><b>Fonctionnalités</b><a href="#fonctionnalites">Gestion des élèves</a><a href="#fonctionnalites">Gestion des enseignants</a><a href="#fonctionnalites">Notes & Bulletins</a><Link href="/verifier-document">Diplômes & certificats</Link><a href="#fonctionnalites">Rapports & Statistiques</a></div>
           <div><b>Solutions</b><span>Écoles privées</span><span>Collèges & Lycées</span><span>Centres de formation</span><span>Universités</span></div>
-          <div><b>Contact</b><span>✉ contact@dsschool.com</span><span>⌖ +243 00 00 00 00</span><span>⌖ Kinshasa, RDC</span></div>
+          <div><b>Contact</b><span>✉ infos@dsschool.com</span><span>⌖ +243 820 646 942</span><span>⌖ Kinshasa, RDC</span></div>
         </div>
         <div className="ds-conteneur ds-copyright"><span>© 2026 DS School Premium. Tous droits réservés.</span><span>Conditions d’utilisation &nbsp;&nbsp; | &nbsp;&nbsp; Politique de confidentialité</span></div>
       </footer>
