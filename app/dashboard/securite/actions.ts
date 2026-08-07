@@ -44,6 +44,38 @@ async function contexte() {
   };
 }
 
+
+async function estProprietaireGroupe(email: string): Promise<boolean> {
+  const lignes = await prisma.$queryRaw<Array<{ ok: number }>>`
+    SELECT 1 AS ok
+    FROM utilisateurs u
+    INNER JOIN utilisateurs_organisations uo ON uo.utilisateur_id = u.id
+    WHERE LOWER(u.email) = LOWER(${email})
+      AND UPPER(uo.role_groupe) = 'PROPRIETAIRE'
+      AND uo.actif = 1
+    LIMIT 1
+  `;
+  return lignes.length > 0;
+}
+
+const CODES_ROLES_PROTEGES = new Set([
+  "SUPER_ADMIN",
+  "PROPRIETAIRE_GROUPE",
+]);
+
+function permissionInterditeAuProprietaire(code: string): boolean {
+  const c = code.toUpperCase();
+  return (
+    c === "*" ||
+    c.startsWith("SECURITE_") ||
+    c.startsWith("SUPER_ADMIN_") ||
+    c.startsWith("SAAS_") ||
+    c.startsWith("LICENCE_") ||
+    c.startsWith("ABONNEMENT_") ||
+    c.startsWith("ORGANISATION_")
+  );
+}
+
 async function verifierAccesSecurite() {
   const { utilisateur, ecole } = await contexte();
 
@@ -390,6 +422,12 @@ export async function basculerUtilisateur(
 export async function creerRole(formData: FormData) {
   await exigerPermission("SECURITE_AJOUTER", "app/dashboard/securite/actions.ts::creerRole");
   const { utilisateur, ecole } = await verifierAccesSecurite();
+  const proprietaire = !utilisateur.superAdministrateur &&
+    await estProprietaireGroupe(utilisateur.email);
+
+  if (!utilisateur.superAdministrateur && !proprietaire) {
+    redirect("/acces-refuse?permission=SECURITE_ROLES");
+  }
 
   const code = normaliserCodeRole(texte(formData, "code"));
   const nom = texte(formData, "nom");
@@ -397,6 +435,10 @@ export async function creerRole(formData: FormData) {
 
   if (!code || !nom) {
     redirect("/dashboard/securite/roles?erreur=champs");
+  }
+
+  if (proprietaire && CODES_ROLES_PROTEGES.has(code)) {
+    redirect("/dashboard/securite/roles?erreur=role_protege");
   }
 
   const roleAvecCode = await prisma.$queryRaw<
@@ -490,6 +532,12 @@ export async function enregistrerPermissionsRole(
 
   const { utilisateur, ecole } =
     await verifierAccesSecurite();
+  const proprietaire = !utilisateur.superAdministrateur &&
+    await estProprietaireGroupe(utilisateur.email);
+
+  if (!utilisateur.superAdministrateur && !proprietaire) {
+    redirect("/acces-refuse?permission=SECURITE_PERMISSIONS");
+  }
 
   const roleId = entier(formData, "role_id");
 
@@ -504,9 +552,10 @@ export async function enregistrerPermissionsRole(
       id: number;
       code: string;
       nom: string;
+      systeme: number | boolean;
     }>
   >`
-    SELECT id, code, nom
+    SELECT id, code, nom, systeme
     FROM roles_securite
     WHERE id = ${roleId}
       AND ecole_id = ${ecole.id}
@@ -522,9 +571,16 @@ export async function enregistrerPermissionsRole(
     );
   }
 
-  if (role.code === "SUPER_ADMIN") {
+  if (role.code === "SUPER_ADMIN" || role.code === "PROPRIETAIRE_GROUPE") {
     redirect(
       `/dashboard/securite/permissions?erreur=super_admin_protege&roleId=${roleId}`
+    );
+  }
+
+  // Un propriétaire ne peut modifier que les rôles personnalisés de son école.
+  if (proprietaire && Boolean(role.systeme)) {
+    redirect(
+      `/dashboard/securite/permissions?erreur=role_systeme_protege&roleId=${roleId}`
     );
   }
 
@@ -550,9 +606,9 @@ export async function enregistrerPermissionsRole(
 
       for (const permissionId of permissions) {
         const permissionExiste = await tx.$queryRaw<
-          Array<{ id: number }>
+          Array<{ id: number; code: string }>
         >`
-          SELECT id
+          SELECT id, code
           FROM permissions_securite
           WHERE id = ${permissionId}
             AND actif = 1
@@ -560,6 +616,13 @@ export async function enregistrerPermissionsRole(
         `;
 
         if (!permissionExiste.length) {
+          continue;
+        }
+
+        if (
+          proprietaire &&
+          permissionInterditeAuProprietaire(permissionExiste[0].code)
+        ) {
           continue;
         }
 

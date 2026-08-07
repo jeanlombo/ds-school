@@ -39,6 +39,20 @@ type Permission = {
   action: string;
 };
 
+
+async function estProprietaireGroupe(email: string): Promise<boolean> {
+  const lignes = await prisma.$queryRaw<Array<{ ok: number }>>`
+    SELECT 1 AS ok
+    FROM utilisateurs u
+    INNER JOIN utilisateurs_organisations uo ON uo.utilisateur_id = u.id
+    WHERE LOWER(u.email) = LOWER(${email})
+      AND UPPER(uo.role_groupe) = 'PROPRIETAIRE'
+      AND uo.actif = 1
+    LIMIT 1
+  `;
+  return lignes.length > 0;
+}
+
 export default async function PagePermissions({
   searchParams,
 }: Props) {
@@ -47,6 +61,19 @@ export default async function PagePermissions({
 
   if (!utilisateur) {
     redirect("/connexion");
+  }
+
+  const proprietaire = !utilisateur.superAdministrateur &&
+    await estProprietaireGroupe(utilisateur.email);
+
+  const autorise =
+    utilisateur.superAdministrateur === true ||
+    utilisateur.permissions?.includes("*") ||
+    utilisateur.permissions?.includes("SECURITE_PERMISSIONS") ||
+    proprietaire;
+
+  if (!autorise) {
+    redirect("/acces-refuse?permission=SECURITE_PERMISSIONS");
   }
 
   const ecole = await obtenirOuCreerEcole();
@@ -60,6 +87,8 @@ export default async function PagePermissions({
     FROM roles_securite
     WHERE ecole_id = ${ecole.id}
       AND actif = 1
+      AND (${utilisateur.superAdministrateur ? 1 : 0} = 1 OR systeme = 0)
+      AND (${utilisateur.superAdministrateur ? 1 : 0} = 1 OR code NOT IN ('SUPER_ADMIN', 'PROPRIETAIRE_GROUPE'))
     ORDER BY
       CASE
         WHEN code = 'SUPER_ADMIN' THEN 0
@@ -99,6 +128,18 @@ export default async function PagePermissions({
           action
         FROM permissions_securite
         WHERE actif = 1
+          AND (
+            ${proprietaire ? 1 : 0} = 0
+            OR (
+              code <> '*'
+              AND code NOT LIKE 'SECURITE\_%' ESCAPE '\\'
+              AND code NOT LIKE 'SUPER_ADMIN\_%' ESCAPE '\\'
+              AND code NOT LIKE 'SAAS\_%' ESCAPE '\\'
+              AND code NOT LIKE 'LICENCE\_%' ESCAPE '\\'
+              AND code NOT LIKE 'ABONNEMENT\_%' ESCAPE '\\'
+              AND code NOT LIKE 'ORGANISATION\_%' ESCAPE '\\'
+            )
+          )
         ORDER BY
           module ASC,
           action ASC,
@@ -150,6 +191,12 @@ export default async function PagePermissions({
         "role_introuvable" && (
         <div className={styles.erreur}>
           Le rôle sélectionné est introuvable.
+        </div>
+      )}
+
+      {params.erreur === "role_systeme_protege" && (
+        <div className={styles.erreur}>
+          Ce rôle système est protégé et ne peut pas être modifié par un propriétaire.
         </div>
       )}
 

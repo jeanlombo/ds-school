@@ -50,9 +50,26 @@ function messageErreur(erreur?: string): string {
     case "champs":
       return "Veuillez compléter le code et le nom du rôle.";
 
+    case "role_protege":
+      return "Ce code de rôle est réservé au système DS SCHOOL.";
+
     default:
       return "Une erreur empêche la création du rôle.";
   }
+}
+
+
+async function estProprietaireGroupe(email: string): Promise<boolean> {
+  const lignes = await prisma.$queryRaw<Array<{ ok: number }>>`
+    SELECT 1 AS ok
+    FROM utilisateurs u
+    INNER JOIN utilisateurs_organisations uo ON uo.utilisateur_id = u.id
+    WHERE LOWER(u.email) = LOWER(${email})
+      AND UPPER(uo.role_groupe) = 'PROPRIETAIRE'
+      AND uo.actif = 1
+    LIMIT 1
+  `;
+  return lignes.length > 0;
 }
 
 export default async function PageRoles({
@@ -64,10 +81,14 @@ export default async function PageRoles({
     redirect("/connexion");
   }
 
+  const proprietaire = !utilisateur.superAdministrateur &&
+    await estProprietaireGroupe(utilisateur.email);
+
   const autorise =
     utilisateur.superAdministrateur === true ||
     utilisateur.permissions?.includes("*") ||
-    utilisateur.permissions?.includes("SECURITE_ROLES");
+    utilisateur.permissions?.includes("SECURITE_ROLES") ||
+    proprietaire;
 
   if (!autorise) {
     redirect("/acces-refuse?permission=SECURITE_ROLES");
@@ -105,6 +126,8 @@ export default async function PageRoles({
       ON ur.role_id = r.id
 
     WHERE r.ecole_id = ${ecole.id}
+      AND (${utilisateur.superAdministrateur ? 1 : 0} = 1 OR r.systeme = 0)
+      AND (${utilisateur.superAdministrateur ? 1 : 0} = 1 OR r.code NOT IN ('SUPER_ADMIN', 'PROPRIETAIRE_GROUPE'))
 
     GROUP BY
       r.id,
