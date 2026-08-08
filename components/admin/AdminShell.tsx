@@ -87,7 +87,7 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/annees-scolaires",
-    label: "Années scolaires",
+    label: "Années scolaires / académiques",
     icon: CalendarDays,
     permission: "ANNEES_SCOLAIRES_VOIR",
   },
@@ -173,6 +173,13 @@ const liens: LienMenu[] = [
     href: "/dashboard/centre-academique",
     label: "Centre académique",
     icon: LibraryBig,
+    permission: "ACADEMIQUE_VOIR",
+  },
+
+  {
+    href: "/dashboard/universite",
+    label: "Structure universitaire",
+    icon: Landmark,
     permission: "ACADEMIQUE_VOIR",
   },
 
@@ -326,6 +333,14 @@ const liens: LienMenu[] = [
   },
 
   {
+    href: "/dashboard/demandes",
+    label: "Demandes vitrine",
+    icon: ContactRound,
+    permission: "SUPER_ADMIN_DEMANDES",
+    superAdminOnly: true,
+  },
+
+  {
     href: "/dashboard/saas",
     label: "Centre SaaS DIGIGROUPE",
     icon: LayoutDashboard,
@@ -363,6 +378,13 @@ const liens: LienMenu[] = [
     icon: KeyRound,
     permission: "SUPER_ADMIN_LICENCES",
     superAdminOnly: true,
+  },
+
+  {
+    href: "/dashboard/parametres/type-etablissement",
+    label: "Type d’établissement",
+    icon: Building2,
+    permission: "PARAMETRES_VOIR",
   },
 
   {

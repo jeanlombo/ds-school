@@ -37,6 +37,8 @@ export default function Accueil() {
   const [enteteCompacte, setEnteteCompacte] = useState(false);
   const [compteurs, setCompteurs] = useState({ etablissements: 0, modules: 0, espaces: 0, gain: 0 });
   const [parallaxe, setParallaxe] = useState({ x: 0, y: 0 });
+  const [effectifTarif, setEffectifTarif] = useState("300");
+  const [typeEtablissementTarif, setTypeEtablissementTarif] = useState("École primaire / secondaire");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -250,6 +252,91 @@ export default function Accueil() {
         </div>
       </section>
 
+      <section className="ds-section ds-tarifs" id="tarifs">
+        <div className="ds-conteneur">
+          <div className="ds-tarifs-entete ds-reveal">
+            <span className="ds-mini-etiquette"><CreditCard size={15}/> TARIFICATION SELON VOTRE EFFECTIF</span>
+            <h2>Vous payez selon le nombre réel d’élèves ou d’étudiants</h2>
+            <p>DS School Enterprise n’impose pas un prix fixe identique à tous les établissements. Le coût est déterminé selon votre effectif et les paramètres commerciaux définis par DIGIGROUPE dans l’administration.</p>
+          </div>
+
+          <div className="ds-tarifs-grille">
+            <article className="ds-tarif-carte ds-reveal ds-delai-1">
+              <span className="ds-tarif-icone"><School size={25}/></span>
+              <small>ÉCOLES</small>
+              <h3>Primaire & secondaire</h3>
+              <p>Tarification proportionnelle au nombre d’élèves inscrits dans l’établissement.</p>
+              <ul>
+                <li><CheckCircle2 size={16}/> Tous les modules autorisés par votre licence</li>
+                <li><CheckCircle2 size={16}/> Quota d’élèves adapté à votre effectif</li>
+                <li><CheckCircle2 size={16}/> Évolution possible lorsque l’école grandit</li>
+              </ul>
+            </article>
+
+            <article className="ds-tarif-carte ds-tarif-carte-principale ds-reveal ds-delai-2">
+              <span className="ds-tarif-badge">MODÈLE DS SCHOOL</span>
+              <span className="ds-tarif-icone"><UsersRound size={25}/></span>
+              <small>FACTURATION</small>
+              <h3>Par élève / étudiant</h3>
+              <p>Le nombre d’apprenants est la base commerciale. Le montant final est configuré et validé par DIGIGROUPE dans l’espace administratif déjà existant.</p>
+              <div className="ds-tarif-formule">
+                <b>Effectif réel</b><span>×</span><b>tarif applicable</b><span>=</span><strong>votre offre</strong>
+              </div>
+              <small className="ds-tarif-note">Aucun montant fixe n’est imposé depuis la vitrine.</small>
+            </article>
+
+            <article className="ds-tarif-carte ds-reveal ds-delai-3">
+              <span className="ds-tarif-icone"><GraduationCap size={25}/></span>
+              <small>UNIVERSITÉS</small>
+              <h3>Universités & instituts</h3>
+              <p>Le même principe s’applique selon le nombre d’étudiants, avec une capacité adaptée à la taille de l’institution.</p>
+              <ul>
+                <li><CheckCircle2 size={16}/> Facultés, filières et promotions</li>
+                <li><CheckCircle2 size={16}/> Semestres, UE, cours et crédits</li>
+                <li><CheckCircle2 size={16}/> Tarification ajustée à l’effectif étudiant</li>
+              </ul>
+            </article>
+          </div>
+
+          <div className="ds-tarif-demande ds-reveal">
+            <div className="ds-tarif-demande-texte">
+              <span className="ds-tarif-demande-icone"><BarChart3 size={24}/></span>
+              <div>
+                <small>PRÉPAREZ VOTRE DEMANDE</small>
+                <h3>Indiquez simplement votre effectif</h3>
+                <p>La vitrine recueille l’information commerciale. Le calcul et la validation restent gérés dans l’administration DS School.</p>
+              </div>
+            </div>
+            <div className="ds-tarif-champs">
+              <label>Type d’établissement
+                <select value={typeEtablissementTarif} onChange={(e) => setTypeEtablissementTarif(e.target.value)}>
+                  <option>École primaire / secondaire</option>
+                  <option>Université / institut supérieur</option>
+                  <option>Établissement mixte</option>
+                </select>
+              </label>
+              <label>Nombre d’élèves / étudiants
+                <input type="number" min="1" step="1" value={effectifTarif} onChange={(e) => setEffectifTarif(e.target.value)} placeholder="Ex. 500"/>
+              </label>
+              <a
+                className="ds-btn ds-btn-principal ds-tarif-demande-btn"
+                href={`/demande?type=TARIFICATION&etablissement=${encodeURIComponent(typeEtablissementTarif)}&effectif=${encodeURIComponent(effectifTarif || "")}`}
+              >
+                Demander ma tarification <ArrowRight size={18}/>
+              </a>
+
+              <Link
+                href="/paiement-abonnement"
+                className="ds-btn ds-btn-connexion ds-tarif-demande-btn"
+              >
+                <CreditCard size={18}/>
+                Payer mon abonnement
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="ds-section ds-documents" id="verification-documents">
         <div className="ds-conteneur">
           <div className="ds-documents-entete ds-reveal">
@@ -305,9 +392,10 @@ export default function Accueil() {
           <div className="ds-ecole-illustration"><div className="ds-toit">▲</div><div className="ds-batiment"><span>DS</span><i/><i/><i/></div><div className="ds-arbres">🌳 🌳</div></div>
           <div><h2>Prêt à transformer la gestion de votre établissement ?</h2><p>Demandez une démonstration personnalisée et découvrez DS School Premium en action.</p></div>
           <div className="ds-cta-actions">
-            <a href="mailto:contact@dsschool.com" className="ds-btn ds-btn-principal">Demander une démonstration <ArrowRight size={18}/></a>
+            <a href="/demande?type=DEMONSTRATION" className="ds-btn ds-btn-principal">Demander une démonstration <ArrowRight size={18}/></a>
+            <Link href="/paiement-abonnement" className="ds-btn ds-btn-contact"><CreditCard size={18}/> Payer mon abonnement</Link>
             <a href="/documents/Brochure_DS_SCHOOL_ENTERPRISE_DETAILLEE.pdf" download="Brochure_DS_SCHOOL_ENTERPRISE.pdf" className="ds-btn ds-btn-telechargement-cta"><Download size={18}/> Télécharger le PDF</a>
-            <a href="mailto:contact@dsschool.com" className="ds-btn ds-btn-contact">Nous contacter ☎</a>
+            <a href="/demande?type=INFORMATION" className="ds-btn ds-btn-contact">Nous contacter ☎</a>
           </div>
           <Send className="ds-avion-cta"/>
         </div>
