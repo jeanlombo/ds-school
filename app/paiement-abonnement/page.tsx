@@ -34,6 +34,7 @@ export default function PaiementAbonnementPage() {
   const [message, setMessage] = useState("");
   const [abonnement, setAbonnement] = useState<Abonnement | null>(null);
   const [reference, setReference] = useState("");
+  const [modePaiement, setModePaiement] = useState("MPESA");
 
   async function verifier(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -163,8 +164,12 @@ export default function PaiementAbonnementPage() {
               <form onSubmit={initierPaiement} className={styles.form}>
                 <label>
                   Moyen de paiement
-                  <select name="modePaiement" required defaultValue="MOBILE_MONEY">
-                    <option value="MOBILE_MONEY">Mobile Money</option>
+                  <select
+                    name="modePaiement"
+                    required
+                    value={modePaiement}
+                    onChange={(e) => setModePaiement(e.target.value)}
+                  >
                     <option value="MPESA">M-Pesa</option>
                     <option value="AIRTEL_MONEY">Airtel Money</option>
                     <option value="ORANGE_MONEY">Orange Money</option>
@@ -174,12 +179,46 @@ export default function PaiementAbonnementPage() {
                 </label>
 
                 <label>
-                  Numéro / compte de paiement
+                  {modePaiement === "MPESA" || modePaiement === "AIRTEL_MONEY" || modePaiement === "ORANGE_MONEY"
+                    ? "Votre numéro Mobile Money"
+                    : "Numéro / compte de paiement"}
                   <div className={styles.champIcone}>
                     <Smartphone size={18}/>
                     <input name="comptePaiement" required placeholder="+243..." />
                   </div>
                 </label>
+
+                {(modePaiement === "MPESA" || modePaiement === "AIRTEL_MONEY" || modePaiement === "ORANGE_MONEY") && (
+                  <div className={styles.caisseBox}>
+                    <div className={styles.caisseTitre}>
+                      <Smartphone size={20}/>
+                      <div>
+                        <strong>Numéro caisse DIGIGROUPE</strong>
+                        <small>Renseignez le numéro caisse officiel communiqué par DIGIGROUPE pour ce réseau.</small>
+                      </div>
+                    </div>
+
+                    <label>
+                      Numéro caisse / marchand
+                      <input
+                        name="numeroCaisse"
+                        required
+                        placeholder={
+                          modePaiement === "MPESA"
+                            ? "Numéro caisse M-Pesa DIGIGROUPE"
+                            : modePaiement === "AIRTEL_MONEY"
+                              ? "Numéro marchand Airtel Money DIGIGROUPE"
+                              : "Numéro marchand Orange Money DIGIGROUPE"
+                        }
+                        autoComplete="off"
+                      />
+                    </label>
+
+                    <div className={styles.avertissementCaisse}>
+                      Le paiement restera <b>EN ATTENTE</b> jusqu'à confirmation réelle du réseau ou validation par DIGIGROUPE.
+                    </div>
+                  </div>
+                )}
 
                 <label>
                   Montant à payer

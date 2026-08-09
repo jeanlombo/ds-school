@@ -30,8 +30,10 @@ export async function POST(request: NextRequest) {
     const montant = Number(body.montant);
     const modePaiement = String(body.modePaiement ?? "").trim().toUpperCase();
     const comptePaiement = String(body.comptePaiement ?? "").trim();
+    const numeroCaisse = String(body.numeroCaisse ?? "").trim();
+    const estMobileMoney = ["MPESA", "AIRTEL_MONEY", "ORANGE_MONEY"].includes(modePaiement);
 
-    if (!Number.isInteger(abonnementId) || abonnementId <= 0 || !(montant > 0) || !modePaiement || !comptePaiement) {
+    if (!Number.isInteger(abonnementId) || abonnementId <= 0 || !(montant > 0) || !modePaiement || !comptePaiement || (estMobileMoney && !numeroCaisse)) {
       return NextResponse.json({ ok:false, message:"Informations de paiement incomplètes." }, { status:400 });
     }
 
@@ -68,7 +70,7 @@ export async function POST(request: NextRequest) {
         ${reference},
         NOW(),
         'EN_ATTENTE',
-        ${`Paiement en ligne initié depuis la vitrine. Compte/numéro déclaré : ${comptePaiement}`}
+        ${`Paiement en ligne initié depuis la vitrine. Compte/numéro client déclaré : ${comptePaiement}${estMobileMoney ? ` | Numéro caisse/marchand déclaré : ${numeroCaisse}` : ""}`}
       )
     `;
 
