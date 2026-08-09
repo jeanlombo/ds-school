@@ -9,21 +9,37 @@ type Ligne = {
   code_abonnement: string;
   formule: string | null;
   montant: unknown;
-  devise: string;
-  statut: string;
+  devise: string | null;
+  statut: string | null;
   date_expiration: Date | null;
-  client: string;
+  client: string | null;
 };
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const code = String(body.codeAbonnement ?? "").trim().toUpperCase();
-    const contact = String(body.contact ?? "").trim().toLowerCase();
+
+    const code = String(body.codeAbonnement ?? "")
+      .trim()
+      .toUpperCase();
+
+    const contact = String(body.contact ?? "")
+      .trim()
+      .toLowerCase();
 
     if (!code || !contact) {
-      return NextResponse.json({ ok:false, message:"Code d’abonnement et contact obligatoires." }, { status:400 });
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "Code d’abonnement et contact obligatoires.",
+        },
+        { status: 400 }
+      );
     }
+
+    console.log("=== VERIFICATION ABONNEMENT ===");
+    console.log("Code :", code);
+    console.log("Contact :", contact);
 
     const lignes = await prisma.$queryRaw<Ligne[]>`
       SELECT
@@ -36,39 +52,67 @@ export async function POST(request: NextRequest) {
         a.date_expiration,
         o.nom AS client
       FROM abonnements_clients a
-      INNER JOIN organisations_clientes o ON o.id = a.organisation_id
+      INNER JOIN organisations_clientes o
+        ON o.id = a.organisation_id
       WHERE UPPER(a.code_abonnement) = ${code}
         AND (
-          LOWER(COALESCE(o.email,'')) = ${contact}
-          OR LOWER(COALESCE(o.telephone,'')) = ${contact}
+          LOWER(COALESCE(o.email, '')) = ${contact}
+          OR LOWER(COALESCE(o.telephone, '')) = ${contact}
         )
       LIMIT 1
     `;
 
+    console.log("Résultat abonnement :", lignes);
+
     if (!lignes.length) {
       return NextResponse.json(
-        { ok:false, message:"Abonnement introuvable ou coordonnées non reconnues." },
-        { status:404 },
+        {
+          ok: false,
+          message:
+            "Abonnement introuvable ou coordonnées non reconnues.",
+        },
+        { status: 404 }
       );
     }
 
-    const a = lignes[0];
+    const abonnement = lignes[0];
 
     return NextResponse.json({
-      ok:true,
-      abonnement:{
-        id:a.id,
-        code:a.code_abonnement,
-        client:a.client,
-        formule:a.formule ?? "Personnalisée",
-        montant:Number(a.montant ?? 0),
-        devise:a.devise || "USD",
-        statut:a.statut,
-        dateExpiration:a.date_expiration ? new Date(a.date_expiration).toISOString() : null,
-      }
+      ok: true,
+      abonnement: {
+        id: Number(abonnement.id),
+        code: abonnement.code_abonnement,
+        client: abonnement.client ?? "Client DIGIGROUPE",
+        formule: abonnement.formule ?? "Personnalisée",
+        montant: Number(abonnement.montant ?? 0),
+        devise: abonnement.devise || "USD",
+        statut: abonnement.statut || "ACTIF",
+        dateExpiration: abonnement.date_expiration
+          ? new Date(abonnement.date_expiration).toISOString()
+          : null,
+      },
     });
-  } catch (erreur) {
-    console.error("VERIFICATION PAIEMENT ABONNEMENT:", erreur);
-    return NextResponse.json({ ok:false, message:"Erreur interne pendant la vérification." }, { status:500 });
+  } catch (erreur: unknown) {
+    console.error("======================================");
+    console.error("ERREUR VERIFICATION PAIEMENT ABONNEMENT");
+    console.error(erreur);
+    console.error("======================================");
+
+    const messageTechnique =
+      erreur instanceof Error
+        ? erreur.message
+        : "Erreur SQL/Prisma inconnue";
+
+    return NextResponse.json(
+      {
+        ok: false,
+        message: "Erreur interne pendant la vérification.",
+        diagnostic:
+          process.env.NODE_ENV !== "production"
+            ? messageTechnique
+            : undefined,
+      },
+      { status: 500 }
+    );
   }
 }
