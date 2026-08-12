@@ -68,7 +68,7 @@ async function enregistrerPhoto(formData: FormData, anciennePhoto?: string | nul
   const supprimer = texte(formData, "supprimerPhoto") === "1";
   const fichier = formData.get("photoFichier");
 
-  if (supprimer && anciennePhoto?.startsWith("/uploads/enseignants/")) {
+  if (supprimer && anciennePhoto?.startsWith("/uploads/")) {
     await unlink(path.join(process.cwd(), "public", anciennePhoto)).catch(() => undefined);
     return null;
   }
@@ -81,14 +81,14 @@ async function enregistrerPhoto(formData: FormData, anciennePhoto?: string | nul
 
   const extension = fichier.type === "image/png" ? "png" : fichier.type === "image/webp" ? "webp" : "jpg";
   const nom = `enseignant-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
-  const dossier = path.join(process.cwd(), "public", "uploads", "enseignants");
+  const dossier = path.join(process.cwd(), "public", "uploads", "eleves");
   await mkdir(dossier, { recursive: true });
   await writeFile(path.join(dossier, nom), Buffer.from(await fichier.arrayBuffer()));
 
-  if (anciennePhoto?.startsWith("/uploads/enseignants/")) {
+  if (anciennePhoto?.startsWith("/uploads/")) {
     await unlink(path.join(process.cwd(), "public", anciennePhoto)).catch(() => undefined);
   }
-  return `/uploads/enseignants/${nom}`;
+  return `/uploads/eleves/${nom}`;
 }
 
 export async function creerEnseignant(formData: FormData) {

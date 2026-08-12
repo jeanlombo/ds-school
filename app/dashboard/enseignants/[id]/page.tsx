@@ -8,6 +8,7 @@ import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
 import { prisma } from "@/lib/prisma";
 import { ajouterAffectation, ajouterContrat, ajouterDiplome } from "../actions";
+import PhotoEnseignantAffichage from "@/components/enseignants/PhotoEnseignantAffichage";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ succes?: string }> };
 
@@ -32,7 +33,7 @@ export default async function ProfilEnseignant({ params, searchParams }: Props) 
     action={<div className={styles.actionsEntete}><Link href="/dashboard/enseignants" className={admin.boutonSecondaire}><ArrowLeft size={18}/> Liste</Link><Link href={`/dashboard/enseignants/${e.id}/modifier`} className={admin.boutonPrimaire}><Pencil size={18}/> Modifier</Link></div>}>
     {succes && <div className={styles.succes}>{succes}</div>}
     <section className={`${admin.panneau} ${styles.profilHero}`}>
-      <div className={styles.grandePhoto}>{e.photo ? <img src={e.photo} alt="" /> : <UserRoundCheck size={70}/>}</div>
+      <div className={styles.grandePhoto}><PhotoEnseignantAffichage src={e.photo} alt={`Photo de ${e.prenom} ${e.nom}`} initiales={`${e.prenom?.[0] || ""}${e.nom?.[0] || ""}`.toUpperCase()} /></div>
       <div><span className={admin.badge}>{e.statut}</span><h2>{e.nom} {e.postnom || ""} {e.prenom}</h2><p>{e.fonction} · {e.specialite || "Spécialité non précisée"}</p>
         <div className={styles.meta}><span>Matricule : <strong>{e.matricule}</strong></span><span>Tél. : <strong>{e.telephone || "—"}</strong></span><span>Email : <strong>{e.email || "—"}</strong></span></div>
       </div>

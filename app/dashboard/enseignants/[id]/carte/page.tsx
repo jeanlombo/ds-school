@@ -7,6 +7,7 @@ import { obtenirOuCreerEcole } from "@/lib/ecole";
 import QRCodeEnseignant from "@/components/enseignants/QRCodeEnseignant";
 import BoutonImprimer from "@/components/enseignants/BoutonImprimer";
 import styles from "@/components/enseignants/carte.module.css";
+import PhotoEnseignantAffichage from "@/components/enseignants/PhotoEnseignantAffichage";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -66,14 +67,11 @@ export default async function CarteEnseignant({ params }: Props) {
           <div className={styles.corps}>
             <div className={styles.blocPhoto}>
               <div className={styles.photo}>
-                {e.photo ? (
-                  <img src={e.photo} alt={`Photo de ${e.prenom}`} />
-                ) : (
-                  <span>
-                    {(e.prenom?.[0] || "").toUpperCase()}
-                    {(e.nom?.[0] || "").toUpperCase()}
-                  </span>
-                )}
+                <PhotoEnseignantAffichage
+                  src={e.photo}
+                  alt={`Photo de ${e.prenom} ${e.nom}`}
+                  initiales={`${e.prenom?.[0] || ""}${e.nom?.[0] || ""}`.toUpperCase()}
+                />
               </div>
 
               <div className={styles.badgeStatut}>
