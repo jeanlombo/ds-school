@@ -1,2 +1,504 @@
-.page{min-height:100vh;background:#eef2f7;padding:30px;font-family:Arial,sans-serif;color:#0f2744}.outils{max-width:900px;margin:0 auto 22px;display:flex;justify-content:space-between}.outils a,.outils button{display:flex;align-items:center;gap:8px;border:1px solid #cdd7e4;border-radius:10px;background:#fff;padding:10px 14px;color:#17375e;text-decoration:none}.carte{width:85.6mm;height:53.98mm;margin:auto;background:#fff;border-radius:4mm;overflow:hidden;box-shadow:0 20px 50px #1a2b4425;display:grid;grid-template-rows:14mm 1fr 8mm;border:1px solid #d7e0eb}.carte header{background:#123f73;color:#fff;display:flex;align-items:center;gap:10px;padding:0 5mm}.carte header>span,.carte header>img{width:9mm;height:9mm;border-radius:50%;background:#fff;color:#123f73;display:grid;place-items:center;object-fit:cover;font-weight:800}.carte header strong,.carte header small{display:block}.carte header strong{font-size:4.3mm}.carte header small{font-size:2.3mm;letter-spacing:.5mm}.corps{display:grid;grid-template-columns:23mm 1fr 29mm;gap:3mm;padding:3mm 4mm;align-items:center}.photo{width:21mm;height:26mm;border-radius:2.5mm;background:#edf2f7;overflow:hidden;display:grid;place-items:center;font-weight:bold;font-size:7mm}.photo img{width:100%;height:100%;object-fit:cover}.infos small{font-size:2mm;color:#60758e}.infos h1,.infos h2{margin:0;text-transform:uppercase}.infos h1{font-size:3.5mm}.infos h2{font-size:3mm;color:#315f92;margin-bottom:1mm}.infos p{margin:.7mm 0;font-size:2.25mm}.qr{text-align:center}.qr img{width:24mm;height:24mm}.qr small{display:block;font-size:1.7mm}.carte footer{background:#f1b61c;color:#102a49;display:flex;justify-content:space-between;align-items:center;padding:0 4mm;font-size:2mm;font-weight:bold}.carte footer span{display:flex;align-items:center;gap:1mm}.note{text-align:center;color:#64748b;margin-top:20px}
-@media print{.page{background:#fff;padding:0}.outils,.note{display:none}.carte{box-shadow:none;margin:0}}
+.page {
+  min-height: 100vh;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, .08), transparent 30%),
+    linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+  color: #0f172a;
+}
+
+.outils {
+  width: min(100%, 980px);
+  margin: 0 auto 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.retour {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  color: #334155;
+  text-decoration: none;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, .06);
+}
+
+.zoneCarte {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.carte {
+  width: 856px;
+  aspect-ratio: 1.586 / 1;
+  border-radius: 26px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, .08);
+  box-shadow:
+    0 24px 70px rgba(15, 23, 42, .16),
+    0 4px 14px rgba(15, 23, 42, .08);
+  position: relative;
+}
+
+.carte::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.18), transparent 30%),
+    radial-gradient(circle at 86% 18%, rgba(37,99,235,.08), transparent 18%);
+}
+
+.bandeauHaut {
+  min-height: 112px;
+  padding: 20px 28px;
+  background: linear-gradient(135deg, #172554 0%, #1e3a8a 48%, #2563eb 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.identiteEcole {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+}
+
+.logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.96);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  color: #1d4ed8;
+  font-weight: 900;
+  font-size: 20px;
+  box-shadow: 0 8px 20px rgba(2, 6, 23, .18);
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+
+.ecoleTexte {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ecoleTexte strong {
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 430px;
+}
+
+.ecoleTexte span {
+  margin-top: 5px;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: #dbeafe;
+  font-weight: 700;
+}
+
+.typeCarte {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.10);
+  backdrop-filter: blur(4px);
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.typeCarte div {
+  display: flex;
+  flex-direction: column;
+}
+
+.typeCarte strong {
+  font-size: 13px;
+  letter-spacing: .08em;
+}
+
+.typeCarte small {
+  margin-top: 3px;
+  font-size: 9px;
+  letter-spacing: .18em;
+  color: #dbeafe;
+}
+
+.corps {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr) 150px;
+  gap: 26px;
+  align-items: center;
+  padding: 30px 28px 26px;
+}
+
+.blocPhoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.photo {
+  width: 148px;
+  height: 178px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #e2e8f0, #f8fafc);
+  border: 4px solid #ffffff;
+  outline: 1px solid #cbd5e1;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, .12);
+  display: grid;
+  place-items: center;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.photo span {
+  font-size: 38px;
+  font-weight: 900;
+  color: #64748b;
+}
+
+.badgeStatut {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.infos {
+  min-width: 0;
+}
+
+.libelle {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.infos h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 31px;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.infos h2 {
+  margin: 5px 0 18px;
+  color: #334155;
+  font-size: 20px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.grilleInfos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px 18px;
+}
+
+.grilleInfos div {
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.grilleInfos small {
+  display: block;
+  margin-bottom: 3px;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+
+.grilleInfos strong {
+  display: block;
+  color: #0f172a;
+  font-size: 13px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.qrCadre {
+  padding: 11px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .10);
+}
+
+.qr small {
+  color: #475569;
+  font-size: 9px;
+  line-height: 1.2;
+  text-align: center;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.basCarte {
+  min-height: 56px;
+  padding: 0 28px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rfid {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #1e3a8a;
+}
+
+.contactEcole {
+  text-align: right;
+  max-width: 360px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note {
+  margin: 20px auto 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+@media (max-width: 950px) {
+  .page {
+    padding: 18px 12px;
+  }
+
+  .outils {
+    margin-bottom: 18px;
+  }
+
+  .zoneCarte {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 10px;
+  }
+
+  .carte {
+    min-width: 760px;
+  }
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+
+  .page {
+    min-height: auto;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .outils,
+  .note {
+    display: none !important;
+  }
+
+  .zoneCarte {
+    display: block;
+    overflow: visible;
+  }
+
+  .carte {
+    width: 85.6mm;
+    height: 53.98mm;
+    min-width: 0;
+    aspect-ratio: auto;
+    border-radius: 3.5mm;
+    box-shadow: none;
+    border: .2mm solid #cbd5e1;
+    page-break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .bandeauHaut {
+    min-height: 11.4mm;
+    padding: 1.8mm 3mm;
+  }
+
+  .logo {
+    width: 7mm;
+    height: 7mm;
+    border-radius: 1.6mm;
+    font-size: 7pt;
+  }
+
+  .identiteEcole {
+    gap: 1.6mm;
+  }
+
+  .ecoleTexte strong {
+    font-size: 7.8pt;
+    max-width: 44mm;
+  }
+
+  .ecoleTexte span {
+    margin-top: .5mm;
+    font-size: 4.3pt;
+  }
+
+  .typeCarte {
+    gap: 1mm;
+    padding: 1mm 1.4mm;
+    border-radius: 1.4mm;
+  }
+
+  .typeCarte strong {
+    font-size: 5pt;
+  }
+
+  .typeCarte small {
+    font-size: 3.6pt;
+  }
+
+  .corps {
+    grid-template-columns: 18mm 1fr 17mm;
+    gap: 2.4mm;
+    padding: 2.6mm 3mm 2mm;
+  }
+
+  .photo {
+    width: 16mm;
+    height: 19mm;
+    border-width: .5mm;
+    border-radius: 1.8mm;
+    box-shadow: none;
+  }
+
+  .photo span {
+    font-size: 11pt;
+  }
+
+  .badgeStatut {
+    padding: .5mm 1.2mm;
+    font-size: 3.8pt;
+  }
+
+  .libelle {
+    margin-bottom: .5mm;
+    font-size: 3.7pt;
+  }
+
+  .infos h1 {
+    font-size: 9.5pt;
+  }
+
+  .infos h2 {
+    margin: .4mm 0 1.5mm;
+    font-size: 6.6pt;
+  }
+
+  .grilleInfos {
+    gap: .8mm 1mm;
+  }
+
+  .grilleInfos div {
+    padding: .7mm 1mm;
+    border-radius: 1mm;
+  }
+
+  .grilleInfos small {
+    margin-bottom: .2mm;
+    font-size: 3.3pt;
+  }
+
+  .grilleInfos strong {
+    font-size: 4.5pt;
+  }
+
+  .qrCadre {
+    padding: 1mm;
+    border-radius: 1mm;
+    box-shadow: none;
+  }
+
+  .qr small {
+    font-size: 3.3pt;
+  }
+
+  .basCarte {
+    min-height: 6mm;
+    padding: 0 3mm;
+    font-size: 3.7pt;
+  }
+
+  .rfid {
+    gap: .7mm;
+  }
+
+  .contactEcole {
+    max-width: 35mm;
+  }
+}
