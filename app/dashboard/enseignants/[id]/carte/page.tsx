@@ -6,10 +6,13 @@ import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
 import QRCodeEnseignant from "@/components/enseignants/QRCodeEnseignant";
 import BoutonImprimer from "@/components/enseignants/BoutonImprimer";
+import PhotoEnseignantCarte from "./PhotoEnseignantCarte";
 import styles from "@/components/enseignants/carte.module.css";
-import PhotoEnseignantAffichage from "@/components/enseignants/PhotoEnseignantAffichage";
 
 type Props = { params: Promise<{ id: string }> };
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function CarteEnseignant({ params }: Props) {
   const utilisateur = await obtenirUtilisateurConnecte();
@@ -17,15 +20,32 @@ export default async function CarteEnseignant({ params }: Props) {
 
   const ecole = await obtenirOuCreerEcole();
   const { id } = await params;
+  const enseignantId = Number(id);
+
+  if (!Number.isInteger(enseignantId) || enseignantId <= 0) {
+    redirect("/dashboard/enseignants");
+  }
 
   const e = await prisma.enseignant.findFirst({
-    where: { id: Number(id), ecoleId: ecole.id }
+    where: {
+      id: enseignantId,
+      ecoleId: ecole.id,
+    },
   });
 
   if (!e) redirect("/dashboard/enseignants");
 
   const nomComplet = [e.nom, e.postnom, e.prenom].filter(Boolean).join(" ");
-  const verification = `${ecole.code}|ENSEIGNANT|${e.id}|${e.matricule}|${nomComplet}|${e.statut}`;
+  const initiales = `${e.prenom?.charAt(0) || ""}${e.nom?.charAt(0) || ""}`.toUpperCase();
+
+  const verification = [
+    ecole.code,
+    "ENSEIGNANT",
+    e.id,
+    e.matricule,
+    nomComplet,
+    e.statut,
+  ].join("|");
 
   return (
     <main className={styles.page}>
@@ -67,10 +87,10 @@ export default async function CarteEnseignant({ params }: Props) {
           <div className={styles.corps}>
             <div className={styles.blocPhoto}>
               <div className={styles.photo}>
-                <PhotoEnseignantAffichage
+                <PhotoEnseignantCarte
                   src={e.photo}
-                  alt={`Photo de ${e.prenom} ${e.nom}`}
-                  initiales={`${e.prenom?.[0] || ""}${e.nom?.[0] || ""}`.toUpperCase()}
+                  alt={`Photo de ${nomComplet}`}
+                  initiales={initiales || "EN"}
                 />
               </div>
 
@@ -85,9 +105,7 @@ export default async function CarteEnseignant({ params }: Props) {
               <h1>{e.nom}</h1>
 
               {(e.postnom || e.prenom) && (
-                <h2>
-                  {[e.postnom, e.prenom].filter(Boolean).join(" ")}
-                </h2>
+                <h2>{[e.postnom, e.prenom].filter(Boolean).join(" ")}</h2>
               )}
 
               <div className={styles.grilleInfos}>
@@ -126,7 +144,9 @@ export default async function CarteEnseignant({ params }: Props) {
               <Radio size={14} />
               <span>
                 RFID/NFC
-                {e.numeroCarteRfid ? ` · ${e.numeroCarteRfid}` : " · NON ATTRIBUÉ"}
+                {e.numeroCarteRfid
+                  ? ` · ${e.numeroCarteRfid}`
+                  : " · NON ATTRIBUÉ"}
               </span>
             </div>
 
