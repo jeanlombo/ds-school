@@ -149,8 +149,10 @@ export async function creerEnseignant(formData: FormData) {
     )}`);
   }
 
+  let enseignant: { id: number };
+
   try {
-    const enseignant = await prisma.enseignant.create({
+    enseignant = await prisma.enseignant.create({
       data: {
         ecoleId: ecole.id,
         matricule,
@@ -180,11 +182,9 @@ export async function creerEnseignant(formData: FormData) {
             auteur: utilisateur.nom
           }
         }
-      }
+      },
+      select: { id: true }
     });
-
-    revalidatePath("/dashboard/enseignants");
-    redirect(`/dashboard/enseignants/${enseignant.id}?succes=Enseignant enregistré avec succès`);
   } catch (erreur) {
     if (estErreurP2002(erreur)) {
       redirect(`/dashboard/enseignants/nouveau?erreur=${encodeURIComponent(
@@ -198,6 +198,11 @@ export async function creerEnseignant(formData: FormData) {
       "Impossible d'enregistrer l'enseignant. Vérifiez les informations puis réessayez."
     )}`);
   }
+
+  revalidatePath("/dashboard/enseignants");
+  redirect(`/dashboard/enseignants/${enseignant.id}?succes=${encodeURIComponent(
+    "Enseignant enregistré avec succès"
+  )}`);
 }
 
 export async function modifierEnseignant(formData: FormData) {
