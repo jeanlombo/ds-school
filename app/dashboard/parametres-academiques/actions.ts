@@ -66,7 +66,30 @@ export async function enregistrerJours(f:FormData){
   redirect("/dashboard/parametres-academiques/jours-ouvrables?succes=1");
 }
 export async function ajouterCreneau(f:FormData){
-  await exigerPermission("PARAMETRES_ACADEMIQUES_AJOUTER", "app/dashboard/parametres-academiques/actions.ts::ajouterCreneau");await prisma.creneauHoraire.create({data:{ecoleId:n(f,"ecoleId"),nom:t(f,"nom"),ordre:n(f,"ordre",1),heureDebut:t(f,"heureDebut"),heureFin:t(f,"heureFin"),actif:true}});revalidatePath("/dashboard/parametres-academiques/creneaux")}
+  await exigerPermission(
+    "PARAMETRES_ACADEMIQUES_AJOUTER",
+    "app/dashboard/parametres-academiques/actions.ts::ajouterCreneau"
+  );
+
+  const ecole = await obtenirOuCreerEcole();
+
+  await prisma.creneauHoraire.create({
+    data:{
+      ecoleId: ecole.id,
+      nom: t(f,"nom"),
+      ordre: n(f,"ordre",1),
+      heureDebut: t(f,"heureDebut"),
+      heureFin: t(f,"heureFin"),
+      actif: true
+    }
+  });
+
+  revalidatePath("/dashboard/parametres-academiques/creneaux");
+  revalidatePath("/dashboard/emploi-du-temps");
+  revalidatePath("/dashboard/emploi-du-temps/nouveau");
+
+  redirect("/dashboard/parametres-academiques/creneaux?succes=1");
+}
 export async function supprimerCreneau(f:FormData){
   await exigerPermission("PARAMETRES_ACADEMIQUES_SUPPRIMER", "app/dashboard/parametres-academiques/actions.ts::supprimerCreneau");await prisma.creneauHoraire.delete({where:{id:id(f)}});revalidatePath("/dashboard/parametres-academiques/creneaux")}
 export async function ajouterPause(f:FormData){
@@ -74,14 +97,65 @@ export async function ajouterPause(f:FormData){
 export async function supprimerPause(f:FormData){
   await exigerPermission("PARAMETRES_ACADEMIQUES_SUPPRIMER", "app/dashboard/parametres-academiques/actions.ts::supprimerPause");await prisma.pauseAcademique.delete({where:{id:id(f)}});revalidatePath("/dashboard/parametres-academiques/pauses")}
 export async function ajouterSalle(f:FormData){
-  await exigerPermission("PARAMETRES_ACADEMIQUES_AJOUTER", "app/dashboard/parametres-academiques/actions.ts::ajouterSalle");
-  const ecoleId=n(f,"ecoleId"); const quota=await verifierQuota(ecoleId,"salles"); if(!quota.autorise) throw new Error(quota.message || "Limite de licence atteinte");
-  await prisma.salle.create({data:{ecoleId,code:t(f,"code").toUpperCase(),nom:t(f,"nom"),type:t(f,"type"),capacite:n(f,"capacite",40),batiment:t(f,"batiment")||null,etage:t(f,"etage")||null,responsable:t(f,"responsable")||null,statut:"ACTIVE"}});revalidatePath("/dashboard/parametres-academiques/salles")
+  await exigerPermission(
+    "PARAMETRES_ACADEMIQUES_AJOUTER",
+    "app/dashboard/parametres-academiques/actions.ts::ajouterSalle"
+  );
+
+  const ecole = await obtenirOuCreerEcole();
+  const quota = await verifierQuota(ecole.id,"salles");
+
+  if(!quota.autorise){
+    throw new Error(quota.message || "Limite de licence atteinte");
+  }
+
+  await prisma.salle.create({
+    data:{
+      ecoleId: ecole.id,
+      code: t(f,"code").toUpperCase(),
+      nom: t(f,"nom"),
+      type: t(f,"type"),
+      capacite: n(f,"capacite",40),
+      batiment: t(f,"batiment") || null,
+      etage: t(f,"etage") || null,
+      responsable: t(f,"responsable") || null,
+      statut: "ACTIVE"
+    }
+  });
+
+  revalidatePath("/dashboard/parametres-academiques/salles");
+  revalidatePath("/dashboard/emploi-du-temps");
+  revalidatePath("/dashboard/emploi-du-temps/nouveau");
+
+  redirect("/dashboard/parametres-academiques/salles?succes=1");
 }
 export async function supprimerSalle(f:FormData){
   await exigerPermission("PARAMETRES_ACADEMIQUES_SUPPRIMER", "app/dashboard/parametres-academiques/actions.ts::supprimerSalle");await prisma.salle.delete({where:{id:id(f)}});revalidatePath("/dashboard/parametres-academiques/salles")}
 export async function ajouterTypeCours(f:FormData){
-  await exigerPermission("PARAMETRES_ACADEMIQUES_AJOUTER", "app/dashboard/parametres-academiques/actions.ts::ajouterTypeCours");await prisma.typeCours.create({data:{ecoleId:n(f,"ecoleId"),code:t(f,"code").toUpperCase(),nom:t(f,"nom"),couleur:t(f,"couleur")||"#1761A8",description:t(f,"description")||null,actif:true}});revalidatePath("/dashboard/parametres-academiques/types-cours")}
+  await exigerPermission(
+    "PARAMETRES_ACADEMIQUES_AJOUTER",
+    "app/dashboard/parametres-academiques/actions.ts::ajouterTypeCours"
+  );
+
+  const ecole = await obtenirOuCreerEcole();
+
+  await prisma.typeCours.create({
+    data:{
+      ecoleId: ecole.id,
+      code: t(f,"code").toUpperCase(),
+      nom: t(f,"nom"),
+      couleur: t(f,"couleur") || "#1761A8",
+      description: t(f,"description") || null,
+      actif: true
+    }
+  });
+
+  revalidatePath("/dashboard/parametres-academiques/types-cours");
+  revalidatePath("/dashboard/emploi-du-temps");
+  revalidatePath("/dashboard/emploi-du-temps/nouveau");
+
+  redirect("/dashboard/parametres-academiques/types-cours?succes=1");
+}
 export async function supprimerTypeCours(f:FormData){
   await exigerPermission("PARAMETRES_ACADEMIQUES_SUPPRIMER", "app/dashboard/parametres-academiques/actions.ts::supprimerTypeCours");await prisma.typeCours.delete({where:{id:id(f)}});revalidatePath("/dashboard/parametres-academiques/types-cours")}
 export async function enregistrerRegles(f:FormData){
