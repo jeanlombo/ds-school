@@ -15,6 +15,49 @@ function texte(formData: FormData, cle: string) {
   return typeof valeur === "string" ? valeur.trim() : "";
 }
 
+function texteOuNull(formData: FormData, cle: string): string | null {
+  const valeur = texte(formData, cle);
+  return valeur === "" ? null : valeur;
+}
+
+function estErreurP2002(erreur: unknown): boolean {
+  return (
+    typeof erreur === "object" &&
+    erreur !== null &&
+    "code" in erreur &&
+    (erreur as { code?: string }).code === "P2002"
+  );
+}
+
+function cibleErreurUnique(erreur: unknown): string {
+  if (typeof erreur !== "object" || erreur === null || !("meta" in erreur)) return "";
+
+  try {
+    return JSON.stringify((erreur as { meta?: unknown }).meta ?? "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function messageErreurUnique(erreur: unknown, numeroCarteRfid: string | null): string {
+  const cible = cibleErreurUnique(erreur);
+
+  if (
+    cible.includes("numero_carte_rfid") ||
+    cible.includes("numerocarterfid") ||
+    cible.includes("enseignants_numero_carte_rfid_key") ||
+    numeroCarteRfid
+  ) {
+    return "Cette carte RFID/NFC est déjà attribuée à un autre enseignant.";
+  }
+
+  if (cible.includes("matricule")) {
+    return "Ce matricule existe déjà.";
+  }
+
+  return "Une information unique est déjà utilisée par un autre enseignant.";
+}
+
 function dateOuNull(valeur: string) {
   if (!valeur) return null;
   const date = new Date(`${valeur}T00:00:00`);
@@ -50,114 +93,212 @@ async function enregistrerPhoto(formData: FormData, anciennePhoto?: string | nul
 
 export async function creerEnseignant(formData: FormData) {
   await exigerPermission("ENSEIGNANTS_AJOUTER", "app/dashboard/enseignants/actions.ts::creerEnseignant");
+
   const utilisateur = await obtenirUtilisateurConnecte();
   if (!utilisateur) redirect("/connexion");
+
   const ecole = await obtenirOuCreerEcole();
   const quota = await verifierQuota(ecole.id, "enseignants");
-  if (!quota.autorise) redirect(`/dashboard/enseignants/nouveau?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
+
+  if (!quota.autorise) {
+    redirect(`/dashboard/enseignants/nouveau?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
+  }
 
   const nom = texte(formData, "nom");
   const prenom = texte(formData, "prenom");
   const sexe = texte(formData, "sexe");
+
   if (!nom || !prenom || !["M", "F"].includes(sexe)) {
     redirect("/dashboard/enseignants/nouveau?erreur=Nom, prénom et sexe sont obligatoires");
   }
 
   const compteur = await prisma.enseignant.count({ where: { ecoleId: ecole.id } });
   const matricule = texte(formData, "matricule") || `ENS-${new Date().getFullYear()}-${String(compteur + 1).padStart(4, "0")}`;
-  const doublon = await prisma.enseignant.findFirst({ where: { ecoleId: ecole.id, matricule } });
-  if (doublon) redirect("/dashboard/enseignants/nouveau?erreur=Ce matricule existe déjà");
 
-  let photo: string | null = null;
-  try { photo = await enregistrerPhoto(formData); }
-  catch (erreur) {
-    redirect(`/dashboard/enseignants/nouveau?erreur=${encodeURIComponent(erreur instanceof Error ? erreur.message : "Photo invalide")}`);
-  }
-
-  const enseignant = await prisma.enseignant.create({
-    data: {
-      ecoleId: ecole.id,
-      matricule,
-      nom: nom.toUpperCase(),
-      postnom: texte(formData, "postnom") || null,
-      prenom,
-      sexe,
-      dateNaissance: dateOuNull(texte(formData, "dateNaissance")),
-      lieuNaissance: texte(formData, "lieuNaissance") || null,
-      nationalite: texte(formData, "nationalite") || "Congolaise",
-      etatCivil: texte(formData, "etatCivil") || null,
-      telephone: texte(formData, "telephone") || null,
-      email: texte(formData, "email") || null,
-      adresse: texte(formData, "adresse") || null,
-      photo,
-      fonction: texte(formData, "fonction") || "Enseignant",
-      specialite: texte(formData, "specialite") || null,
-      grade: texte(formData, "grade") || null,
-      dateEngagement: dateOuNull(texte(formData, "dateEngagement")),
-      typePiece: texte(formData, "typePiece") || null,
-      numeroPiece: texte(formData, "numeroPiece") || null,
-      numeroCarteRfid: texte(formData, "numeroCarteRfid") || null,
-      historiques: {
-        create: { type: "creation", details: "Création du dossier enseignant.", auteur: utilisateur.nom }
-      }
-    }
+  const doublon = await prisma.enseignant.findFirst({
+    where: { ecoleId: ecole.id, matricule }
   });
 
-  revalidatePath("/dashboard/enseignants");
-  redirect(`/dashboard/enseignants/${enseignant.id}?succes=Enseignant enregistré avec succès`);
+  if (doublon) {
+    redirect("/dashboard/enseignants/nouveau?erreur=Ce matricule existe déjà");
+  }
+
+  // Champ RFID optionnel : vide = NULL, jamais chaîne vide.
+  const numeroCarteRfid = texteOuNull(formData, "numeroCarteRfid");
+
+  if (numeroCarteRfid) {
+    const carteExistante = await prisma.enseignant.findFirst({
+      where: { numeroCarteRfid },
+      select: { id: true }
+    });
+
+    if (carteExistante) {
+      redirect(`/dashboard/enseignants/nouveau?erreur=${encodeURIComponent(
+        "Cette carte RFID/NFC est déjà attribuée à un autre enseignant."
+      )}`);
+    }
+  }
+
+  let photo: string | null = null;
+
+  try {
+    photo = await enregistrerPhoto(formData);
+  } catch (erreur) {
+    redirect(`/dashboard/enseignants/nouveau?erreur=${encodeURIComponent(
+      erreur instanceof Error ? erreur.message : "Photo invalide"
+    )}`);
+  }
+
+  try {
+    const enseignant = await prisma.enseignant.create({
+      data: {
+        ecoleId: ecole.id,
+        matricule,
+        nom: nom.toUpperCase(),
+        postnom: texteOuNull(formData, "postnom"),
+        prenom,
+        sexe,
+        dateNaissance: dateOuNull(texte(formData, "dateNaissance")),
+        lieuNaissance: texteOuNull(formData, "lieuNaissance"),
+        nationalite: texte(formData, "nationalite") || "Congolaise",
+        etatCivil: texteOuNull(formData, "etatCivil"),
+        telephone: texteOuNull(formData, "telephone"),
+        email: texteOuNull(formData, "email"),
+        adresse: texteOuNull(formData, "adresse"),
+        photo,
+        fonction: texte(formData, "fonction") || "Enseignant",
+        specialite: texteOuNull(formData, "specialite"),
+        grade: texteOuNull(formData, "grade"),
+        dateEngagement: dateOuNull(texte(formData, "dateEngagement")),
+        typePiece: texteOuNull(formData, "typePiece"),
+        numeroPiece: texteOuNull(formData, "numeroPiece"),
+        numeroCarteRfid,
+        historiques: {
+          create: {
+            type: "creation",
+            details: "Création du dossier enseignant.",
+            auteur: utilisateur.nom
+          }
+        }
+      }
+    });
+
+    revalidatePath("/dashboard/enseignants");
+    redirect(`/dashboard/enseignants/${enseignant.id}?succes=Enseignant enregistré avec succès`);
+  } catch (erreur) {
+    if (estErreurP2002(erreur)) {
+      redirect(`/dashboard/enseignants/nouveau?erreur=${encodeURIComponent(
+        messageErreurUnique(erreur, numeroCarteRfid)
+      )}`);
+    }
+
+    console.error("Erreur création enseignant :", erreur);
+
+    redirect(`/dashboard/enseignants/nouveau?erreur=${encodeURIComponent(
+      "Impossible d'enregistrer l'enseignant. Vérifiez les informations puis réessayez."
+    )}`);
+  }
 }
 
 export async function modifierEnseignant(formData: FormData) {
   await exigerPermission("ENSEIGNANTS_MODIFIER", "app/dashboard/enseignants/actions.ts::modifierEnseignant");
+
   const utilisateur = await obtenirUtilisateurConnecte();
   if (!utilisateur) redirect("/connexion");
+
   const ecole = await obtenirOuCreerEcole();
   const id = Number(texte(formData, "id"));
-  const enseignant = await prisma.enseignant.findFirst({ where: { id, ecoleId: ecole.id } });
+
+  const enseignant = await prisma.enseignant.findFirst({
+    where: { id, ecoleId: ecole.id }
+  });
+
   if (!enseignant) redirect("/dashboard/enseignants");
 
   const nom = texte(formData, "nom");
   const prenom = texte(formData, "prenom");
   const sexe = texte(formData, "sexe");
+
   if (!nom || !prenom || !["M", "F"].includes(sexe)) {
     redirect(`/dashboard/enseignants/${id}/modifier?erreur=Nom, prénom et sexe sont obligatoires`);
   }
 
-  let photo = enseignant.photo;
-  try { photo = await enregistrerPhoto(formData, enseignant.photo); }
-  catch (erreur) {
-    redirect(`/dashboard/enseignants/${id}/modifier?erreur=${encodeURIComponent(erreur instanceof Error ? erreur.message : "Photo invalide")}`);
+  const numeroCarteRfid = texteOuNull(formData, "numeroCarteRfid");
+
+  if (numeroCarteRfid) {
+    const carteExistante = await prisma.enseignant.findFirst({
+      where: {
+        numeroCarteRfid,
+        NOT: { id }
+      },
+      select: { id: true }
+    });
+
+    if (carteExistante) {
+      redirect(`/dashboard/enseignants/${id}/modifier?erreur=${encodeURIComponent(
+        "Cette carte RFID/NFC est déjà attribuée à un autre enseignant."
+      )}`);
+    }
   }
 
-  await prisma.$transaction([
-    prisma.enseignant.update({
-      where: { id },
-      data: {
-        nom: nom.toUpperCase(),
-        postnom: texte(formData, "postnom") || null,
-        prenom,
-        sexe,
-        dateNaissance: dateOuNull(texte(formData, "dateNaissance")),
-        lieuNaissance: texte(formData, "lieuNaissance") || null,
-        nationalite: texte(formData, "nationalite") || null,
-        etatCivil: texte(formData, "etatCivil") || null,
-        telephone: texte(formData, "telephone") || null,
-        email: texte(formData, "email") || null,
-        adresse: texte(formData, "adresse") || null,
-        photo,
-        fonction: texte(formData, "fonction") || "Enseignant",
-        specialite: texte(formData, "specialite") || null,
-        grade: texte(formData, "grade") || null,
-        dateEngagement: dateOuNull(texte(formData, "dateEngagement")),
-        typePiece: texte(formData, "typePiece") || null,
-        numeroPiece: texte(formData, "numeroPiece") || null,
-        numeroCarteRfid: texte(formData, "numeroCarteRfid") || null
-      }
-    }),
-    prisma.historiqueEnseignant.create({
-      data: { enseignantId: id, type: "modification", details: "Mise à jour du dossier administratif.", auteur: utilisateur.nom }
-    })
-  ]);
+  let photo = enseignant.photo;
+
+  try {
+    photo = await enregistrerPhoto(formData, enseignant.photo);
+  } catch (erreur) {
+    redirect(`/dashboard/enseignants/${id}/modifier?erreur=${encodeURIComponent(
+      erreur instanceof Error ? erreur.message : "Photo invalide"
+    )}`);
+  }
+
+  try {
+    await prisma.$transaction([
+      prisma.enseignant.update({
+        where: { id },
+        data: {
+          nom: nom.toUpperCase(),
+          postnom: texteOuNull(formData, "postnom"),
+          prenom,
+          sexe,
+          dateNaissance: dateOuNull(texte(formData, "dateNaissance")),
+          lieuNaissance: texteOuNull(formData, "lieuNaissance"),
+          nationalite: texteOuNull(formData, "nationalite"),
+          etatCivil: texteOuNull(formData, "etatCivil"),
+          telephone: texteOuNull(formData, "telephone"),
+          email: texteOuNull(formData, "email"),
+          adresse: texteOuNull(formData, "adresse"),
+          photo,
+          fonction: texte(formData, "fonction") || "Enseignant",
+          specialite: texteOuNull(formData, "specialite"),
+          grade: texteOuNull(formData, "grade"),
+          dateEngagement: dateOuNull(texte(formData, "dateEngagement")),
+          typePiece: texteOuNull(formData, "typePiece"),
+          numeroPiece: texteOuNull(formData, "numeroPiece"),
+          numeroCarteRfid
+        }
+      }),
+      prisma.historiqueEnseignant.create({
+        data: {
+          enseignantId: id,
+          type: "modification",
+          details: "Mise à jour du dossier administratif.",
+          auteur: utilisateur.nom
+        }
+      })
+    ]);
+  } catch (erreur) {
+    if (estErreurP2002(erreur)) {
+      redirect(`/dashboard/enseignants/${id}/modifier?erreur=${encodeURIComponent(
+        messageErreurUnique(erreur, numeroCarteRfid)
+      )}`);
+    }
+
+    console.error("Erreur modification enseignant :", erreur);
+
+    redirect(`/dashboard/enseignants/${id}/modifier?erreur=${encodeURIComponent(
+      "Impossible de mettre à jour le dossier enseignant."
+    )}`);
+  }
 
   revalidatePath("/dashboard/enseignants");
   revalidatePath(`/dashboard/enseignants/${id}`);
