@@ -3,6 +3,8 @@ import { exigerPermission } from "@/lib/securite/rbac";
 import { verifierQuota } from "@/lib/licence";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { obtenirOuCreerEcole } from "@/lib/ecole";
 const t=(f:FormData,k:string)=>String(f.get(k)??"").trim();
 const n=(f:FormData,k:string,d=0)=>{const v=Number(f.get(k));return Number.isFinite(v)?v:d};
 const b=(f:FormData,k:string)=>f.get(k)==="on"||f.get(k)==="true";
@@ -16,7 +18,53 @@ export async function ajouterPeriode(f:FormData){
 export async function supprimerPeriode(f:FormData){
   await exigerPermission("PARAMETRES_ACADEMIQUES_SUPPRIMER", "app/dashboard/parametres-academiques/actions.ts::supprimerPeriode");await prisma.periodeAcademique.delete({where:{id:id(f)}});revalidatePath("/dashboard/parametres-academiques/periodes")}
 export async function enregistrerJours(f:FormData){
-  await exigerPermission("PARAMETRES_ACADEMIQUES_MODIFIER", "app/dashboard/parametres-academiques/actions.ts::enregistrerJours");const ecoleId=n(f,"ecoleId");const jours=["LUNDI","MARDI","MERCREDI","JEUDI","VENDREDI","SAMEDI","DIMANCHE"];await prisma.$transaction(jours.map((jour,ordre)=>prisma.jourOuvrable.upsert({where:{ecoleId_jour:{ecoleId,jour}},create:{ecoleId,jour,ordre:ordre+1,actif:b(f,jour)},update:{ordre:ordre+1,actif:b(f,jour)}})));revalidatePath("/dashboard/parametres-academiques/jours-ouvrables")}
+  await exigerPermission(
+    "PARAMETRES_ACADEMIQUES_MODIFIER",
+    "app/dashboard/parametres-academiques/actions.ts::enregistrerJours"
+  );
+
+  const ecole = await obtenirOuCreerEcole();
+  const ecoleId = ecole.id;
+
+  const jours = [
+    "LUNDI",
+    "MARDI",
+    "MERCREDI",
+    "JEUDI",
+    "VENDREDI",
+    "SAMEDI",
+    "DIMANCHE"
+  ] as const;
+
+  await prisma.$transaction(
+    jours.map((jour, ordre) =>
+      prisma.jourOuvrable.upsert({
+        where: {
+          ecoleId_jour: {
+            ecoleId,
+            jour
+          }
+        },
+        create: {
+          ecoleId,
+          jour,
+          ordre: ordre + 1,
+          actif: b(f, jour)
+        },
+        update: {
+          ordre: ordre + 1,
+          actif: b(f, jour)
+        }
+      })
+    )
+  );
+
+  revalidatePath("/dashboard/parametres-academiques/jours-ouvrables");
+  revalidatePath("/dashboard/emploi-du-temps");
+  revalidatePath("/dashboard/emploi-du-temps/nouveau");
+
+  redirect("/dashboard/parametres-academiques/jours-ouvrables?succes=1");
+}
 export async function ajouterCreneau(f:FormData){
   await exigerPermission("PARAMETRES_ACADEMIQUES_AJOUTER", "app/dashboard/parametres-academiques/actions.ts::ajouterCreneau");await prisma.creneauHoraire.create({data:{ecoleId:n(f,"ecoleId"),nom:t(f,"nom"),ordre:n(f,"ordre",1),heureDebut:t(f,"heureDebut"),heureFin:t(f,"heureFin"),actif:true}});revalidatePath("/dashboard/parametres-academiques/creneaux")}
 export async function supprimerCreneau(f:FormData){
