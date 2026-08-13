@@ -13,7 +13,9 @@ type Recherche = Promise<{ succes?: string; erreur?: string }>;
 const messagesErreur: Record<string, string> = {
   champs: "Veuillez remplir le nom, le code et la section.",
   section: "La section sélectionnée est introuvable ou inactive.",
-  doublon: "Une classe portant ce nom ou ce code existe déjà.",
+  doublon_nom: "Cette classe existe déjà dans la section sélectionnée.",
+  doublon_code: "Ce code de classe existe déjà. Le système utilise automatiquement le code de la section pour éviter les conflits.",
+  creation: "La classe n’a pas pu être créée. Vérifiez les informations et réessayez.",
   introuvable: "La classe demandée est introuvable.",
 };
 
@@ -152,7 +154,14 @@ export default async function Classes({ searchParams }: { searchParams: Recherch
 
                 <div className={styles.champ}>
                   <label>Code *</label>
-                  <input name="code" required placeholder="Ex. 1A" />
+                  <input name="code" required placeholder="Ex. 1A, 6A, L1A..." />
+                </div>
+
+                <div className={`${styles.champ} ${styles.champLarge}`}>
+                  <small style={{ color: "#64748b", lineHeight: 1.5 }}>
+                    Le code de la section sera ajouté automatiquement pour éviter les doublons.
+                    Exemple : PRIM-1A, SEC-1A, HUM-1A ou UNI-L1A.
+                  </small>
                 </div>
 
                 <div className={`${styles.champ} ${styles.champLarge}`}>
