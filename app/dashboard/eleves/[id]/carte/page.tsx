@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import PrintButton from "./PrintButton";
 import QRCodeEleve from "./QRCodeEleve";
 import PhotoEleveCarte from "./PhotoEleveCarte";
-import c from "./carte.module.css";
+import c from "./carte.module.css";\nimport { terminologieSection } from "@/lib/terminologie-academique";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -55,7 +55,7 @@ export default async function CarteEleve({ params }: Props) {
     notFound();
   }
 
-  const inscription = eleve.inscriptions[0];
+  const inscription = eleve.inscriptions[0];\n  const t = terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement);
 
   const nomComplet = [
     eleve.nom,
@@ -103,7 +103,7 @@ export default async function CarteEleve({ params }: Props) {
           </div>
 
           <div className={c.schoolIdentity}>
-            <small>CARTE SCOLAIRE OFFICIELLE</small>
+            <small>{t.carte.toUpperCase()} OFFICIELLE</small>
             <h1>{ecole.nom}</h1>
             <p>
               {ecole.slogan ||
@@ -113,7 +113,7 @@ export default async function CarteEleve({ params }: Props) {
 
           <span className={c.schoolYear}>
             {inscription?.anneeScolaire.libelle ||
-              "Année scolaire"}
+              t.periodeMaj}
           </span>
         </header>
 
@@ -128,7 +128,7 @@ export default async function CarteEleve({ params }: Props) {
             </div>
 
             <span className={c.photoLabel}>
-              PHOTO DE L’ÉLÈVE
+              {`PHOTO DE L’${t.personneMaj.toUpperCase()}`}
             </span>
           </div>
 
@@ -144,7 +144,7 @@ export default async function CarteEleve({ params }: Props) {
 
             <dl>
               <div>
-                <dt>Classe</dt>
+                <dt>{t.structureMaj}</dt>
                 <dd>
                   {inscription?.classe.nom ||
                     "Non affectée"}

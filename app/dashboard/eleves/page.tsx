@@ -18,7 +18,7 @@ import AdminShell from "@/components/admin/AdminShell";
 import styles from "@/components/admin/admin.module.css";
 import elevesStyles from "@/components/eleves/eleves.module.css";
 import FiltresEleves from "@/components/eleves/FiltresEleves";
-import { changerStatutEleve } from "./actions";
+import { changerStatutEleve } from "./actions";\nimport { terminologieEtablissement } from "@/lib/terminologie-academique";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -74,7 +74,7 @@ export default async function ListeEleves({ searchParams }: Props) {
     superAdministrateur
   );
 
-  const ecole = await obtenirOuCreerEcole();
+  const ecole = await obtenirOuCreerEcole();\n  const t = terminologieEtablissement(ecole.typeEtablissement);
   const p = await searchParams;
   const recherche = texte(p.q).trim();
   const classeId = Number(texte(p.classe)) || 0;
@@ -262,12 +262,12 @@ export default async function ListeEleves({ searchParams }: Props) {
   return (
     <AdminShell
       utilisateur={utilisateur}
-      titre="Gestion des élèves"
+      titre={`Gestion des ${t.personnePluriel}`}
       description="Répertoire centralisé et accès contrôlé selon vos permissions."
       action={actionEntete}
     >
       <div className={elevesStyles.statsElevesPremium}>
-        <article><span><UsersRound /></span><div><small>Élèves actifs</small><strong>{total}</strong></div></article>
+        <article><span><UsersRound /></span><div><small>{t.personnePlurielMaj} actifs</small><strong>{total}</strong></div></article>
         <article><span><UserRound /></span><div><small>Garçons</small><strong>{garcons}</strong></div></article>
         <article><span><UserRound /></span><div><small>Filles</small><strong>{filles}</strong></div></article>
         <article><span><Sparkles /></span><div><small>Nouveaux ce mois</small><strong>{nouveaux}</strong></div></article>
@@ -277,7 +277,7 @@ export default async function ListeEleves({ searchParams }: Props) {
       <section className={`${styles.panneau} ${elevesStyles.panneauListeEleves}`}>
         <div className={styles.panneauEntete}>
           <div>
-            <h2>Répertoire des élèves</h2>
+            <h2>{`Répertoire des ${t.personnePluriel}`}</h2>
             <p>{filtreTotal} résultat(s) · affichage de {debut} à {fin}</p>
           </div>
           <span className={elevesStyles.indicateurListe}>
@@ -312,7 +312,7 @@ export default async function ListeEleves({ searchParams }: Props) {
           <table className={`${styles.table} ${elevesStyles.tableElevesPremium}`}>
             <thead>
               <tr>
-                <th>Élève</th>
+                <th>{t.personneMaj}</th>
                 <th>Matricule</th>
                 <th>Classe & section</th>
                 <th>Responsable</th>
@@ -422,7 +422,7 @@ export default async function ListeEleves({ searchParams }: Props) {
                         {peutVoirCarte && (
                           <Link
                             href={`/dashboard/eleves/${e.id}/carte`}
-                            title="Carte scolaire"
+                            title={t.carte}
                           >
                             <CreditCard size={17} />
                           </Link>
@@ -459,7 +459,7 @@ export default async function ListeEleves({ searchParams }: Props) {
                     <div className={styles.vide}>
                       <UsersRound size={38} />
                       <p>
-                        Aucun élève ne correspond aux critères sélectionnés.
+                        Aucun apprenant ne correspond aux critères sélectionnés.
                       </p>
 
                       {peutAjouter && (
@@ -468,7 +468,7 @@ export default async function ListeEleves({ searchParams }: Props) {
                           className={styles.boutonPrimaire}
                         >
                           <UserPlus size={17} />
-                          Inscrire un élève
+                          Inscrire un apprenant
                         </Link>
                       )}
                     </div>

@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { exigerPermission } from "@/lib/securite/rbac";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
 
-const TYPES = new Set(["SECONDAIRE", "UNIVERSITE", "MIXTE"]);
+const TYPES = new Set(["PRIMAIRE", "SECONDAIRE", "UNIVERSITE", "MIXTE"]);
 
 export async function modifierTypeEtablissement(formData: FormData) {
   await exigerPermission(

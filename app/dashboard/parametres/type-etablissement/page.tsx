@@ -24,7 +24,7 @@ export default async function TypeEtablissement({
     <AdminShell
       utilisateur={utilisateur}
       titre="Type d’établissement"
-      description="Choisissez le modèle académique chargé par DS School pour cet établissement."
+      description="Choisissez le vocabulaire et le modèle académique de l’établissement. Pour Primaire + Secondaire + Université, utilisez Structure mixte."
     >
       {query.succes && (
         <div className={styles.message}>Configuration enregistrée avec succès.</div>
@@ -47,9 +47,9 @@ export default async function TypeEtablissement({
             <div className={`${styles.champ} ${styles.champLarge}`}>
               <label>Type d’établissement *</label>
               <select name="typeEtablissement" defaultValue={ecole.typeEtablissement} required>
-                <option value="SECONDAIRE">École secondaire</option>
+                <option value="PRIMAIRE">École primaire</option>\n                <option value="SECONDAIRE">École secondaire / Humanités</option>
                 <option value="UNIVERSITE">Université / Institut supérieur</option>
-                <option value="MIXTE">Structure mixte</option>
+                <option value="MIXTE">Structure mixte : Primaire + Secondaire + Université / Institut supérieur</option>
               </select>
             </div>
           </div>
