@@ -18,7 +18,8 @@ import AdminShell from "@/components/admin/AdminShell";
 import styles from "@/components/admin/admin.module.css";
 import elevesStyles from "@/components/eleves/eleves.module.css";
 import FiltresEleves from "@/components/eleves/FiltresEleves";
-import { changerStatutEleve } from "./actions";\nimport { terminologieEtablissement } from "@/lib/terminologie-academique";
+import { changerStatutEleve } from "./actions";
+import { terminologieSection } from "@/lib/terminologie-academique";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -74,8 +75,8 @@ export default async function ListeEleves({ searchParams }: Props) {
     superAdministrateur
   );
 
-  const ecole = await obtenirOuCreerEcole();\n  const t = terminologieEtablissement(ecole.typeEtablissement);
-  const p = await searchParams;
+  const ecole = await obtenirOuCreerEcole();
+const p = await searchParams;
   const recherche = texte(p.q).trim();
   const classeId = Number(texte(p.classe)) || 0;
   const sectionId = Number(texte(p.section)) || 0;
@@ -262,12 +263,12 @@ export default async function ListeEleves({ searchParams }: Props) {
   return (
     <AdminShell
       utilisateur={utilisateur}
-      titre={`Gestion des ${t.personnePluriel}`}
+      titre="Gestion des apprenants"
       description="Répertoire centralisé et accès contrôlé selon vos permissions."
       action={actionEntete}
     >
       <div className={elevesStyles.statsElevesPremium}>
-        <article><span><UsersRound /></span><div><small>{t.personnePlurielMaj} actifs</small><strong>{total}</strong></div></article>
+        <article><span><UsersRound /></span><div><small>Apprenants actifs</small><strong>{total}</strong></div></article>
         <article><span><UserRound /></span><div><small>Garçons</small><strong>{garcons}</strong></div></article>
         <article><span><UserRound /></span><div><small>Filles</small><strong>{filles}</strong></div></article>
         <article><span><Sparkles /></span><div><small>Nouveaux ce mois</small><strong>{nouveaux}</strong></div></article>
@@ -277,7 +278,7 @@ export default async function ListeEleves({ searchParams }: Props) {
       <section className={`${styles.panneau} ${elevesStyles.panneauListeEleves}`}>
         <div className={styles.panneauEntete}>
           <div>
-            <h2>{`Répertoire des ${t.personnePluriel}`}</h2>
+            <h2>Répertoire des apprenants</h2>
             <p>{filtreTotal} résultat(s) · affichage de {debut} à {fin}</p>
           </div>
           <span className={elevesStyles.indicateurListe}>
@@ -312,7 +313,7 @@ export default async function ListeEleves({ searchParams }: Props) {
           <table className={`${styles.table} ${elevesStyles.tableElevesPremium}`}>
             <thead>
               <tr>
-                <th>{t.personneMaj}</th>
+                <th>Apprenant</th>
                 <th>Matricule</th>
                 <th>Classe & section</th>
                 <th>Responsable</th>
@@ -340,7 +341,9 @@ export default async function ListeEleves({ searchParams }: Props) {
                         </span>
                         <div>
                           <strong>{e.nom} {e.postnom || ""}</strong>
-                          <small>{e.prenom} · {e.sexe === "M" ? "Garçon" : "Fille"}</small>
+                          <small>{e.prenom} · {e.sexe === "M"
+                            ? terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).masculin
+                            : terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).feminin}</small>
                         </div>
                       </div>
                     </td>
@@ -422,7 +425,7 @@ export default async function ListeEleves({ searchParams }: Props) {
                         {peutVoirCarte && (
                           <Link
                             href={`/dashboard/eleves/${e.id}/carte`}
-                            title={t.carte}
+                            title={terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).carte}
                           >
                             <CreditCard size={17} />
                           </Link>

@@ -10,17 +10,23 @@ import PhotoEleveUpload from "@/components/eleves/PhotoEleveUpload";
 import styles from "@/components/admin/admin.module.css";
 import elevesStyles from "@/components/eleves/eleves.module.css";
 import { modifierEleve } from "../../actions";
+import { terminologieSection } from "@/lib/terminologie-academique";
 
 type Props={params:Promise<{id:string}>;searchParams:Promise<Record<string,string|string[]|undefined>>};
 export default async function ModifierEleve({params,searchParams}:Props){
  const utilisateur=await obtenirUtilisateurConnecte(); if(!utilisateur) redirect("/connexion");
  const ecole=await obtenirOuCreerEcole(); const {id}=await params; const q=await searchParams;
- const eleve=await prisma.eleve.findFirst({where:{id:Number(id),ecoleId:ecole.id}}); if(!eleve) notFound();
+ const eleve=await prisma.eleve.findFirst({
+   where:{id:Number(id),ecoleId:ecole.id},
+   include:{inscriptions:{include:{classe:{include:{section:true}}},orderBy:{createdAt:"desc"},take:1}}
+ }); if(!eleve) notFound();
+ const inscription=eleve.inscriptions[0];
+ const t=terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement);
  const erreur=typeof q.erreur==="string"?q.erreur:"";
- return <AdminShell utilisateur={utilisateur} titre="Modifier l’élève" description="Mettez à jour le dossier sans perdre l’historique." action={<Link href={`/dashboard/eleves/${eleve.id}`} className={styles.boutonSecondaire}><ArrowLeft size={18}/> Retour au dossier</Link>}>
+ return <AdminShell utilisateur={utilisateur} titre={`Modifier l’${t.personne}`} description={`Mettez à jour le ${t.dossier} sans perdre l’historique.`} action={<Link href={`/dashboard/eleves/${eleve.id}`} className={styles.boutonSecondaire}><ArrowLeft size={18}/> Retour au dossier</Link>}>
  {erreur&&<div className={elevesStyles.erreur}>{erreur}</div>}
  <form action={modifierEleve} className={elevesStyles.formulaireLong} encType="multipart/form-data"><input type="hidden" name="id" value={eleve.id}/>
- <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UserRound/></span><div><h2>Identité</h2><p>Informations personnelles et photo de la carte scolaire.</p></div></div></div><div className={styles.panneauCorps}>
+ <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UserRound/></span><div><h2>Identité</h2><p>Informations personnelles et photo utilisée sur la carte officielle.</p></div></div></div><div className={styles.panneauCorps}>
  <PhotoEleveUpload photoActuelle={eleve.photo} nomEleve={`${eleve.prenom} ${eleve.nom}`} />
  <div className={styles.formGrille}>
  <div className={styles.champ}><label>Matricule</label><input value={eleve.matricule} disabled/></div><div className={styles.champ}><label>Numéro permanent</label><input name="numeroPermanent" defaultValue={eleve.numeroPermanent||""}/></div>

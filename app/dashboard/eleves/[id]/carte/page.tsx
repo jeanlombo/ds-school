@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 import PrintButton from "./PrintButton";
 import QRCodeEleve from "./QRCodeEleve";
 import PhotoEleveCarte from "./PhotoEleveCarte";
-import c from "./carte.module.css";\nimport { terminologieSection } from "@/lib/terminologie-academique";
+import c from "./carte.module.css";
+import { terminologieSection } from "@/lib/terminologie-academique";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -55,7 +56,8 @@ export default async function CarteEleve({ params }: Props) {
     notFound();
   }
 
-  const inscription = eleve.inscriptions[0];\n  const t = terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement);
+  const inscription = eleve.inscriptions[0];
+  const t = terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement);
 
   const nomComplet = [
     eleve.nom,

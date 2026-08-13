@@ -45,7 +45,7 @@ export async function GET(request: Request) {
     orderBy: [{ nom: "asc" }, { prenom: "asc" }]
   });
 
-  const lignes = [["Matricule", "Nom", "Postnom", "Prénom", "Sexe", "Date de naissance", "Classe", "Section", "Année scolaire", "Responsable", "Téléphone", "Statut"],
+  const lignes = [["Matricule", "Nom", "Postnom", "Prénom", "Sexe", "Date de naissance", "Classe / Promotion", "Section", "Année scolaire / académique", "Responsable", "Téléphone", "Statut"],
     ...eleves.map(e => {
       const inscription = e.inscriptions[0];
       const responsable = e.responsables[0];
@@ -56,6 +56,6 @@ export async function GET(request: Request) {
   const contenu = "\ufeff" + lignes.map(ligne => ligne.map(csv).join(";")).join("\r\n");
   return new NextResponse(contenu, { headers: {
     "Content-Type": "text/csv; charset=utf-8",
-    "Content-Disposition": `attachment; filename="eleves-filtres-${new Date().toISOString().slice(0, 10)}.csv"`
+    "Content-Disposition": `attachment; filename="apprenants-filtres-${new Date().toISOString().slice(0, 10)}.csv"`
   }});
 }
