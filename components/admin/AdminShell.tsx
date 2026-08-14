@@ -38,7 +38,6 @@ import {
   SlidersHorizontal,
   UserRoundCheck,
   UserRoundCog,
-  Users,
   UsersRound,
   WalletCards,
   X,
@@ -87,7 +86,7 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/annees-scolaires",
-    label: "Années / périodes académiques",
+    label: "Années scolaires",
     icon: CalendarDays,
     permission: "ANNEES_SCOLAIRES_VOIR",
   },
@@ -101,28 +100,28 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/classes",
-    label: "Classes / promotions",
+    label: "Classes / Promotions",
     icon: School,
     permission: "CLASSES_VOIR",
   },
 
   {
     href: "/dashboard/eleves",
-    label: "Apprenants",
+    label: "Élèves / Étudiants",
     icon: UsersRound,
     permission: "ELEVES_VOIR",
   },
 
   {
     href: "/dashboard/parents",
-    label: "Responsables / contacts",
+    label: "Parents / Responsables",
     icon: UserRoundCog,
     permission: "PARENTS_VOIR",
   },
 
   {
     href: "/dashboard/suivi-parent",
-    label: "Suivi des responsables",
+    label: "Suivi familles / responsables",
     icon: Bell,
     permission: "SUIVI_PARENT_VOIR",
   },
@@ -136,7 +135,7 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/matieres",
-    label: "Matières",
+    label: "Matières / Cours",
     icon: BookOpen,
     permission: "MATIERES_VOIR",
   },
@@ -173,13 +172,6 @@ const liens: LienMenu[] = [
     href: "/dashboard/centre-academique",
     label: "Centre académique",
     icon: LibraryBig,
-    permission: "ACADEMIQUE_VOIR",
-  },
-
-  {
-    href: "/dashboard/universite",
-    label: "Structure universitaire",
-    icon: Landmark,
     permission: "ACADEMIQUE_VOIR",
   },
 
@@ -230,7 +222,7 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/crm",
-    label: "CRM établissement",
+    label: "CRM scolaire",
     icon: ContactRound,
     permission: "CRM_VOIR",
   },
@@ -333,34 +325,10 @@ const liens: LienMenu[] = [
   },
 
   {
-    href: "/dashboard/demandes",
-    label: "Demandes vitrine",
-    icon: ContactRound,
-    permission: "SUPER_ADMIN_DEMANDES",
-    superAdminOnly: true,
-  },
-
-  {
     href: "/dashboard/saas",
     label: "Centre SaaS DIGIGROUPE",
     icon: LayoutDashboard,
     permission: "SUPER_ADMIN_SAAS",
-    superAdminOnly: true,
-  },
-
-  {
-    href: "/dashboard/comptes-clients",
-    label: "Comptes clients",
-    icon: Users,
-    permission: "SUPER_ADMIN_COMPTES_CLIENTS",
-    superAdminOnly: true,
-  },
-
-  {
-    href: "/dashboard/etablissements",
-    label: "Établissements",
-    icon: Building2,
-    permission: "SUPER_ADMIN_ETABLISSEMENTS",
     superAdminOnly: true,
   },
 
@@ -378,13 +346,6 @@ const liens: LienMenu[] = [
     icon: KeyRound,
     permission: "SUPER_ADMIN_LICENCES",
     superAdminOnly: true,
-  },
-
-  {
-    href: "/dashboard/parametres/type-etablissement",
-    label: "Type d’établissement",
-    icon: Building2,
-    permission: "PARAMETRES_VOIR",
   },
 
   {
@@ -470,7 +431,7 @@ export default function AdminShell({
 
             <div>
               <strong>DS School</strong>
-              <small>VERSION 1.0</small>
+              <small>PREMIUM</small>
             </div>
           </Link>
 
@@ -585,7 +546,7 @@ export default function AdminShell({
         <div className={styles.entete}>
           <div>
             <span>
-              DS SCHOOL
+              DS SCHOOL PREMIUM
             </span>
 
             <h1>{titre}</h1>
