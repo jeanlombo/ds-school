@@ -1,273 +1,31 @@
-export type TypeAcademique = "scolaire" | "superieur";
+export type TypeSectionAcademique="PRIMAIRE"|"SECONDAIRE"|"HUMANITES"|"UNIVERSITE"|"INSTITUT_SUPERIEUR"|"AUTRE";
+export type ModeAcademique="scolaire"|"superieur";
 
-export type CycleAcademique =
-  | "maternelle"
-  | "primaire"
-  | "secondaire"
-  | "humanites"
-  | "universite"
-  | "institut_superieur"
-  | "autre";
-
-export type TerminologieAcademique = {
-  type: TypeAcademique;
-  cycle: CycleAcademique;
-
-  personne: string;
-  personneMaj: string;
-  personnePluriel: string;
-  personnePlurielMaj: string;
-  masculin: string;
-  feminin: string;
-
-  dossier: string;
-  carte: string;
-
-  structure: string;
-  structureMaj: string;
-  structurePluriel: string;
-
-  periode: string;
-  periodeMaj: string;
-
-  responsables: string;
-  provenance: string;
-  documentResultats: string;
-
-  cours: string;
-  coursMaj: string;
-
-  etablissement: string;
-  etablissementMaj: string;
-
-  section: string;
-  sectionMaj: string;
+function normaliser(v?:string|null){
+ return (v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toUpperCase().replace(/[-/]+/g,"_").replace(/\s+/g,"_");
+}
+export function detecterTypeSection(nom?:string|null,code?:string|null):TypeSectionAcademique{
+ const v=`${normaliser(nom)} ${normaliser(code)}`;
+ if(v.includes("UNIVERSITE")||v.includes("UNIV")||v.includes("FACULTE")) return "UNIVERSITE";
+ if(v.includes("INSTITUT_SUPERIEUR")||v.includes("SUPERIEUR")||v.includes("IST")||v.includes("ISP")||v.includes("ISC")||v.includes("ISIG")) return "INSTITUT_SUPERIEUR";
+ if(v.includes("HUMANITE")||v.includes("HUM")) return "HUMANITES";
+ if(v.includes("SECONDAIRE")||v.includes("SECOND")||v.includes("SEC")) return "SECONDAIRE";
+ if(v.includes("PRIMAIRE")||v.includes("PRIM")) return "PRIMAIRE";
+ return "AUTRE";
+}
+const scolaire={
+ mode:"scolaire" as const,personne:"Élève",personnes:"Élèves",personneMin:"élève",personnesMin:"élèves",
+ inscription:"Inscription scolaire",structurePrincipale:"Classe",structurePrincipalePluriel:"Classes",
+ structureNiveau2:null as string|null,structureNiveau3:null as string|null,annee:"Année scolaire",
+ documentResultat:"Bulletin",documentResultatPluriel:"Bulletins",carte:"Carte scolaire",
+ responsable:"Parent / Tuteur",responsables:"Parents / Tuteurs",enseignant:"Enseignant",enseignants:"Enseignants"
 };
-
-export function normaliserAcademique(valeur?: string | null) {
-  return (valeur || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase()
-    .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ");
+export function terminologieSection(nom?:string|null,code?:string|null){
+ const type=detecterTypeSection(nom,code);
+ if(type==="UNIVERSITE") return {type,mode:"superieur" as const,personne:"Étudiant",personnes:"Étudiants",personneMin:"étudiant",personnesMin:"étudiants",inscription:"Inscription académique",structurePrincipale:"Faculté",structurePrincipalePluriel:"Facultés",structureNiveau2:"Département",structureNiveau3:"Promotion",annee:"Année académique",documentResultat:"Relevé de notes",documentResultatPluriel:"Relevés de notes",carte:"Carte d’étudiant",responsable:"Personne de contact",responsables:"Personnes de contact",enseignant:"Enseignant / Professeur",enseignants:"Enseignants / Professeurs"};
+ if(type==="INSTITUT_SUPERIEUR") return {type,mode:"superieur" as const,personne:"Étudiant",personnes:"Étudiants",personneMin:"étudiant",personnesMin:"étudiants",inscription:"Inscription académique",structurePrincipale:"Section",structurePrincipalePluriel:"Sections",structureNiveau2:"Département",structureNiveau3:"Promotion",annee:"Année académique",documentResultat:"Relevé de notes",documentResultatPluriel:"Relevés de notes",carte:"Carte d’étudiant",responsable:"Personne de contact",responsables:"Personnes de contact",enseignant:"Enseignant / Professeur",enseignants:"Enseignants / Professeurs"};
+ if(type==="HUMANITES"||type==="SECONDAIRE") return {...scolaire,type,structureNiveau2:"Option"};
+ return {...scolaire,type};
 }
-
-function contientUnMot(valeur: string, mots: string[]) {
-  return mots.some((mot) => valeur.includes(mot));
-}
-
-export function detecterCycleAcademique(
-  sectionNom?: string | null,
-  typeEtablissement?: string | null
-): CycleAcademique {
-  const section = normaliserAcademique(sectionNom);
-  const type = normaliserAcademique(typeEtablissement);
-  const source = `${type} ${section}`.trim();
-
-  if (
-    contientUnMot(source, [
-      "institut superieur",
-      "institut supérieur",
-      "isp",
-      "isc",
-      "ista",
-      "ispt",
-      "isam",
-      "haute ecole",
-      "haute école",
-    ])
-  ) {
-    return "institut_superieur";
-  }
-
-  if (
-    contientUnMot(source, [
-      "universite",
-      "université",
-      "universitaire",
-      "faculte",
-      "faculté",
-      "licence",
-      "master",
-      "doctorat",
-      "lmd",
-    ])
-  ) {
-    return "universite";
-  }
-
-  if (
-    contientUnMot(source, [
-      "humanite",
-      "humanité",
-      "humanites",
-      "humanités",
-      "scientifique",
-      "commerciale",
-      "litteraire",
-      "littéraire",
-      "pedagogie",
-      "pédagogie",
-      "technique",
-    ])
-  ) {
-    return "humanites";
-  }
-
-  if (
-    contientUnMot(source, [
-      "secondaire",
-      "cycle d'orientation",
-      "cycle dorientation",
-      "college",
-      "collège",
-    ])
-  ) {
-    return "secondaire";
-  }
-
-  if (contientUnMot(source, ["primaire", "elementaire", "élémentaire"])) {
-    return "primaire";
-  }
-
-  if (contientUnMot(source, ["maternelle", "prescolaire", "préscolaire"])) {
-    return "maternelle";
-  }
-
-  return "autre";
-}
-
-export function estEnseignementSuperieur(
-  sectionNom?: string | null,
-  typeEtablissement?: string | null
-) {
-  const cycle = detecterCycleAcademique(sectionNom, typeEtablissement);
-  return cycle === "universite" || cycle === "institut_superieur";
-}
-
-function terminologieScolaire(cycle: CycleAcademique): TerminologieAcademique {
-  return {
-    type: "scolaire",
-    cycle,
-
-    personne: "élève",
-    personneMaj: "Élève",
-    personnePluriel: "élèves",
-    personnePlurielMaj: "Élèves",
-    masculin: "Élève",
-    feminin: "Élève",
-
-    dossier: "dossier élève",
-    carte: "Carte d’élève",
-
-    structure: "classe",
-    structureMaj: "Classe",
-    structurePluriel: "classes",
-
-    periode: "année scolaire",
-    periodeMaj: "Année scolaire",
-
-    responsables: "Parents et tuteur",
-    provenance: "École de provenance",
-    documentResultats: "Bulletin",
-
-    cours: "matière",
-    coursMaj: "Matière",
-
-    etablissement: "établissement scolaire",
-    etablissementMaj: "Établissement scolaire",
-
-    section: "section",
-    sectionMaj: "Section",
-  };
-}
-
-function terminologieSuperieure(cycle: CycleAcademique): TerminologieAcademique {
-  const institut = cycle === "institut_superieur";
-
-  return {
-    type: "superieur",
-    cycle,
-
-    personne: "étudiant",
-    personneMaj: "Étudiant",
-    personnePluriel: "étudiants",
-    personnePlurielMaj: "Étudiants",
-    masculin: "Étudiant",
-    feminin: "Étudiante",
-
-    dossier: "dossier étudiant",
-    carte: "Carte d’étudiant",
-
-    structure: "promotion",
-    structureMaj: "Promotion",
-    structurePluriel: "promotions",
-
-    periode: "année académique",
-    periodeMaj: "Année académique",
-
-    responsables: "Contacts / personnes de référence",
-    provenance: "Établissement de provenance",
-    documentResultats: "Relevé de notes",
-
-    cours: "unité d’enseignement",
-    coursMaj: "Unité d’enseignement",
-
-    etablissement: institut ? "institut supérieur" : "université",
-    etablissementMaj: institut ? "Institut supérieur" : "Université",
-
-    section: institut ? "filière / département" : "faculté / département",
-    sectionMaj: institut ? "Filière / Département" : "Faculté / Département",
-  };
-}
-
-export function terminologieSection(
-  sectionNom?: string | null,
-  typeEtablissement?: string | null
-): TerminologieAcademique {
-  const cycle = detecterCycleAcademique(sectionNom, typeEtablissement);
-
-  if (cycle === "universite" || cycle === "institut_superieur") {
-    return terminologieSuperieure(cycle);
-  }
-
-  return terminologieScolaire(cycle);
-}
-
-/**
- * Terminologie neutre à utiliser dans les pages qui mélangent plusieurs cycles
- * (Primaire + Secondaire + Université, par exemple).
- */
-export function terminologieNeutre() {
-  return {
-    personne: "apprenant",
-    personneMaj: "Apprenant",
-    personnePluriel: "apprenants",
-    personnePlurielMaj: "Apprenants",
-
-    structure: "classe / promotion",
-    structureMaj: "Classe / Promotion",
-
-    periode: "année scolaire / académique",
-    periodeMaj: "Année scolaire / académique",
-
-    provenance: "établissement de provenance",
-    documentResultats: "bulletin / relevé de notes",
-
-    etablissement: "établissement",
-    etablissementMaj: "Établissement",
-
-    section: "section / faculté / filière",
-    sectionMaj: "Section / Faculté / Filière",
-  };
-}
-
-/**
- * Petit helper pratique pour les tableaux, cartes et documents.
- * Exemple :
- *   const t = terminologiePourNomSection(classe.section.nom)
- *   t.personneMaj => "Élève" ou "Étudiant"
- */
-export const terminologiePourNomSection = terminologieSection;
+export function estSuperieur(nom?:string|null,code?:string|null){return terminologieSection(nom,code).mode==="superieur";}
+export const TERMINOLOGIE_MIXTE={personne:"Apprenant",personnes:"Apprenants",personneMin:"apprenant",personnesMin:"apprenants",annee:"Année scolaire / académique",structure:"Classe / Promotion",inscription:"Inscription",documentResultat:"Bulletin / Relevé de notes",carte:"Carte scolaire / Carte d’étudiant"};
