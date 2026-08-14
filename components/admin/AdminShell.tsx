@@ -87,7 +87,7 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/annees-scolaires",
-    label: "Années scolaires / académiques",
+    label: "Années / périodes académiques",
     icon: CalendarDays,
     permission: "ANNEES_SCOLAIRES_VOIR",
   },
@@ -101,28 +101,28 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/classes",
-    label: "Classes",
+    label: "Classes / promotions",
     icon: School,
     permission: "CLASSES_VOIR",
   },
 
   {
     href: "/dashboard/eleves",
-    label: "Élèves",
+    label: "Apprenants",
     icon: UsersRound,
     permission: "ELEVES_VOIR",
   },
 
   {
     href: "/dashboard/parents",
-    label: "Parents",
+    label: "Responsables / contacts",
     icon: UserRoundCog,
     permission: "PARENTS_VOIR",
   },
 
   {
     href: "/dashboard/suivi-parent",
-    label: "Suivi et communication Parent",
+    label: "Suivi des responsables",
     icon: Bell,
     permission: "SUIVI_PARENT_VOIR",
   },
@@ -230,7 +230,7 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/crm",
-    label: "CRM scolaire",
+    label: "CRM établissement",
     icon: ContactRound,
     permission: "CRM_VOIR",
   },

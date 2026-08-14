@@ -7,6 +7,7 @@ import AdminShell from "@/components/admin/AdminShell";
 import BoutonSoumission from "@/components/admin/BoutonSoumission";
 import styles from "@/components/admin/admin.module.css";
 import { basculerClasse, creerClasse } from "./actions";
+import { terminologieSection } from "@/lib/terminologie-academique";
 
 type Recherche = Promise<{ succes?: string; erreur?: string }>;
 
@@ -41,8 +42,8 @@ export default async function Classes({ searchParams }: { searchParams: Recherch
   return (
     <AdminShell
       utilisateur={utilisateur}
-      titre="Classes"
-      description="Créez les classes et rattachez-les aux sections de votre établissement."
+      titre="Classes / promotions"
+      description="Créez les classes ou promotions et rattachez-les aux sections de votre établissement."
     >
       {query.succes === "creation" && (
         <div className={styles.message}>La classe a été créée avec succès.</div>
@@ -60,8 +61,8 @@ export default async function Classes({ searchParams }: { searchParams: Recherch
         <section className={styles.panneau}>
           <div className={styles.panneauEntete}>
             <div>
-              <h2>Répertoire des classes</h2>
-              <p>{classes.length} classe(s) enregistrée(s)</p>
+              <h2>Répertoire des classes / promotions</h2>
+              <p>{classes.length} structure(s) académique(s) enregistrée(s)</p>
             </div>
             <School size={22} />
           </div>
@@ -71,7 +72,7 @@ export default async function Classes({ searchParams }: { searchParams: Recherch
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Classe</th>
+                    <th>Classe / promotion</th>
                     <th>Section</th>
                     <th>Capacité</th>
                     <th>Titulaire / Local</th>
@@ -91,7 +92,7 @@ export default async function Classes({ searchParams }: { searchParams: Recherch
                         </small>
                       </td>
                       <td>{classe.section.nom}</td>
-                      <td>{classe.capacite} élèves</td>
+                      <td>{classe.capacite} {terminologieSection(classe.section.nom, ecole.typeEtablissement).personnePluriel}</td>
                       <td>
                         {classe.titulaire || "Non affecté"}
                         <br />
@@ -130,7 +131,7 @@ export default async function Classes({ searchParams }: { searchParams: Recherch
           ) : (
             <div className={styles.vide}>
               <DoorOpen size={38} />
-              <p>Aucune classe n’est encore enregistrée.</p>
+              <p>Aucune classe / promotion n’est encore enregistrée.</p>
             </div>
           )}
         </section>
@@ -138,8 +139,8 @@ export default async function Classes({ searchParams }: { searchParams: Recherch
         <section className={styles.panneau}>
           <div className={styles.panneauEntete}>
             <div>
-              <h2>Créer une classe</h2>
-              <p>La classe sera disponible lors de l’inscription des élèves.</p>
+              <h2>Créer une classe / promotion</h2>
+              <p>La structure sera disponible lors de l’inscription des apprenants.</p>
             </div>
             <DoorOpen size={22} />
           </div>
@@ -148,7 +149,7 @@ export default async function Classes({ searchParams }: { searchParams: Recherch
             <form action={creerClasse} className={styles.panneauCorps}>
               <div className={styles.formGrille}>
                 <div className={styles.champ}>
-                  <label>Nom de la classe *</label>
+                  <label>Nom de la classe / promotion *</label>
                   <input name="nom" required placeholder="Ex. 1ère A" />
                 </div>
 

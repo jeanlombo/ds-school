@@ -13,7 +13,7 @@ import { creerEleve } from "../actions";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default async function NouvelEleve({ searchParams }: Props) {
+export default async function NouvelApprenant({ searchParams }: Props) {
   const utilisateur = await obtenirUtilisateurConnecte(); if (!utilisateur) redirect("/connexion");
   const ecole = await obtenirOuCreerEcole();
   const params = await searchParams;
@@ -27,10 +27,10 @@ export default async function NouvelEleve({ searchParams }: Props) {
   const matricule = `${ecole.code}-${new Date().getFullYear()}-${String(compteur + 1).padStart(5, "0")}`;
   const aujourdHui = new Date().toISOString().slice(0,10);
 
-  return <AdminShell utilisateur={utilisateur} titre="Nouvelle inscription" description="Créez le dossier administratif, académique, familial et médical de l’apprenant." action={<Link href="/dashboard/eleves" className={styles.boutonSecondaire}><ArrowLeft size={18}/> Retour à la liste</Link>}>
+  return <AdminShell utilisateur={utilisateur} titre="Nouvelle inscription" description="Créez le dossier administratif, académique, familial et médical de l’apprenant." action={<Link href="/dashboard/eleves" className={styles.boutonSecondaire}><ArrowLeft size={18}/> Retour aux apprenants</Link>}>
     {erreur && <div className={elevesStyles.erreur}>{erreur}</div>}
     <form action={creerEleve} className={elevesStyles.formulaireLong} encType="multipart/form-data">
-      <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UserRound/></span><div><h2>Informations personnelles</h2><p>Identité officielle de l’apprenant et photo utilisée sur sa carte.</p></div></div></div><div className={styles.panneauCorps}>
+      <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UserRound/></span><div><h2>Informations personnelles</h2><p>Identité officielle de l’apprenant et photo utilisée sur sa carte scolaire ou d’étudiant.</p></div></div></div><div className={styles.panneauCorps}>
         <PhotoEleveUpload />
         <div className={styles.formGrille}>
         <div className={styles.champ}><label>Matricule</label><input name="matricule" defaultValue={matricule}/></div>
@@ -46,14 +46,14 @@ export default async function NouvelEleve({ searchParams }: Props) {
       </div></div></section>
 
       <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><School/></span><div><h2>Informations académiques</h2><p>Affectation à la classe / promotion et à l’année scolaire / académique.</p></div></div></div><div className={styles.panneauCorps}><div className={styles.formGrille}>
-        <div className={styles.champ}><label>Année scolaire / académique *</label><select name="anneeScolaireId" required defaultValue={annees.find(a=>a.active)?.id || annees[0].id}>{annees.map(a=><option key={a.id} value={a.id}>{a.libelle}{a.active ? " — active" : ""}</option>)}</select></div>
+        <div className={styles.champ}><label>Période scolaire / académique *</label><select name="anneeScolaireId" required defaultValue={annees.find(a=>a.active)?.id || annees[0].id}>{annees.map(a=><option key={a.id} value={a.id}>{a.libelle}{a.active ? " — active" : ""}</option>)}</select></div>
         <div className={styles.champ}><label>Classe / promotion *</label><select name="classeId" required defaultValue=""><option value="">Sélectionner une classe / promotion</option>{classes.map(c=><option key={c.id} value={c.id}>{c.section.nom} — {c.nom}</option>)}</select></div>
         <div className={styles.champ}><label>Date d’inscription</label><input type="date" name="dateInscription" defaultValue={aujourdHui}/></div>
         <div className={styles.champ}><label>Type d’admission</label><select name="typeAdmission" defaultValue="nouveau"><option value="nouveau">Nouveau / débutant</option><option value="ancien">Ancien / déjà inscrit</option><option value="transfert">Transfert</option></select></div>
         <div className={`${styles.champ} ${styles.champLarge}`}><label>Établissement de provenance</label><input name="ancienneEcole" placeholder="Nom de l’établissement précédent"/></div>
       </div></div></section>
 
-      <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UsersRound/></span><div><h2>Responsables / personnes de contact</h2><p>Pour les élèves : parents ou tuteur. Pour les étudiants : personne de contact ou responsable.</p></div></div></div><div className={styles.panneauCorps}>
+      <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UsersRound/></span><div><h2>Responsables / personnes de contact</h2><p>Renseignez les parents, le tuteur ou toute autre personne de contact selon le niveau de l’apprenant.</p></div></div></div><div className={styles.panneauCorps}>
         <div className={elevesStyles.responsablesGrille}>{["pere","mere","tuteur"].map((type)=><fieldset key={type} className={elevesStyles.responsable}><legend>{type === "pere" ? "Père" : type === "mere" ? "Mère" : "Tuteur"}</legend><label>Nom complet<input name={`${type}Nom`}/></label><label>Téléphone<input name={`${type}Telephone`}/></label><label>E-mail<input type="email" name={`${type}Email`}/></label><label>Profession<input name={`${type}Profession`}/></label><label>Adresse<input name={`${type}Adresse`}/></label></fieldset>)}</div>
         <div className={styles.champ}><label>Responsable principal</label><select name="responsablePrincipal" defaultValue="tuteur"><option value="pere">Père</option><option value="mere">Mère</option><option value="tuteur">Tuteur</option></select></div>
       </div></section>
