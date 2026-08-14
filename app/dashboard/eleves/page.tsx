@@ -171,6 +171,19 @@ const p = await searchParams;
           orderBy: { createdAt: "desc" },
           take: 1,
         },
+        inscriptionsUniversitaires: {
+          include: {
+            promotion: {
+              include: {
+                departement: { include: { faculte: true } },
+                cycle: true,
+              },
+            },
+            anneeScolaire: true,
+          },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
         responsables: {
           where: { principal: true },
           take: 1,
@@ -315,7 +328,7 @@ const p = await searchParams;
               <tr>
                 <th>Apprenant</th>
                 <th>Matricule</th>
-                <th>Classe & section</th>
+                <th>Classe / Promotion</th>
                 <th>Responsable</th>
                 <th>Téléphone</th>
                 <th>Statut</th>
@@ -326,7 +339,9 @@ const p = await searchParams;
             <tbody>
               {eleves.map((e) => {
                 const inscription = e.inscriptions[0];
+                const inscriptionUniversitaire = e.inscriptionsUniversitaires[0];
                 const responsable = e.responsables[0];
+                const estEtudiant = Boolean(inscriptionUniversitaire);
 
                 return (
                   <tr key={e.id}>
@@ -341,9 +356,11 @@ const p = await searchParams;
                         </span>
                         <div>
                           <strong>{e.nom} {e.postnom || ""}</strong>
-                          <small>{e.prenom} · {e.sexe === "M"
-                            ? terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).masculin
-                            : terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).feminin}</small>
+                          <small>{e.prenom} · {estEtudiant
+                            ? (e.sexe === "F" ? "Étudiante" : "Étudiant")
+                            : (e.sexe === "M"
+                              ? terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).masculin
+                              : terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).feminin)}</small>
                         </div>
                       </div>
                     </td>
@@ -355,7 +372,16 @@ const p = await searchParams;
                     </td>
 
                     <td>
-                      {inscription ? (
+                      {inscriptionUniversitaire ? (
+                        <>
+                          <strong>{inscriptionUniversitaire.promotion.nom}</strong>
+                          <small className={elevesStyles.sousTexte}>
+                            {inscriptionUniversitaire.promotion.departement.faculte.nom} ·{" "}
+                            {inscriptionUniversitaire.promotion.departement.nom} ·{" "}
+                            {inscriptionUniversitaire.anneeScolaire.libelle}
+                          </small>
+                        </>
+                      ) : inscription ? (
                         <>
                           <strong>{inscription.classe.nom}</strong>
                           <small className={elevesStyles.sousTexte}>
@@ -364,9 +390,7 @@ const p = await searchParams;
                           </small>
                         </>
                       ) : (
-                        <span className={elevesStyles.nonInscrit}>
-                          Non inscrit
-                        </span>
+                        <span className={elevesStyles.nonInscrit}>Non inscrit</span>
                       )}
                     </td>
 
@@ -425,7 +449,7 @@ const p = await searchParams;
                         {peutVoirCarte && (
                           <Link
                             href={`/dashboard/eleves/${e.id}/carte`}
-                            title={terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).carte}
+                            title={estEtudiant ? "Carte d’étudiant" : terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement).carte}
                           >
                             <CreditCard size={17} />
                           </Link>

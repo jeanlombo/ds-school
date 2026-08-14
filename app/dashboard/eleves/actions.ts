@@ -7,8 +7,8 @@ import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
 import { verifierQuota } from "@/lib/licence";
 import { exigerPermission } from "@/lib/securite/rbac";
-import {
 import { terminologieSection } from "@/lib/terminologie-academique";
+import {
   enregistrerPhotoEleve,
   supprimerPhotoEleve,
 } from "@/lib/uploads/photo-eleve";
@@ -32,79 +32,64 @@ export async function creerEleve(formData: FormData) {
 
   const ecole = await obtenirOuCreerEcole();
   const quota = await verifierQuota(ecole.id, "eleves");
-  if (!quota.autorise) redirect(`/dashboard/eleves/nouveau?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
+  if (!quota.autorise) {
+    redirect(`/dashboard/eleves/nouveau?erreur=${encodeURIComponent(quota.message || "Limite de licence atteinte")}`);
+  }
+
+  const modeAcademique = texte(formData, "modeAcademique") === "superieur" ? "superieur" : "scolaire";
   const nom = texte(formData, "nom");
   const prenom = texte(formData, "prenom");
   const sexe = texte(formData, "sexe");
-  const dateNaissance = dateValide(
-    texte(formData, "dateNaissance")
-  );
+  const dateNaissance = dateValide(texte(formData, "dateNaissance"));
+  const anneeScolaireId = Number(texte(formData, "anneeScolaireId"));
   const classeId = Number(texte(formData, "classeId"));
-  const anneeScolaireId = Number(
-    texte(formData, "anneeScolaireId")
-  );
+  const promotionId = Number(texte(formData, "promotionId"));
 
-  if (
-    !nom ||
-    !prenom ||
-    !["M", "F"].includes(sexe) ||
-    !dateNaissance ||
-    !classeId ||
-    !anneeScolaireId
-  ) {
-    redirect(
-      "/dashboard/eleves/nouveau?erreur=Champs obligatoires incomplets"
-    );
+  if (!nom || !prenom || !["M", "F"].includes(sexe) || !dateNaissance || !anneeScolaireId) {
+    redirect("/dashboard/eleves/nouveau?erreur=Champs obligatoires incomplets");
+  }
+  if (modeAcademique === "scolaire" && !classeId) {
+    redirect("/dashboard/eleves/nouveau?erreur=Veuillez sélectionner une classe");
+  }
+  if (modeAcademique === "superieur" && !promotionId) {
+    redirect("/dashboard/eleves/nouveau?erreur=Veuillez sélectionner une promotion universitaire");
   }
 
-  const [classe, annee] = await Promise.all([
-    prisma.classe.findFirst({
-      where: {
-        id: classeId,
-        ecoleId: ecole.id,
-        statut: "active",
-      },
-      include: { section: true },
-    }),
-    prisma.anneeScolaire.findFirst({
-      where: {
-        id: anneeScolaireId,
-        ecoleId: ecole.id,
-      },
-    }),
-  ]);
+  const annee = await prisma.anneeScolaire.findFirst({
+    where: { id: anneeScolaireId, ecoleId: ecole.id },
+  });
+  if (!annee) redirect("/dashboard/eleves/nouveau?erreur=Année scolaire / académique invalide");
 
-  if (!classe || !annee) {
-    redirect(
-      "/dashboard/eleves/nouveau?erreur=Classe ou année scolaire invalide"
-    );
+  const classe = modeAcademique === "scolaire"
+    ? await prisma.classe.findFirst({
+        where: { id: classeId, ecoleId: ecole.id, statut: "active" },
+        include: { section: true },
+      })
+    : null;
+
+  const promotion = modeAcademique === "superieur"
+    ? await prisma.promotionUniversitaire.findFirst({
+        where: { id: promotionId, ecoleId: ecole.id, statut: "active" },
+        include: { departement: { include: { faculte: true } }, cycle: true },
+      })
+    : null;
+
+  if (modeAcademique === "scolaire" && !classe) {
+    redirect("/dashboard/eleves/nouveau?erreur=Classe invalide");
+  }
+  if (modeAcademique === "superieur" && !promotion) {
+    redirect("/dashboard/eleves/nouveau?erreur=Promotion universitaire invalide");
   }
 
-  const compteur = await prisma.eleve.count({
-    where: { ecoleId: ecole.id },
-  });
+  const compteur = await prisma.eleve.count({ where: { ecoleId: ecole.id } });
+  const matricule = texte(formData, "matricule") ||
+    `${ecole.code}-${new Date().getFullYear()}-${String(compteur + 1).padStart(5, "0")}`;
 
-  const matricule =
-    texte(formData, "matricule") ||
-    `${ecole.code}-${new Date().getFullYear()}-${String(
-      compteur + 1
-    ).padStart(5, "0")}`;
-
-  const doublon = await prisma.eleve.findFirst({
-    where: {
-      ecoleId: ecole.id,
-      matricule,
-    },
-  });
-
-  if (doublon) {
-    redirect(
-      "/dashboard/eleves/nouveau?erreur=Ce matricule existe déjà"
-    );
+  if (await prisma.eleve.findFirst({ where: { ecoleId: ecole.id, matricule } })) {
+    redirect("/dashboard/eleves/nouveau?erreur=Ce matricule existe déjà");
   }
 
   let photo: string | null = null;
-
   try {
     photo = await enregistrerPhotoEleve({
       eleveId: compteur + 1,
@@ -112,10 +97,10 @@ export async function creerEleve(formData: FormData) {
       anciennePhoto: null,
     });
   } catch {
-    redirect(
-      "/dashboard/eleves/nouveau?erreur=La photo est invalide ou trop volumineuse"
-    );
+    redirect("/dashboard/eleves/nouveau?erreur=La photo est invalide ou trop volumineuse");
   }
+
+  const dateInscription = dateValide(texte(formData, "dateInscription")) || new Date();
 
   const eleve = await prisma.eleve.create({
     data: {
@@ -126,77 +111,71 @@ export async function creerEleve(formData: FormData) {
       prenom,
       sexe,
       dateNaissance,
-      lieuNaissance:
-        texte(formData, "lieuNaissance") || null,
-      nationalite:
-        texte(formData, "nationalite") || "Congolaise",
+      lieuNaissance: texte(formData, "lieuNaissance") || null,
+      nationalite: texte(formData, "nationalite") || "Congolaise",
       adresse: texte(formData, "adresse") || null,
       photo,
-      numeroPermanent:
-        texte(formData, "numeroPermanent") || null,
-      groupeSanguin:
-        texte(formData, "groupeSanguin") || null,
+      numeroPermanent: texte(formData, "numeroPermanent") || null,
+      groupeSanguin: texte(formData, "groupeSanguin") || null,
       allergies: texte(formData, "allergies") || null,
       handicap: texte(formData, "handicap") || null,
-      contactUrgence:
-        texte(formData, "contactUrgence") || null,
-      telephoneUrgence:
-        texte(formData, "telephoneUrgence") || null,
-      inscriptions: {
-        create: {
-          classeId,
-          anneeScolaireId,
-          dateInscription:
-            dateValide(texte(formData, "dateInscription")) ||
-            new Date(),
-          typeAdmission:
-            texte(formData, "typeAdmission") || "nouveau",
-          ancienneEcole:
-            texte(formData, "ancienneEcole") || null,
+      contactUrgence: texte(formData, "contactUrgence") || null,
+      telephoneUrgence: texte(formData, "telephoneUrgence") || null,
+      ...(modeAcademique === "scolaire" && classe ? {
+        inscriptions: {
+          create: {
+            classeId: classe.id,
+            anneeScolaireId,
+            dateInscription,
+            typeAdmission: texte(formData, "typeAdmission") || "nouveau",
+            ancienneEcole: texte(formData, "ancienneEcole") || null,
+          },
         },
-      },
+      } : {}),
+      ...(modeAcademique === "superieur" && promotion ? {
+        inscriptionsUniversitaires: {
+          create: {
+            promotionId: promotion.id,
+            anneeScolaireId,
+            dateInscription,
+            statut: "inscrit",
+          },
+        },
+      } : {}),
       historiques: {
         create: {
           type: "creation",
-          details: `Création du dossier et inscription en classe ID ${classeId}.`,
+          details: modeAcademique === "superieur"
+            ? `Création du dossier étudiant et inscription en promotion ${promotion?.nom}.`
+            : `Création du dossier élève et inscription en classe ${classe?.nom}.`,
           auteur: utilisateur.nom,
         },
       },
     },
   });
 
-  const responsables = ["pere", "mere", "tuteur"]
-    .map((type) => ({
-      type,
-      nom: texte(formData, `${type}Nom`),
-      telephone:
-        texte(formData, `${type}Telephone`) || null,
-      email: texte(formData, `${type}Email`) || null,
-      profession:
-        texte(formData, `${type}Profession`) || null,
-      adresse:
-        texte(formData, `${type}Adresse`) || null,
-      principal:
-        texte(formData, "responsablePrincipal") === type,
-    }))
-    .filter((responsable) => responsable.nom);
+  const responsables = ["pere", "mere", "tuteur"].map((type) => ({
+    type,
+    nom: texte(formData, `${type}Nom`),
+    telephone: texte(formData, `${type}Telephone`) || null,
+    email: texte(formData, `${type}Email`) || null,
+    profession: texte(formData, `${type}Profession`) || null,
+    adresse: texte(formData, `${type}Adresse`) || null,
+    principal: texte(formData, "responsablePrincipal") === type,
+  })).filter((r) => r.nom);
 
   if (responsables.length) {
     await prisma.responsableEleve.createMany({
-      data: responsables.map((responsable) => ({
-        ...responsable,
-        ecoleId: ecole.id,
-        eleveId: eleve.id,
-      })),
+      data: responsables.map((r) => ({ ...r, ecoleId: ecole.id, eleveId: eleve.id })),
     });
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/eleves");
+  revalidatePath("/dashboard/universite");
 
-  redirect(
-    `/dashboard/eleves/${eleve.id}?succes=${encodeURIComponent(`${terminologieSection(classe.section.nom, ecole.typeEtablissement).personneMaj} enregistré(e) avec succès`)}`
-  );
+  const libelle = modeAcademique === "superieur" ? "Étudiant" : "Élève";
+  redirect(`/dashboard/eleves/${eleve.id}?succes=${encodeURIComponent(`${libelle} enregistré(e) avec succès`)}`);
 }
 
 export async function modifierEleve(formData: FormData) {

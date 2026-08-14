@@ -72,7 +72,7 @@ const liens: LienMenu[] = [
   },
   {
     href: "/dashboard/annees-scolaires",
-    label: "Années scolaires",
+    label: "Années scolaires / académiques",
     icon: CalendarDays,
     permission: "ANNEES_SCOLAIRES_VOIR",
   },
@@ -84,7 +84,7 @@ const liens: LienMenu[] = [
   },
   {
     href: "/dashboard/classes",
-    label: "Classes",
+    label: "Classes / Promotions",
     icon: School,
     permission: "CLASSES_VOIR",
   },
@@ -114,7 +114,7 @@ const liens: LienMenu[] = [
   },
   {
     href: "/dashboard/matieres",
-    label: "Matières",
+    label: "Matières / Cours",
     icon: BookOpen,
     permission: "MATIERES_VOIR",
   },
@@ -169,7 +169,7 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/crm",
-    label: "CRM scolaire",
+    label: "CRM établissement",
     icon: ContactRound,
     permission: "CRM_VOIR",
   },
@@ -218,7 +218,7 @@ const liens: LienMenu[] = [
   },
   {
     href: "/dashboard/finances/caisse",
-    label: "Caisse scolaire",
+    label: "Caisse établissement",
     icon: Landmark,
     permission: "FINANCES_CAISSE_VOIR",
   },

@@ -21,11 +21,19 @@ export default async function NouvelApprenant({ searchParams }: Props) {
   const params = await searchParams;
   const erreur = typeof params.erreur === "string" ? params.erreur : "";
 
-  const [classes, annees, compteur] = await Promise.all([
+  const [classes, promotions, annees, compteur] = await Promise.all([
     prisma.classe.findMany({
       where: { ecoleId: ecole.id, statut: "active" },
       include: { section: true },
       orderBy: [{ section: { nom: "asc" } }, { nom: "asc" }],
+    }),
+    prisma.promotionUniversitaire.findMany({
+      where: { ecoleId: ecole.id, statut: "active" },
+      include: {
+        departement: { include: { faculte: true } },
+        cycle: true,
+      },
+      orderBy: [{ niveau: "asc" }, { nom: "asc" }],
     }),
     prisma.anneeScolaire.findMany({
       where: { ecoleId: ecole.id, statut: { not: "cloturee" } },
@@ -34,7 +42,7 @@ export default async function NouvelApprenant({ searchParams }: Props) {
     prisma.eleve.count({ where: { ecoleId: ecole.id } }),
   ]);
 
-  if (!classes.length || !annees.length) {
+  if ((!classes.length && !promotions.length) || !annees.length) {
     return (
       <AdminShell
         utilisateur={utilisateur}
@@ -74,6 +82,15 @@ export default async function NouvelApprenant({ searchParams }: Props) {
           nom: c.nom,
           sectionNom: c.section.nom,
         }))}
+        promotions={promotions.map((p) => ({
+          id: p.id,
+          nom: p.nom,
+          code: p.code,
+          cycleNom: p.cycle.nom,
+          departementNom: p.departement.nom,
+          faculteNom: p.departement.faculte.nom,
+        }))}
+        typeEtablissement={ecole.typeEtablissement}
         annees={annees.map((a) => ({
           id: a.id,
           libelle: a.libelle,
