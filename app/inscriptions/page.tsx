@@ -9,8 +9,7 @@ export default function Page() {
           <div>
             <h2>Inscriptions scolaires / académiques</h2>
             <p style={{ color: "var(--muted)" }}>
-              Les inscriptions sont gérées selon la section : élève pour le Primaire,
-              le Secondaire et les Humanités ; étudiant pour l’Université et le Supérieur.
+              Les inscriptions sont gérées selon la section : Élève pour le Primaire, le Secondaire et les Humanités ; Étudiant / Étudiante pour l’Université et les Instituts supérieurs.
             </p>
           </div>
         </header>

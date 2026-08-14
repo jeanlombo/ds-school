@@ -1,132 +1,89 @@
-export type TypeEtablissement = "PRIMAIRE" | "SECONDAIRE" | "UNIVERSITE" | "MIXTE" | string;
-
 export type TerminologieAcademique = {
   type: "scolaire" | "superieur";
   personne: string;
   personneMaj: string;
-  personnes: string;
-  personnePluriel: string;
   masculin: string;
   feminin: string;
+  dossier: string;
+  carte: string;
   structure: string;
   structureMaj: string;
-  structures: string;
   periode: string;
   periodeMaj: string;
-  annee: string;
-  inscription: string;
-  carte: string;
-  dossier: string;
   responsables: string;
-  frais: string;
   provenance: string;
 };
 
-const SCOLAIRE: TerminologieAcademique = {
-  type: "scolaire",
-  personne: "élève",
-  personneMaj: "Élève",
-  personnes: "élèves",
-  personnePluriel: "élèves",
-  masculin: "Élève",
-  feminin: "Élève",
-  structure: "classe",
-  structureMaj: "Classe",
-  structures: "classes",
-  periode: "année scolaire",
-  periodeMaj: "Année scolaire",
-  annee: "Année scolaire",
-  inscription: "Inscription scolaire",
-  carte: "Carte d’élève",
-  dossier: "dossier scolaire",
-  responsables: "Parents / Responsables",
-  frais: "Frais scolaires",
-  provenance: "école / établissement de provenance",
-};
-
-const SUPERIEUR: TerminologieAcademique = {
-  type: "superieur",
-  personne: "étudiant",
-  personneMaj: "Étudiant",
-  personnes: "étudiants",
-  personnePluriel: "étudiants",
-  masculin: "Étudiant",
-  feminin: "Étudiante",
-  structure: "promotion",
-  structureMaj: "Promotion",
-  structures: "promotions",
-  periode: "année académique",
-  periodeMaj: "Année académique",
-  annee: "Année académique",
-  inscription: "Inscription académique",
-  carte: "Carte d’étudiant",
-  dossier: "dossier académique",
-  responsables: "Contacts / Responsables",
-  frais: "Frais académiques",
-  provenance: "établissement / université de provenance",
-};
-
-function normaliser(v?: string | null) {
-  return (v || "")
-    .toLowerCase()
+function normaliser(valeur?: string | null) {
+  return (valeur || "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .trim();
+    .trim()
+    .toLowerCase();
 }
 
-export function estSectionSuperieure(
-  section?: { nom?: string | null; code?: string | null } | string | null,
-  typeEtablissement?: TypeEtablissement | null,
+export function estEnseignementSuperieur(
+  sectionNom?: string | null,
+  typeEtablissement?: string | null
 ) {
-  const brut = typeof section === "string"
-    ? section
-    : `${section?.nom || ""} ${section?.code || ""}`;
-  const v = normaliser(brut);
-  const type = normaliser(typeEtablissement);
-
-  if (type === "universite") return true;
+  const texte = `${normaliser(sectionNom)} ${normaliser(typeEtablissement)}`;
 
   return [
     "universite",
     "universitaire",
     "institut superieur",
     "enseignement superieur",
+    "superieur",
     "faculte",
-    "licence",
-    "master",
-    "doctorat",
-    "graduat",
-    "lmd",
-  ].some((mot) => v.includes(normaliser(mot)));
+    "haute ecole",
+  ].some((mot) => texte.includes(mot));
 }
 
 export function terminologieSection(
-  section?: { nom?: string | null; code?: string | null } | string | null,
-  typeEtablissement?: TypeEtablissement | null,
+  sectionNom?: string | null,
+  typeEtablissement?: string | null
 ): TerminologieAcademique {
-  return estSectionSuperieure(section, typeEtablissement) ? SUPERIEUR : SCOLAIRE;
+  if (estEnseignementSuperieur(sectionNom, typeEtablissement)) {
+    return {
+      type: "superieur",
+      personne: "étudiant",
+      personneMaj: "Étudiant",
+      masculin: "Étudiant",
+      feminin: "Étudiante",
+      dossier: "dossier étudiant",
+      carte: "Carte d’étudiant",
+      structure: "promotion",
+      structureMaj: "Promotion",
+      periode: "année académique",
+      periodeMaj: "Année académique",
+      responsables: "Contacts / personnes de référence",
+      provenance: "Établissement de provenance",
+    };
+  }
+
+  return {
+    type: "scolaire",
+    personne: "élève",
+    personneMaj: "Élève",
+    masculin: "Élève",
+    feminin: "Élève",
+    dossier: "dossier élève",
+    carte: "Carte d’élève",
+    structure: "classe",
+    structureMaj: "Classe",
+    periode: "année scolaire",
+    periodeMaj: "Année scolaire",
+    responsables: "Parents et tuteur",
+    provenance: "École de provenance",
+  };
 }
 
-export function terminologieClasse(
-  classe?: { section?: { nom?: string | null; code?: string | null } | null } | null,
-  typeEtablissement?: TypeEtablissement | null,
-) {
-  return terminologieSection(classe?.section, typeEtablissement);
+export function terminologieNeutre() {
+  return {
+    personne: "apprenant",
+    personneMaj: "Apprenant",
+    structure: "classe / promotion",
+    periode: "année scolaire / académique",
+    provenance: "établissement de provenance",
+  };
 }
-
-export const terminologieGlobale = {
-  personne: "apprenant",
-  personneMaj: "Apprenant",
-  personnes: "apprenants",
-  personnePluriel: "apprenants",
-  structure: "classe / promotion",
-  structureMaj: "Classe / Promotion",
-  structures: "classes / promotions",
-  periode: "année scolaire / académique",
-  periodeMaj: "Année scolaire / académique",
-  inscription: "Inscription",
-  dossier: "dossier apprenant",
-  carte: "Carte d’identification",
-  responsables: "Responsables / Contacts",
-  frais: "Frais",
-};

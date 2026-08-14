@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { obtenirOuCreerEcole } from "@/lib/ecole";
 import { prisma } from "@/lib/prisma";
+import { terminologieSection } from "@/lib/terminologie-academique";
 
 function csv(valeur: unknown) {
   return `"${String(valeur ?? "").replaceAll('"', '""')}"`;
@@ -49,7 +50,8 @@ export async function GET(request: Request) {
     ...eleves.map(e => {
       const inscription = e.inscriptions[0];
       const responsable = e.responsables[0];
-      return [e.matricule, e.nom, e.postnom || "", e.prenom, e.sexe === "M" ? "Garçon" : "Fille", e.dateNaissance.toISOString().slice(0, 10), inscription?.classe.nom || "", inscription?.classe.section.nom || "", inscription?.anneeScolaire.libelle || "", responsable?.nom || "", responsable?.telephone || e.telephoneUrgence || "", e.statut];
+      const t = terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement);
+      return [e.matricule, e.nom, e.postnom || "", e.prenom, e.sexe === "M" ? t.masculin : t.feminin, e.dateNaissance.toISOString().slice(0, 10), inscription?.classe.nom || "", inscription?.classe.section.nom || "", inscription?.anneeScolaire.libelle || "", responsable?.nom || "", responsable?.telephone || e.telephoneUrgence || "", e.statut];
     })
   ];
 

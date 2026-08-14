@@ -8,6 +8,7 @@ import { obtenirOuCreerEcole } from "@/lib/ecole";
 import { verifierQuota } from "@/lib/licence";
 import { exigerPermission } from "@/lib/securite/rbac";
 import {
+import { terminologieSection } from "@/lib/terminologie-academique";
   enregistrerPhotoEleve,
   supprimerPhotoEleve,
 } from "@/lib/uploads/photo-eleve";
@@ -63,6 +64,7 @@ export async function creerEleve(formData: FormData) {
         ecoleId: ecole.id,
         statut: "active",
       },
+      include: { section: true },
     }),
     prisma.anneeScolaire.findFirst({
       where: {
@@ -193,7 +195,7 @@ export async function creerEleve(formData: FormData) {
   revalidatePath("/dashboard/eleves");
 
   redirect(
-    `/dashboard/eleves/${eleve.id}?succes=Élève enregistré avec succès`
+    `/dashboard/eleves/${eleve.id}?succes=${encodeURIComponent(`${terminologieSection(classe.section.nom, ecole.typeEtablissement).personneMaj} enregistré(e) avec succès`)}`
   );
 }
 
