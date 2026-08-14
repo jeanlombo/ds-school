@@ -53,7 +53,7 @@ export default async function Page({ params, searchParams }: Props) {
   if (!ligne || !classe || !periode) notFound();
 
   const couleur = modele?.couleurPrincipale || "#1d4ed8";
-  const t = terminologieSection(classe.section.nom, ecole.typeEtablissement);
+  const t = terminologieSection(classe.section.typeSection || classe.section.nom, ecole.typeEtablissement);
 
   return (
     <main className={styles.documentPage}>

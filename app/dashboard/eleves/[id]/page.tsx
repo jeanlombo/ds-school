@@ -21,7 +21,7 @@ export default async function ProfilEleve({ params, searchParams }: Props) {
   if (!eleve) notFound();
   const succes = typeof query.succes === "string" ? query.succes : "";
   const inscription = eleve.inscriptions[0];
-  const t = terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement);
+  const t = terminologieSection(inscription?.classe.section.typeSection || inscription?.classe.section.nom, ecole.typeEtablissement);
   const age = Math.max(0, new Date().getFullYear() - eleve.dateNaissance.getFullYear());
   return <AdminShell utilisateur={utilisateur} titre={`Dossier de l’${t.personne}`} description={`Profil centralisé de l’${t.personne}, inscription, responsables et suivi académique.`} action={<div className={elevesStyles.headerActions}><Link href={`/dashboard/eleves/${eleve.id}/carte`} className={styles.boutonSecondaire}><CreditCard size={18}/> {t.carte}</Link><Link href={`/dashboard/eleves/${eleve.id}/modifier`} className={styles.boutonPrimaire}><Pencil size={18}/> Modifier</Link><Link href="/dashboard/eleves" className={styles.boutonSecondaire}><ArrowLeft size={18}/> Retour</Link></div>}>
     {succes && <div className={styles.message}>{succes}</div>}

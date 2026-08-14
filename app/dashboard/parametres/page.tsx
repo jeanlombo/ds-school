@@ -18,7 +18,7 @@ export default async function Parametres({ searchParams }: { searchParams: Promi
     {query.erreur && <div className={styles.message}>Le nom et le code de l’établissement sont obligatoires.</div>}
     <div className={styles.deuxColonnes}>
       <section className={styles.panneau}>
-        <div className={styles.panneauEntete}><div><h2>Identité de l’école</h2><p>Ces informations apparaîtront sur les documents officiels.</p></div><Building2 size={22}/></div>
+        <div className={styles.panneauEntete}><div><h2>Identité de l’établissement</h2><p>Ces informations apparaîtront sur les documents officiels.</p></div><Building2 size={22}/></div>
         <form action={enregistrerParametres} className={styles.panneauCorps}>
           <div className={styles.formGrille}>
             <div className={styles.champ}><label>Nom de l’établissement *</label><input name="nom" defaultValue={ecole.nom} required /></div>
@@ -42,7 +42,7 @@ export default async function Parametres({ searchParams }: { searchParams: Promi
       <aside className={styles.panneau}>
         <div className={styles.panneauEntete}><div><h2>Aperçu institutionnel</h2><p>Identité visible dans le système.</p></div><ImageIcon size={22}/></div>
         <div className={styles.panneauCorps}>
-          <div className={styles.logoApercu}>{ecole.logo ? <img src={ecole.logo} alt="Logo de l’école"/> : <Building2 size={43}/>}</div>
+          <div className={styles.logoApercu}>{ecole.logo ? <img src={ecole.logo} alt="Logo de l’établissement"/> : <Building2 size={43}/>}</div>
           <h2>{ecole.nom}</h2><p>{ecole.slogan || "Votre slogan apparaîtra ici."}</p>
           <div className={styles.infoBandeau}><MapPin size={16}/> {ecole.adresse || "Adresse non renseignée"}{ecole.ville ? `, ${ecole.ville}` : ""}</div>
           <p><strong>Code :</strong> {ecole.code}</p><p><strong>Devise :</strong> {ecole.devise}</p><p><strong>Contact :</strong> {ecole.telephone || "Non renseigné"}</p>

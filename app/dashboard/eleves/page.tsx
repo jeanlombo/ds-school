@@ -12,27 +12,10 @@ import styles from "@/components/admin/admin.module.css";
 import elevesStyles from "@/components/eleves/eleves.module.css";
 import FiltresEleves from "@/components/eleves/FiltresEleves";
 import { changerStatutEleve } from "./actions";
+import { terminologieSection } from "@/lib/terminologie-academique";
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 const texte = (valeur: string | string[] | undefined, defaut = "") => typeof valeur === "string" ? valeur : defaut;
-
-function estSectionUniversitaire(nomSection?: string | null) {
-  const nom = (nomSection || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toUpperCase();
-
-  return (
-    nom.includes("UNIVERSITE") ||
-    nom.includes("UNIVERSITAIRE") ||
-    nom.includes("INSTITUT SUPERIEUR") ||
-    nom.includes("SUPERIEUR")
-  );
-}
-
-function libellePersonne(nomSection?: string | null) {
-  return estSectionUniversitaire(nomSection) ? "Étudiant" : "Élève";
-}
 
 export default async function ListeEleves({ searchParams }: Props) {
   const utilisateur = await obtenirUtilisateurConnecte();

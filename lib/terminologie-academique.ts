@@ -49,7 +49,9 @@ export function normaliserAcademique(valeur?: string | null) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim()
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
 }
 
 function contientUnMot(valeur: string, mots: string[]) {

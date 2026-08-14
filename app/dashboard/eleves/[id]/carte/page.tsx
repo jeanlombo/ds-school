@@ -57,7 +57,7 @@ export default async function CarteEleve({ params }: Props) {
   }
 
   const inscription = eleve.inscriptions[0];
-  const t = terminologieSection(inscription?.classe.section.nom, ecole.typeEtablissement);
+  const t = terminologieSection(inscription?.classe.section.typeSection || inscription?.classe.section.nom, ecole.typeEtablissement);
 
   const nomComplet = [
     eleve.nom,

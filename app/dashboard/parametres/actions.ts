@@ -36,6 +36,8 @@ export async function enregistrerParametres(formData: FormData) {
       devise: texte(formData, "devise") || "CDF",
       directeur: texte(formData, "directeur"),
       boitePostale: texte(formData, "boitePostale"),
+      typeEtablissement: texte(formData, "typeEtablissement") || "MIXTE",
+      terminologieApprenant: texte(formData, "terminologieApprenant") || "AUTOMATIQUE",
     },
   });
   revalidatePath("/dashboard");
