@@ -8,52 +8,31 @@ datasource db {
 }
 
 model Ecole {
-  id                   Int                   @id @default(autoincrement())
-  nom                  String
-  code                 String                @unique
-  slogan               String?
-  logo                 String?
-  adresse              String?
-  ville                String?
-  pays                 String?               @default("République démocratique du Congo")
-  telephone            String?
-  email                String?
-  siteWeb              String?               @map("site_web")
-  devise               String                @default("CDF")
-  typeEtablissement    String                @default("SECONDAIRE") @map("type_etablissement")
-  directeur            String?
-  boitePostale         String?               @map("boite_postale")
-  statut               String                @default("active")
-  createdAt            DateTime              @default(now()) @map("created_at")
-  updatedAt            DateTime              @updatedAt @map("updated_at")
-  annees               AnneeScolaire[]
-  sections             Section[]
-  classes              Classe[]
-  eleves               Eleve[]
-  responsables         ResponsableEleve[]
-  enseignants          Enseignant[]
-  evenementsCalendrier EvenementCalendrier[]
-  joursOuvrables       JourOuvrable[]
-  creneauxHoraires     CreneauHoraire[]
-  pausesAcademiques    PauseAcademique[]
-  salles               Salle[]
-  typesCours           TypeCours[]
-  regleAcademique      RegleAcademique?
-  seancesEmploiTemps   SeanceEmploiTemps[]
-  typesEvaluations     TypeEvaluation[]
-  evaluations          Evaluation[]
-  documentsAcademiques DocumentAcademique[]
-
-  regleEvaluation  RegleEvaluation?
-  modelesBulletins ModeleBulletin[]
-
-  facultesUniversitaires     FaculteUniversitaire[]
-  departementsUniversitaires DepartementUniversitaire[]
-  cyclesUniversitaires       CycleUniversitaire[]
-  promotionsUniversitaires   PromotionUniversitaire[]
-  semestresUniversitaires    SemestreUniversitaire[]
-  unitesEnseignement         UniteEnseignement[]
-  coursUniversitaires        CoursUniversitaire[]
+  id           Int                @id @default(autoincrement())
+  nom          String
+  code         String             @unique
+  typeEtablissement String         @default("MIXTE") @map("type_etablissement")
+  terminologieApprenant String     @default("AUTOMATIQUE") @map("terminologie_apprenant")
+  slogan       String?
+  logo         String?
+  adresse      String?
+  ville        String?
+  pays         String?            @default("République démocratique du Congo")
+  telephone    String?
+  email        String?
+  siteWeb      String?            @map("site_web")
+  devise       String             @default("CDF")
+  directeur    String?
+  boitePostale String?            @map("boite_postale")
+  statut       String             @default("active")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  annees       AnneeScolaire[]
+  sections     Section[]
+  classes      Classe[]
+  eleves       Eleve[]
+  responsables ResponsableEleve[]
+  enseignants  Enseignant[]
 
   @@map("ecoles")
 }
@@ -86,24 +65,17 @@ model Session {
 }
 
 model AnneeScolaire {
-  id                         Int                        @id @default(autoincrement())
-  ecoleId                    Int                        @map("ecole_id")
-  libelle                    String
-  dateDebut                  DateTime                   @map("date_debut") @db.Date
-  dateFin                    DateTime                   @map("date_fin") @db.Date
-  active                     Boolean                    @default(false)
-  statut                     String                     @default("ouverte")
-  createdAt                  DateTime                   @default(now()) @map("created_at")
-  updatedAt                  DateTime                   @updatedAt @map("updated_at")
-  ecole                      Ecole                      @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  inscriptions               Inscription[]
-  evenementsCalendrier       EvenementCalendrier[]
-  periodesAcademiques        PeriodeAcademique[]
-  seancesEmploiTemps         SeanceEmploiTemps[]
-  evaluations                Evaluation[]
-  documentsAcademiques       DocumentAcademique[]
-  semestresUniversitaires    SemestreUniversitaire[]
-  inscriptionsUniversitaires InscriptionUniversitaire[]
+  id           Int           @id @default(autoincrement())
+  ecoleId      Int           @map("ecole_id")
+  libelle      String
+  dateDebut    DateTime      @map("date_debut") @db.Date
+  dateFin      DateTime      @map("date_fin") @db.Date
+  active       Boolean       @default(false)
+  statut       String        @default("ouverte")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  ecole        Ecole         @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
+  inscriptions Inscription[]
 
   @@unique([ecoleId, libelle])
   @@index([ecoleId, active])
@@ -116,6 +88,7 @@ model Section {
   nom         String
   code        String
   description String?
+  typeSection String   @default("AUTRE") @map("type_section")
   statut      String   @default("active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -144,9 +117,6 @@ model Classe {
   section                Section                 @relation(fields: [sectionId], references: [id], onDelete: Restrict)
   inscriptions           Inscription[]
   affectationsEnseignant AffectationEnseignant[]
-  seancesEmploiTemps     SeanceEmploiTemps[]
-  evaluations            Evaluation[]
-  documentsAcademiques   DocumentAcademique[]
 
   @@unique([ecoleId, code])
   @@index([sectionId])
@@ -155,36 +125,33 @@ model Classe {
 }
 
 model Eleve {
-  id                         Int                        @id @default(autoincrement())
-  ecoleId                    Int                        @map("ecole_id")
-  matricule                  String
-  nom                        String
-  postnom                    String?
-  prenom                     String
-  sexe                       String                     @db.VarChar(1)
-  dateNaissance              DateTime                   @map("date_naissance") @db.Date
-  lieuNaissance              String?                    @map("lieu_naissance")
-  nationalite                String?                    @default("Congolaise")
-  adresse                    String?
-  photo                      String?
-  numeroPermanent            String?                    @map("numero_permanent")
-  groupeSanguin              String?                    @map("groupe_sanguin")
-  allergies                  String?                    @db.Text
-  handicap                   String?                    @db.Text
-  contactUrgence             String?                    @map("contact_urgence")
-  telephoneUrgence           String?                    @map("telephone_urgence")
-  statut                     String                     @default("actif")
-  createdAt                  DateTime                   @default(now()) @map("created_at")
-  updatedAt                  DateTime                   @updatedAt @map("updated_at")
-  ecole                      Ecole                      @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  inscriptions               Inscription[]
-  responsables               ResponsableEleve[]
-  documents                  DocumentEleve[]
-  observations               ObservationEleve[]
-  historiques                HistoriqueEleve[]
-  notesEvaluations           NoteEvaluation[]
-  documentsAcademiques       DocumentAcademique[]
-  inscriptionsUniversitaires InscriptionUniversitaire[]
+  id               Int                @id @default(autoincrement())
+  ecoleId          Int                @map("ecole_id")
+  matricule        String
+  nom              String
+  postnom          String?
+  prenom           String
+  sexe             String             @db.VarChar(1)
+  dateNaissance    DateTime           @map("date_naissance") @db.Date
+  lieuNaissance    String?            @map("lieu_naissance")
+  nationalite      String?            @default("Congolaise")
+  adresse          String?
+  photo            String?
+  numeroPermanent  String?            @map("numero_permanent")
+  groupeSanguin    String?            @map("groupe_sanguin")
+  allergies        String?            @db.Text
+  handicap         String?            @db.Text
+  contactUrgence   String?            @map("contact_urgence")
+  telephoneUrgence String?            @map("telephone_urgence")
+  statut           String             @default("actif")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  ecole            Ecole              @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
+  inscriptions     Inscription[]
+  responsables     ResponsableEleve[]
+  documents        DocumentEleve[]
+  observations     ObservationEleve[]
+  historiques      HistoriqueEleve[]
 
   @@unique([ecoleId, matricule])
   @@index([ecoleId, statut])
@@ -213,19 +180,18 @@ model ResponsableEleve {
 }
 
 model Inscription {
-  id                   Int                  @id @default(autoincrement())
-  eleveId              Int                  @map("eleve_id")
-  classeId             Int                  @map("classe_id")
-  anneeScolaireId      Int                  @map("annee_scolaire_id")
-  dateInscription      DateTime             @default(now()) @map("date_inscription") @db.Date
-  typeAdmission        String               @default("nouveau") @map("type_admission")
-  ancienneEcole        String?              @map("ancienne_ecole")
-  statut               String               @default("inscrit")
-  createdAt            DateTime             @default(now()) @map("created_at")
-  eleve                Eleve                @relation(fields: [eleveId], references: [id], onDelete: Cascade)
-  classe               Classe               @relation(fields: [classeId], references: [id], onDelete: Restrict)
-  anneeScolaire        AnneeScolaire        @relation(fields: [anneeScolaireId], references: [id], onDelete: Restrict)
-  documentsAcademiques DocumentAcademique[]
+  id              Int           @id @default(autoincrement())
+  eleveId         Int           @map("eleve_id")
+  classeId        Int           @map("classe_id")
+  anneeScolaireId Int           @map("annee_scolaire_id")
+  dateInscription DateTime      @default(now()) @map("date_inscription") @db.Date
+  typeAdmission   String        @default("nouveau") @map("type_admission")
+  ancienneEcole   String?       @map("ancienne_ecole")
+  statut          String        @default("inscrit")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  eleve           Eleve         @relation(fields: [eleveId], references: [id], onDelete: Cascade)
+  classe          Classe        @relation(fields: [classeId], references: [id], onDelete: Restrict)
+  anneeScolaire   AnneeScolaire @relation(fields: [anneeScolaireId], references: [id], onDelete: Restrict)
 
   @@unique([eleveId, anneeScolaireId])
   @@index([classeId, anneeScolaireId])
@@ -271,40 +237,38 @@ model HistoriqueEleve {
 }
 
 model Enseignant {
-  id                 Int                     @id @default(autoincrement())
-  ecoleId            Int                     @map("ecole_id")
-  matricule          String
-  nom                String
-  postnom            String?
-  prenom             String
-  sexe               String                  @db.VarChar(1)
-  dateNaissance      DateTime?               @map("date_naissance") @db.Date
-  lieuNaissance      String?                 @map("lieu_naissance")
-  nationalite        String?                 @default("Congolaise")
-  etatCivil          String?                 @map("etat_civil")
-  telephone          String?
-  email              String?
-  adresse            String?
-  photo              String?
-  signature          String?
-  fonction           String                  @default("Enseignant")
-  specialite         String?
-  grade              String?
-  dateEngagement     DateTime?               @map("date_engagement") @db.Date
-  numeroPiece        String?                 @map("numero_piece")
-  typePiece          String?                 @map("type_piece")
-  numeroCarteRfid    String?                 @unique @map("numero_carte_rfid")
-  statut             String                  @default("actif")
-  createdAt          DateTime                @default(now()) @map("created_at")
-  updatedAt          DateTime                @updatedAt @map("updated_at")
-  ecole              Ecole                   @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  diplomes           DiplomeEnseignant[]
-  contrats           ContratEnseignant[]
-  affectations       AffectationEnseignant[]
-  documents          DocumentEnseignant[]
-  historiques        HistoriqueEnseignant[]
-  seancesEmploiTemps SeanceEmploiTemps[]
-  evaluations        Evaluation[]
+  id              Int                     @id @default(autoincrement())
+  ecoleId         Int                     @map("ecole_id")
+  matricule       String
+  nom             String
+  postnom         String?
+  prenom          String
+  sexe            String                  @db.VarChar(1)
+  dateNaissance   DateTime?               @map("date_naissance") @db.Date
+  lieuNaissance   String?                 @map("lieu_naissance")
+  nationalite     String?                 @default("Congolaise")
+  etatCivil       String?                 @map("etat_civil")
+  telephone       String?
+  email           String?
+  adresse         String?
+  photo           String?
+  signature       String?
+  fonction        String                  @default("Enseignant")
+  specialite      String?
+  grade           String?
+  dateEngagement  DateTime?               @map("date_engagement") @db.Date
+  numeroPiece     String?                 @map("numero_piece")
+  typePiece       String?                 @map("type_piece")
+  numeroCarteRfid String?                 @unique @map("numero_carte_rfid")
+  statut          String                  @default("actif")
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+  ecole           Ecole                   @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
+  diplomes        DiplomeEnseignant[]
+  contrats        ContratEnseignant[]
+  affectations    AffectationEnseignant[]
+  documents       DocumentEnseignant[]
+  historiques     HistoriqueEnseignant[]
 
   @@unique([ecoleId, matricule])
   @@index([ecoleId, statut])
@@ -434,21 +398,21 @@ enum ResultatPassage {
 }
 
 model CarteRfid {
-  id                 Int                  @id @default(autoincrement())
-  uid                String               @unique @db.VarChar(191)
-  numeroInterne      String?              @unique @map("numero_interne") @db.VarChar(100)
-  typeProprietaire   TypeProprietaireRfid @map("type_proprietaire")
-  proprietaireId     Int                  @map("proprietaire_id")
-  nomProprietaire    String               @map("nom_proprietaire") @db.VarChar(191)
-  photoProprietaire  String?              @map("photo_proprietaire") @db.VarChar(500)
-  classeOuFonction   String?              @map("classe_ou_fonction") @db.VarChar(191)
-  statut             StatutCarteRfid      @default(ACTIVE)
-  dateActivation     DateTime             @default(now()) @map("date_activation")
-  dateExpiration     DateTime?            @map("date_expiration")
-  motifDesactivation String?              @map("motif_desactivation") @db.Text
-  creeLe             DateTime             @default(now()) @map("cree_le")
-  modifieLe          DateTime             @updatedAt @map("modifie_le")
-  passages           PassageRfid[]
+  id                  Int                   @id @default(autoincrement())
+  uid                 String                @unique @db.VarChar(191)
+  numeroInterne       String?               @unique @map("numero_interne") @db.VarChar(100)
+  typeProprietaire    TypeProprietaireRfid  @map("type_proprietaire")
+  proprietaireId      Int                   @map("proprietaire_id")
+  nomProprietaire     String                @map("nom_proprietaire") @db.VarChar(191)
+  photoProprietaire   String?               @map("photo_proprietaire") @db.VarChar(500)
+  classeOuFonction    String?               @map("classe_ou_fonction") @db.VarChar(191)
+  statut              StatutCarteRfid       @default(ACTIVE)
+  dateActivation      DateTime              @default(now()) @map("date_activation")
+  dateExpiration      DateTime?             @map("date_expiration")
+  motifDesactivation String?                @map("motif_desactivation") @db.Text
+  creeLe              DateTime              @default(now()) @map("cree_le")
+  modifieLe           DateTime              @updatedAt @map("modifie_le")
+  passages            PassageRfid[]
 
   @@index([typeProprietaire, proprietaireId])
   @@index([statut])
@@ -456,19 +420,19 @@ model CarteRfid {
 }
 
 model LecteurRfid {
-  id               Int               @id @default(autoincrement())
-  code             String            @unique @db.VarChar(80)
-  nom              String            @db.VarChar(191)
-  type             TypeLecteurRfid   @default(USB_HID)
-  emplacement      String            @db.VarChar(191)
-  adresseIp        String?           @map("adresse_ip") @db.VarChar(100)
+  id               Int                @id @default(autoincrement())
+  code             String             @unique @db.VarChar(80)
+  nom              String             @db.VarChar(191)
+  type             TypeLecteurRfid    @default(USB_HID)
+  emplacement      String             @db.VarChar(191)
+  adresseIp        String?            @map("adresse_ip") @db.VarChar(100)
   port             Int?
-  cleApi           String?           @map("cle_api") @db.VarChar(191)
-  directionDefaut  DirectionPassage? @map("direction_defaut")
-  statut           StatutLecteurRfid @default(ACTIF)
-  derniereActivite DateTime?         @map("derniere_activite")
-  creeLe           DateTime          @default(now()) @map("cree_le")
-  modifieLe        DateTime          @updatedAt @map("modifie_le")
+  cleApi           String?            @map("cle_api") @db.VarChar(191)
+  directionDefaut  DirectionPassage?  @map("direction_defaut")
+  statut           StatutLecteurRfid  @default(ACTIF)
+  derniereActivite DateTime?          @map("derniere_activite")
+  creeLe           DateTime           @default(now()) @map("cree_le")
+  modifieLe        DateTime           @updatedAt @map("modifie_le")
   passages         PassageRfid[]
 
   @@index([statut])
@@ -476,22 +440,22 @@ model LecteurRfid {
 }
 
 model PassageRfid {
-  id                Int                   @id @default(autoincrement())
-  carteId           Int?                  @map("carte_id")
-  lecteurId         Int?                  @map("lecteur_id")
-  uidLu             String                @map("uid_lu") @db.VarChar(191)
-  typeProprietaire  TypeProprietaireRfid? @map("type_proprietaire")
-  proprietaireId    Int?                  @map("proprietaire_id")
-  nomProprietaire   String?               @map("nom_proprietaire") @db.VarChar(191)
-  photoProprietaire String?               @map("photo_proprietaire") @db.VarChar(500)
-  classeOuFonction  String?               @map("classe_ou_fonction") @db.VarChar(191)
+  id                Int                    @id @default(autoincrement())
+  carteId           Int?                   @map("carte_id")
+  lecteurId         Int?                   @map("lecteur_id")
+  uidLu             String                 @map("uid_lu") @db.VarChar(191)
+  typeProprietaire  TypeProprietaireRfid?  @map("type_proprietaire")
+  proprietaireId    Int?                   @map("proprietaire_id")
+  nomProprietaire   String?                @map("nom_proprietaire") @db.VarChar(191)
+  photoProprietaire String?                @map("photo_proprietaire") @db.VarChar(500)
+  classeOuFonction  String?                @map("classe_ou_fonction") @db.VarChar(191)
   direction         DirectionPassage
   resultat          ResultatPassage
-  message           String?               @db.VarChar(500)
-  dateHeure         DateTime              @default(now()) @map("date_heure")
-  adresseIpSource   String?               @map("adresse_ip_source") @db.VarChar(100)
-  carte             CarteRfid?            @relation(fields: [carteId], references: [id], onDelete: SetNull)
-  lecteur           LecteurRfid?          @relation(fields: [lecteurId], references: [id], onDelete: SetNull)
+  message           String?                @db.VarChar(500)
+  dateHeure         DateTime               @default(now()) @map("date_heure")
+  adresseIpSource   String?                @map("adresse_ip_source") @db.VarChar(100)
+  carte             CarteRfid?             @relation(fields: [carteId], references: [id], onDelete: SetNull)
+  lecteur           LecteurRfid?           @relation(fields: [lecteurId], references: [id], onDelete: SetNull)
 
   @@index([dateHeure])
   @@index([proprietaireId, typeProprietaire])
@@ -501,562 +465,3 @@ model PassageRfid {
   @@map("passages_rfid")
 }
 
-enum StatutMatiere {
-  ACTIF
-  INACTIF
-}
-
-model Matiere {
-  id                        Int                 @id @default(autoincrement())
-  code                      String              @unique @db.VarChar(30)
-  nom                       String              @db.VarChar(150)
-  description               String?             @db.Text
-  departement               String?             @db.VarChar(100)
-  coefficient               Decimal             @default(1.00) @db.Decimal(6, 2)
-  volumeHoraireHebdomadaire Int                 @default(1) @map("volume_horaire_hebdomadaire")
-  couleur                   String              @default("#2563EB") @db.VarChar(20)
-  statut                    StatutMatiere       @default(ACTIF)
-  creeLe                    DateTime            @default(now()) @map("cree_le")
-  modifieLe                 DateTime            @updatedAt @map("modifie_le")
-  seancesEmploiTemps        SeanceEmploiTemps[]
-  evaluations               Evaluation[]
-
-  @@index([nom])
-  @@index([departement])
-  @@index([statut])
-  @@map("matieres")
-}
-
-model EvenementCalendrier {
-  id              Int           @id @default(autoincrement())
-  anneeScolaireId Int           @map("annee_scolaire_id")
-  titre           String
-  type            String
-  dateDebut       DateTime      @map("date_debut") @db.Date
-  dateFin         DateTime      @map("date_fin") @db.Date
-  description     String?       @db.Text
-  couleur         String        @default("#1761A8")
-  actif           Boolean       @default(true)
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  anneeScolaire   AnneeScolaire @relation(fields: [anneeScolaireId], references: [id], onDelete: Cascade)
-  Ecole           Ecole?        @relation(fields: [ecoleId], references: [id])
-  ecoleId         Int?
-
-  @@index([anneeScolaireId, dateDebut])
-  @@map("evenements_calendrier")
-}
-
-model PeriodeAcademique {
-  id              Int           @id @default(autoincrement())
-  anneeScolaireId Int           @map("annee_scolaire_id")
-  nom             String
-  type            String
-  ordre           Int           @default(1)
-  dateDebut       DateTime      @map("date_debut") @db.Date
-  dateFin         DateTime      @map("date_fin") @db.Date
-  statut          String        @default("ACTIVE")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
-  anneeScolaire   AnneeScolaire @relation(fields: [anneeScolaireId], references: [id], onDelete: Cascade)
-  evaluations     Evaluation[]
-
-  @@unique([anneeScolaireId, nom])
-  @@index([anneeScolaireId, ordre])
-  @@map("periodes_academiques")
-}
-
-model JourOuvrable {
-  id      Int     @id @default(autoincrement())
-  ecoleId Int     @map("ecole_id")
-  jour    String
-  ordre   Int
-  actif   Boolean @default(true)
-  ecole   Ecole   @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-
-  @@unique([ecoleId, jour])
-  @@index([ecoleId, actif, ordre])
-  @@map("jours_ouvrables")
-}
-
-model CreneauHoraire {
-  id                 Int                 @id @default(autoincrement())
-  ecoleId            Int                 @map("ecole_id")
-  nom                String
-  ordre              Int
-  heureDebut         String              @map("heure_debut") @db.VarChar(5)
-  heureFin           String              @map("heure_fin") @db.VarChar(5)
-  actif              Boolean             @default(true)
-  createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @updatedAt @map("updated_at")
-  ecole              Ecole               @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  seancesEmploiTemps SeanceEmploiTemps[]
-
-  @@unique([ecoleId, ordre])
-  @@index([ecoleId, actif])
-  @@map("creneaux_horaires")
-}
-
-model PauseAcademique {
-  id         Int     @id @default(autoincrement())
-  ecoleId    Int     @map("ecole_id")
-  nom        String
-  type       String
-  heureDebut String  @map("heure_debut") @db.VarChar(5)
-  heureFin   String  @map("heure_fin") @db.VarChar(5)
-  couleur    String  @default("#F59E0B")
-  actif      Boolean @default(true)
-  ecole      Ecole   @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-
-  @@index([ecoleId, actif])
-  @@map("pauses_academiques")
-}
-
-model Salle {
-  id                 Int                 @id @default(autoincrement())
-  ecoleId            Int                 @map("ecole_id")
-  code               String
-  nom                String
-  type               String
-  capacite           Int                 @default(40)
-  batiment           String?
-  etage              String?
-  responsable        String?
-  statut             String              @default("ACTIVE")
-  createdAt          DateTime            @default(now()) @map("created_at")
-  updatedAt          DateTime            @updatedAt @map("updated_at")
-  ecole              Ecole               @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  seancesEmploiTemps SeanceEmploiTemps[]
-  evaluations        Evaluation[]
-
-  @@unique([ecoleId, code])
-  @@index([ecoleId, statut])
-  @@map("salles")
-}
-
-model TypeCours {
-  id                 Int                 @id @default(autoincrement())
-  ecoleId            Int                 @map("ecole_id")
-  code               String
-  nom                String
-  description        String?             @db.Text
-  couleur            String              @default("#1761A8")
-  actif              Boolean             @default(true)
-  ecole              Ecole               @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  seancesEmploiTemps SeanceEmploiTemps[]
-
-  @@unique([ecoleId, code])
-  @@index([ecoleId, actif])
-  @@map("types_cours")
-}
-
-model RegleAcademique {
-  id                    Int      @id @default(autoincrement())
-  ecoleId               Int      @unique @map("ecole_id")
-  maxCoursJour          Int      @default(8) @map("max_cours_jour")
-  maxPeriodesEnseignant Int      @default(8) @map("max_periodes_enseignant")
-  maxCoursConsecutifs   Int      @default(3) @map("max_cours_consecutifs")
-  dureeMinEntreCours    Int      @default(0) @map("duree_min_entre_cours")
-  dureeMaxPeriode       Int      @default(120) @map("duree_max_periode")
-  gestionConflits       Boolean  @default(true) @map("gestion_conflits")
-  updatedAt             DateTime @updatedAt @map("updated_at")
-  ecole                 Ecole    @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-
-  @@map("regles_academiques")
-}
-
-// =========================================================
-// DS SCHOOL ENTERPRISE — EMPLOI DU TEMPS INTELLIGENT V1
-// =========================================================
-model SeanceEmploiTemps {
-  id               Int            @id @default(autoincrement())
-  ecoleId          Int            @map("ecole_id")
-  anneeScolaireId  Int            @map("annee_scolaire_id")
-  classeId         Int            @map("classe_id")
-  matiereId        Int            @map("matiere_id")
-  enseignantId     Int            @map("enseignant_id")
-  creneauHoraireId Int            @map("creneau_horaire_id")
-  salleId          Int?           @map("salle_id")
-  typeCoursId      Int?           @map("type_cours_id")
-  jour             String         @db.VarChar(20)
-  observations     String?        @db.Text
-  statut           String         @default("ACTIVE") @db.VarChar(20)
-  createdAt        DateTime       @default(now()) @map("created_at")
-  updatedAt        DateTime       @updatedAt @map("updated_at")
-  ecole            Ecole          @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  anneeScolaire    AnneeScolaire  @relation(fields: [anneeScolaireId], references: [id], onDelete: Cascade)
-  classe           Classe         @relation(fields: [classeId], references: [id], onDelete: Cascade)
-  matiere          Matiere        @relation(fields: [matiereId], references: [id], onDelete: Restrict)
-  enseignant       Enseignant     @relation(fields: [enseignantId], references: [id], onDelete: Restrict)
-  creneauHoraire   CreneauHoraire @relation(fields: [creneauHoraireId], references: [id], onDelete: Restrict)
-  salle            Salle?         @relation(fields: [salleId], references: [id], onDelete: SetNull)
-  typeCours        TypeCours?     @relation(fields: [typeCoursId], references: [id], onDelete: SetNull)
-
-  @@unique([anneeScolaireId, classeId, jour, creneauHoraireId], map: "uq_edt_classe_creneau")
-  @@unique([anneeScolaireId, enseignantId, jour, creneauHoraireId], map: "uq_edt_enseignant_creneau")
-  @@index([anneeScolaireId, salleId, jour, creneauHoraireId], map: "idx_edt_salle_creneau")
-  @@index([ecoleId, anneeScolaireId, statut])
-  @@index([classeId, jour])
-  @@index([enseignantId, jour])
-  @@map("seances_emploi_temps")
-}
-
-// =========================================================
-// DS SCHOOL ENTERPRISE — EVALUATIONS PREMIUM V1
-// =========================================================
-model TypeEvaluation {
-  id          Int          @id @default(autoincrement())
-  ecoleId     Int          @map("ecole_id")
-  nom         String       @db.VarChar(120)
-  code        String       @db.VarChar(50)
-  description String?      @db.Text
-  coefficient Decimal      @default(1.00) @db.Decimal(6, 2)
-  couleur     String       @default("#2563EB") @db.VarChar(20)
-  actif       Boolean      @default(true)
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
-  ecole       Ecole        @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  evaluations Evaluation[]
-
-  @@unique([ecoleId, code])
-  @@index([ecoleId, actif])
-  @@map("types_evaluations")
-}
-
-model Evaluation {
-  id                  Int               @id @default(autoincrement())
-  ecoleId             Int               @map("ecole_id")
-  anneeScolaireId     Int               @map("annee_scolaire_id")
-  periodeAcademiqueId Int               @map("periode_academique_id")
-  classeId            Int               @map("classe_id")
-  matiereId           Int               @map("matiere_id")
-  enseignantId        Int               @map("enseignant_id")
-  typeEvaluationId    Int               @map("type_evaluation_id")
-  salleId             Int?              @map("salle_id")
-  titre               String            @db.VarChar(180)
-  description         String?           @db.Text
-  dateEvaluation      DateTime          @map("date_evaluation") @db.Date
-  heureDebut          String?           @map("heure_debut") @db.VarChar(5)
-  dureeMinutes        Int?              @map("duree_minutes")
-  bareme              Decimal           @default(20.00) @db.Decimal(8, 2)
-  coefficient         Decimal           @default(1.00) @db.Decimal(6, 2)
-  statut              String            @default("BROUILLON") @db.VarChar(30)
-  publiee             Boolean           @default(false)
-  createdAt           DateTime          @default(now()) @map("created_at")
-  updatedAt           DateTime          @updatedAt @map("updated_at")
-  ecole               Ecole             @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  anneeScolaire       AnneeScolaire     @relation(fields: [anneeScolaireId], references: [id], onDelete: Cascade)
-  periodeAcademique   PeriodeAcademique @relation(fields: [periodeAcademiqueId], references: [id], onDelete: Restrict)
-  classe              Classe            @relation(fields: [classeId], references: [id], onDelete: Restrict)
-  matiere             Matiere           @relation(fields: [matiereId], references: [id], onDelete: Restrict)
-  enseignant          Enseignant        @relation(fields: [enseignantId], references: [id], onDelete: Restrict)
-  typeEvaluation      TypeEvaluation    @relation(fields: [typeEvaluationId], references: [id], onDelete: Restrict)
-  salle               Salle?            @relation(fields: [salleId], references: [id], onDelete: SetNull)
-  notes               NoteEvaluation[]
-
-  @@index([ecoleId, anneeScolaireId, statut])
-  @@index([classeId, periodeAcademiqueId])
-  @@index([enseignantId, dateEvaluation])
-  @@index([matiereId, classeId])
-  @@map("evaluations")
-}
-
-model NoteEvaluation {
-  id           Int        @id @default(autoincrement())
-  evaluationId Int        @map("evaluation_id")
-  eleveId      Int        @map("eleve_id")
-  valeur       Decimal?   @db.Decimal(8, 2)
-  absent       Boolean    @default(false)
-  appreciation String?    @db.VarChar(255)
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
-  evaluation   Evaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
-  eleve        Eleve      @relation(fields: [eleveId], references: [id], onDelete: Cascade)
-
-  @@unique([evaluationId, eleveId])
-  @@index([eleveId])
-  @@map("notes_evaluations")
-}
-
-// =========================================================
-// DS SCHOOL ENTERPRISE — RÈGLES ET MODÈLES DE BULLETINS
-// =========================================================
-model RegleEvaluation {
-  id               Int      @id @default(autoincrement())
-  ecoleId          Int      @unique @map("ecole_id")
-  seuilReussite    Decimal  @default(50.00) @map("seuil_reussite") @db.Decimal(5, 2)
-  mentionExcellent Decimal  @default(80.00) @map("mention_excellent") @db.Decimal(5, 2)
-  mentionTresBien  Decimal  @default(70.00) @map("mention_tres_bien") @db.Decimal(5, 2)
-  mentionBien      Decimal  @default(60.00) @map("mention_bien") @db.Decimal(5, 2)
-  mentionAssezBien Decimal  @default(50.00) @map("mention_assez_bien") @db.Decimal(5, 2)
-  arrondiDecimales Int      @default(2) @map("arrondi_decimales")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-  ecole            Ecole    @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-
-  @@map("regles_evaluations")
-}
-
-model ModeleBulletin {
-  id                 Int                     @id @default(autoincrement())
-  ecoleId            Int                     @map("ecole_id")
-  nom                String                  @db.VarChar(160)
-  code               String                  @db.VarChar(50)
-  niveau             String?                 @db.VarChar(100)
-  orientation        String                  @default("PORTRAIT") @db.VarChar(20)
-  formatPapier       String                  @default("A4") @map("format_papier") @db.VarChar(20)
-  couleurPrincipale  String                  @default("#1761A8") @map("couleur_principale") @db.VarChar(20)
-  couleurSecondaire  String                  @default("#F4B400") @map("couleur_secondaire") @db.VarChar(20)
-  titreDocument      String                  @default("BULLETIN SCOLAIRE") @map("titre_document") @db.VarChar(191)
-  afficherLogo       Boolean                 @default(true) @map("afficher_logo")
-  afficherPhoto      Boolean                 @default(true) @map("afficher_photo")
-  afficherClassement Boolean                 @default(true) @map("afficher_classement")
-  afficherAbsences   Boolean                 @default(true) @map("afficher_absences")
-  afficherQrCode     Boolean                 @default(true) @map("afficher_qr_code")
-  afficherCachet     Boolean                 @default(true) @map("afficher_cachet")
-  signature1         String?                 @db.VarChar(100)
-  signature2         String?                 @db.VarChar(100)
-  signature3         String?                 @db.VarChar(100)
-  textePiedPage      String?                 @map("texte_pied_page") @db.Text
-  fondDocument       String?                 @map("fond_document") @db.VarChar(500)
-  configuration      Json?
-  actif              Boolean                 @default(true)
-  parDefaut          Boolean                 @default(false) @map("par_defaut")
-  version            Int                     @default(1)
-  createdAt          DateTime                @default(now()) @map("created_at")
-  updatedAt          DateTime                @updatedAt @map("updated_at")
-  ecole              Ecole                   @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  versions           VersionModeleBulletin[]
-
-  @@unique([ecoleId, code])
-  @@index([ecoleId, actif, parDefaut])
-  @@map("modeles_bulletins")
-}
-
-model VersionModeleBulletin {
-  id               Int            @id @default(autoincrement())
-  modeleBulletinId Int            @map("modele_bulletin_id")
-  numeroVersion    Int            @map("numero_version")
-  configuration    Json?
-  commentaire      String?        @db.VarChar(255)
-  createdAt        DateTime       @default(now()) @map("created_at")
-  modeleBulletin   ModeleBulletin @relation(fields: [modeleBulletinId], references: [id], onDelete: Cascade)
-
-  @@unique([modeleBulletinId, numeroVersion])
-  @@map("versions_modeles_bulletins")
-}
-
-model DocumentAcademique {
-  id               Int           @id @default(autoincrement())
-  ecoleId          Int           @map("ecole_id")
-  eleveId          Int           @map("eleve_id")
-  inscriptionId    Int?          @map("inscription_id")
-  classeId         Int?          @map("classe_id")
-  anneeScolaireId  Int           @map("annee_scolaire_id")
-  type             String
-  numero           String        @unique
-  codeVerification String        @unique @map("code_verification")
-  mention          String?
-  session          String?
-  motif            String?       @db.Text
-  signataire       String?
-  statut           String        @default("VALIDE")
-  creePar          String?       @map("cree_par")
-  annulePar        String?       @map("annule_par")
-  dateDelivrance   DateTime      @default(now()) @map("date_delivrance")
-  dateAnnulation   DateTime?     @map("date_annulation")
-  createdAt        DateTime      @default(now()) @map("created_at")
-  updatedAt        DateTime      @updatedAt @map("updated_at")
-  ecole            Ecole         @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  eleve            Eleve         @relation(fields: [eleveId], references: [id], onDelete: Cascade)
-  inscription      Inscription?  @relation(fields: [inscriptionId], references: [id], onDelete: SetNull)
-  classe           Classe?       @relation(fields: [classeId], references: [id], onDelete: SetNull)
-  anneeScolaire    AnneeScolaire @relation(fields: [anneeScolaireId], references: [id], onDelete: Restrict)
-
-  @@index([ecoleId, statut])
-  @@index([eleveId, dateDelivrance])
-  @@index([type, dateDelivrance])
-  @@map("documents_academiques")
-}
-
-// ============================================================
-// UNIVERSITE / ENSEIGNEMENT SUPERIEUR
-// ============================================================
-
-model FaculteUniversitaire {
-  id           Int                        @id @default(autoincrement())
-  ecoleId      Int                        @map("ecole_id")
-  nom          String
-  code         String
-  description  String?                    @db.Text
-  statut       String                     @default("active")
-  createdAt    DateTime                   @default(now()) @map("created_at")
-  updatedAt    DateTime                   @updatedAt @map("updated_at")
-  ecole        Ecole                      @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  departements DepartementUniversitaire[]
-
-  @@unique([ecoleId, code])
-  @@index([ecoleId, statut])
-  @@map("facultes_universitaires")
-}
-
-model DepartementUniversitaire {
-  id          Int                      @id @default(autoincrement())
-  ecoleId     Int                      @map("ecole_id")
-  faculteId   Int                      @map("faculte_id")
-  nom         String
-  code        String
-  description String?                  @db.Text
-  statut      String                   @default("active")
-  createdAt   DateTime                 @default(now()) @map("created_at")
-  updatedAt   DateTime                 @updatedAt @map("updated_at")
-  ecole       Ecole                    @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  faculte     FaculteUniversitaire     @relation(fields: [faculteId], references: [id], onDelete: Cascade)
-  promotions  PromotionUniversitaire[]
-
-  @@unique([ecoleId, code])
-  @@index([faculteId])
-  @@index([ecoleId, statut])
-  @@map("departements_universitaires")
-}
-
-model CycleUniversitaire {
-  id          Int                      @id @default(autoincrement())
-  ecoleId     Int                      @map("ecole_id")
-  nom         String
-  code        String
-  dureeAnnees Int                      @default(3) @map("duree_annees")
-  ordre       Int                      @default(1)
-  statut      String                   @default("active")
-  createdAt   DateTime                 @default(now()) @map("created_at")
-  updatedAt   DateTime                 @updatedAt @map("updated_at")
-  ecole       Ecole                    @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  promotions  PromotionUniversitaire[]
-
-  @@unique([ecoleId, code])
-  @@index([ecoleId, statut])
-  @@map("cycles_universitaires")
-}
-
-model PromotionUniversitaire {
-  id            Int                        @id @default(autoincrement())
-  ecoleId       Int                        @map("ecole_id")
-  departementId Int                        @map("departement_id")
-  cycleId       Int                        @map("cycle_id")
-  nom           String
-  code          String
-  niveau        Int                        @default(1)
-  statut        String                     @default("active")
-  createdAt     DateTime                   @default(now()) @map("created_at")
-  updatedAt     DateTime                   @updatedAt @map("updated_at")
-  ecole         Ecole                      @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  departement   DepartementUniversitaire   @relation(fields: [departementId], references: [id], onDelete: Restrict)
-  cycle         CycleUniversitaire         @relation(fields: [cycleId], references: [id], onDelete: Restrict)
-  semestres     SemestreUniversitaire[]
-  inscriptions  InscriptionUniversitaire[]
-
-  @@unique([ecoleId, code])
-  @@index([departementId])
-  @@index([cycleId])
-  @@index([ecoleId, statut])
-  @@map("promotions_universitaires")
-}
-
-model SemestreUniversitaire {
-  id                 Int                    @id @default(autoincrement())
-  ecoleId            Int                    @map("ecole_id")
-  anneeScolaireId    Int                    @map("annee_scolaire_id")
-  promotionId        Int                    @map("promotion_id")
-  numero             Int
-  libelle            String
-  dateDebut          DateTime?              @map("date_debut") @db.Date
-  dateFin            DateTime?              @map("date_fin") @db.Date
-  actif              Boolean                @default(true)
-  createdAt          DateTime               @default(now()) @map("created_at")
-  updatedAt          DateTime               @updatedAt @map("updated_at")
-  ecole              Ecole                  @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  anneeScolaire      AnneeScolaire          @relation(fields: [anneeScolaireId], references: [id], onDelete: Restrict)
-  promotion          PromotionUniversitaire @relation(fields: [promotionId], references: [id], onDelete: Cascade)
-  unitesEnseignement UniteEnseignement[]
-
-  @@unique([anneeScolaireId, promotionId, numero])
-  @@index([ecoleId, actif])
-  @@index([promotionId])
-  @@map("semestres_universitaires")
-}
-
-model UniteEnseignement {
-  id          Int                   @id @default(autoincrement())
-  ecoleId     Int                   @map("ecole_id")
-  semestreId  Int                   @map("semestre_id")
-  code        String
-  nom         String
-  credits     Int                   @default(0)
-  coefficient Float                 @default(1)
-  statut      String                @default("active")
-  createdAt   DateTime              @default(now()) @map("created_at")
-  updatedAt   DateTime              @updatedAt @map("updated_at")
-  ecole       Ecole                 @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  semestre    SemestreUniversitaire @relation(fields: [semestreId], references: [id], onDelete: Cascade)
-  cours       CoursUniversitaire[]
-
-  @@unique([semestreId, code])
-  @@index([ecoleId, statut])
-  @@map("unites_enseignement")
-}
-
-model CoursUniversitaire {
-  id            Int                 @id @default(autoincrement())
-  ecoleId       Int                 @map("ecole_id")
-  uniteId       Int                 @map("unite_id")
-  code          String
-  nom           String
-  credits       Int                 @default(0)
-  volumeHoraire Int?                @map("volume_horaire")
-  noteMax       Float               @default(20) @map("note_max")
-  statut        String              @default("active")
-  createdAt     DateTime            @default(now()) @map("created_at")
-  updatedAt     DateTime            @updatedAt @map("updated_at")
-  ecole         Ecole               @relation(fields: [ecoleId], references: [id], onDelete: Cascade)
-  unite         UniteEnseignement   @relation(fields: [uniteId], references: [id], onDelete: Cascade)
-  notes         NoteUniversitaire[]
-
-  @@unique([uniteId, code])
-  @@index([ecoleId, statut])
-  @@map("cours_universitaires")
-}
-
-model InscriptionUniversitaire {
-  id              Int                    @id @default(autoincrement())
-  eleveId         Int                    @map("eleve_id")
-  promotionId     Int                    @map("promotion_id")
-  anneeScolaireId Int                    @map("annee_scolaire_id")
-  dateInscription DateTime               @default(now()) @map("date_inscription") @db.Date
-  statut          String                 @default("inscrit")
-  createdAt       DateTime               @default(now()) @map("created_at")
-  updatedAt       DateTime               @updatedAt @map("updated_at")
-  eleve           Eleve                  @relation(fields: [eleveId], references: [id], onDelete: Cascade)
-  promotion       PromotionUniversitaire @relation(fields: [promotionId], references: [id], onDelete: Restrict)
-  anneeScolaire   AnneeScolaire          @relation(fields: [anneeScolaireId], references: [id], onDelete: Restrict)
-  notes           NoteUniversitaire[]
-
-  @@unique([eleveId, anneeScolaireId])
-  @@index([promotionId, anneeScolaireId])
-  @@map("inscriptions_universitaires")
-}
-
-model NoteUniversitaire {
-  id            Int                      @id @default(autoincrement())
-  inscriptionId Int                      @map("inscription_id")
-  coursId       Int                      @map("cours_id")
-  note          Float?
-  session       String                   @default("ORDINAIRE")
-  statut        String                   @default("SAISIE")
-  createdAt     DateTime                 @default(now()) @map("created_at")
-  updatedAt     DateTime                 @updatedAt @map("updated_at")
-  inscription   InscriptionUniversitaire @relation(fields: [inscriptionId], references: [id], onDelete: Cascade)
-  cours         CoursUniversitaire       @relation(fields: [coursId], references: [id], onDelete: Restrict)
-
-  @@unique([inscriptionId, coursId, session])
-  @@index([coursId])
-  @@map("notes_universitaires")
-}

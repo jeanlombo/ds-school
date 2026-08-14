@@ -86,7 +86,7 @@ export default async function Sections({ searchParams }: Props) {
 
                 <tbody>
                   {sections.map((s) => {
-                    const t = terminologieSection(s.nom);
+                    const t = terminologieSection(s.typeSection || s.nom);
 
                     return (
                       <tr key={s.id}>
@@ -100,7 +100,7 @@ export default async function Sections({ searchParams }: Props) {
 
                         <td>
                           <strong>
-                            {t.type === "superieur"
+                            {["UNIVERSITE", "INSTITUT_SUPERIEUR"].includes(s.typeSection)
                               ? "Enseignement supérieur"
                               : "Enseignement scolaire"}
                           </strong>
@@ -191,6 +191,20 @@ export default async function Sections({ searchParams }: Props) {
                   required
                   placeholder="Ex. UNIV"
                 />
+              </div>
+
+              <div className={`${styles.champ} ${styles.champLarge}`}>
+                <label>Type académique *</label>
+                <select name="typeSection" required defaultValue="">
+                  <option value="" disabled>Sélectionner le type</option>
+                  <option value="PRIMAIRE">Primaire — Élève / Classe / Bulletin</option>
+                  <option value="SECONDAIRE">Secondaire — Élève / Classe / Bulletin</option>
+                  <option value="HUMANITES">Humanités — Élève / Classe-Option / Bulletin</option>
+                  <option value="UNIVERSITE">Université — Étudiant / Faculté-Département-Promotion / Relevé</option>
+                  <option value="INSTITUT_SUPERIEUR">Institut supérieur — Étudiant / Section-Département-Promotion / Relevé</option>
+                  <option value="AUTRE">Autre</option>
+                </select>
+                <small>Ce choix pilotera automatiquement la terminologie des formulaires et documents.</small>
               </div>
 
               <div className={`${styles.champ} ${styles.champLarge}`}>

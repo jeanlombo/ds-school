@@ -38,8 +38,10 @@ export async function creerSection(formData: FormData) {
   const code = codeNormalise(formData.get("code"));
   const description =
     formData.get("description")?.toString().trim() || null;
+  const typeSection = formData.get("typeSection")?.toString().trim().toUpperCase() || "AUTRE";
+  const typesAutorises = ["PRIMAIRE", "SECONDAIRE", "HUMANITES", "UNIVERSITE", "INSTITUT_SUPERIEUR", "AUTRE"];
 
-  if (!nom || !code) {
+  if (!nom || !code || !typesAutorises.includes(typeSection)) {
     redirect("/dashboard/sections?erreur=champs");
   }
 
@@ -62,6 +64,7 @@ export async function creerSection(formData: FormData) {
         nom,
         code,
         description,
+        typeSection,
       },
     });
   } catch (erreur) {
