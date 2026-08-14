@@ -129,7 +129,7 @@ export default async function Page({ searchParams }: Props) {
           <article>
             <Users />
             <div>
-              <small>Élèves à délibérer</small>
+              <small>Apprenants à délibérer</small>
               <strong>{lignes.length}</strong>
             </div>
           </article>

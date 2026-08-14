@@ -167,7 +167,7 @@ export default async function Page({ params, searchParams }: Props) {
             <h3>Observation de la direction</h3>
             <p>
               {ligne.decision === "Admis"
-                ? "Résultats satisfaisants. L’élève est encouragé à poursuivre ses efforts."
+                ? "Résultats satisfaisants. L’apprenant est encouragé à poursuivre ses efforts."
                 : "Des efforts supplémentaires et un accompagnement renforcé sont recommandés."}
             </p>
           </div>

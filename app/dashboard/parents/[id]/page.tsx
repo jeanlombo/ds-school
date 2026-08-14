@@ -207,7 +207,7 @@ export default async function DetailParent({ params, searchParams }: Props) {
           {query.succes === "creation" &&
             `Compte créé. Identifiant : ${query.identifiant ?? "—"} · Mot de passe temporaire : ${query.motdepasse ?? "—"}`}
           {query.succes === "modification" && "Les informations ont été modifiées."}
-          {query.succes === "liaison" && "L’élève a été lié au parent."}
+          {query.succes === "liaison" && "L’apprenant a été lié au parent."}
           {query.succes === "motdepasse" &&
             `Mot de passe temporaire : ${query.motdepasse ?? "—"}`}
         </div>
@@ -316,15 +316,15 @@ export default async function DetailParent({ params, searchParams }: Props) {
           ))}
 
           {!enfants.length && (
-            <div className={styles.vide}>Aucun élève n’est encore lié à ce parent.</div>
+            <div className={styles.vide}>Aucun apprenant n’est encore lié à ce parent.</div>
           )}
         </div>
 
         <form action={actionLiaison} className={styles.liaison}>
           <label>
-            <span>Élève *</span>
+            <span>Apprenant *</span>
             <select name="eleve_id" required defaultValue="">
-              <option value="" disabled>Sélectionner un élève</option>
+              <option value="" disabled>Sélectionner un apprenant</option>
               {elevesDisponibles.map((eleve) => (
                 <option key={eleve.id} value={eleve.id}>
                   {eleve.matricule} — {eleve.nom} {eleve.postnom ?? ""} {eleve.prenom} · {eleve.classe_nom ?? "—"}
@@ -350,7 +350,7 @@ export default async function DetailParent({ params, searchParams }: Props) {
           <label className={styles.case}><input type="checkbox" name="autorise_academique" defaultChecked /><span>Accès académique</span></label>
           <label className={styles.case}><input type="checkbox" name="autorise_communication" defaultChecked /><span>Communication</span></label>
 
-          <button type="submit" className={styles.primaire}>Lier l’élève</button>
+          <button type="submit" className={styles.primaire}>Lier l’apprenant</button>
         </form>
       </section>
 

@@ -177,7 +177,7 @@ export default function DeliberationClient({
   function exporter() {
     const entetes = [
       "Matricule",
-      "Élève",
+      "Apprenant",
       "Rang",
       "Moyenne",
       "Mention",
@@ -330,7 +330,7 @@ export default function DeliberationClient({
               <tr>
                 <th>Rang</th>
                 <th>Matricule</th>
-                <th>Élève</th>
+                <th>Apprenant</th>
                 <th>Moyenne</th>
                 <th>Mention</th>
                 <th>Complétude</th>

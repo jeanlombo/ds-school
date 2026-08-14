@@ -60,7 +60,7 @@ export default async function Page({
         <div
           className={`${styles.message} ${styles.erreur}`}
         >
-          L’élève, le type, le titre et la description sont obligatoires.
+          L’apprenant, le type, le titre et la description sont obligatoires.
         </div>
       )}
 
@@ -70,14 +70,14 @@ export default async function Page({
           className={styles.formulaire}
         >
           <label className={styles.large}>
-            <span>Élève *</span>
+            <span>Apprenant *</span>
             <select
               name="eleve_id"
               required
               defaultValue=""
             >
               <option value="" disabled>
-                Sélectionner un élève
+                Sélectionner un apprenant
               </option>
               {eleves.map((eleve) => (
                 <option

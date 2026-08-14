@@ -65,7 +65,7 @@ export default async function Page({ searchParams }: Props) {
             <span>Délivrance officielle</span>
             <h2>Nouveau diplôme ou certificat</h2>
             <p>
-              Sélectionnez l’élève et le type de document. Le numéro et le code
+              Sélectionnez l’apprenant et le type de document. Le numéro et le code
               de vérification seront générés automatiquement.
             </p>
           </div>
@@ -98,7 +98,7 @@ export default async function Page({ searchParams }: Props) {
                 ))}
               </select>
             </label>
-            <button type="submit">Afficher les élèves</button>
+            <button type="submit">Afficher les apprenants</button>
           </form>
         </section>
 
@@ -113,9 +113,9 @@ export default async function Page({ searchParams }: Props) {
 
           <form action={creerDocument} className={styles.formulaire}>
             <label className={styles.large}>
-              <span>Élève *</span>
+              <span>Apprenant *</span>
               <select name="inscriptionId" required defaultValue="">
-                <option value="" disabled>Sélectionner un élève</option>
+                <option value="" disabled>Sélectionner un apprenant</option>
                 {inscriptions.map((inscription) => (
                   <option key={inscription.id} value={inscription.id}>
                     {inscription.eleve.matricule} — {inscription.eleve.nom}{" "}

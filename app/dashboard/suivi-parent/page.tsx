@@ -167,7 +167,7 @@ export default async function Page({
           <input
             name="q"
             defaultValue={q}
-            placeholder="Élève, matricule ou objet..."
+            placeholder="Apprenant, matricule ou objet..."
           />
           <select name="type" defaultValue={type}>
             <option value="">Tous les types</option>
@@ -200,7 +200,7 @@ export default async function Page({
           <table>
             <thead>
               <tr>
-                <th>Élève</th>
+                <th>Apprenant</th>
                 <th>Type</th>
                 <th>Objet</th>
                 <th>Date</th>

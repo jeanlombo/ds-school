@@ -51,7 +51,7 @@ export default async function Page({
     <AdminShell
       utilisateur={contexte.utilisateur}
       titre={`Observations — ${contexte.classeNom}`}
-      description="Ajoutez des observations uniquement pour les élèves de votre classe."
+      description="Ajoutez des observations uniquement pour les apprenants de votre classe."
     >
       {params.succes && (
         <div className={styles.succes}>
@@ -62,14 +62,14 @@ export default async function Page({
       <section className={styles.panel}>
         <form method="get" className={styles.filtres}>
           <label>
-            <span>Élève</span>
+            <span>Apprenant</span>
             <select
               name="eleveId"
               required
               defaultValue={eleveId || ""}
             >
               <option value="">
-                Sélectionner un élève
+                Sélectionner un apprenant
               </option>
               {inscriptions.map((inscription) => (
                 <option

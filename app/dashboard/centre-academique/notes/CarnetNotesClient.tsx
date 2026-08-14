@@ -97,7 +97,7 @@ export default function CarnetNotesClient({
               <tr>
                 <th>#</th>
                 <th>Matricule</th>
-                <th>Élève</th>
+                <th>Apprenant</th>
                 <th>Note / {bareme}</th>
                 <th>Absent</th>
                 <th>Appréciation</th>
@@ -174,7 +174,7 @@ export default function CarnetNotesClient({
 
         <footer className={styles.footerAction}>
           <div>
-            <strong>{lignes.length} élève(s)</strong>
+            <strong>{lignes.length} apprenant(s)</strong>
             <span>{statistiques.absents} absent(s) · Plus faible : {statistiques.plusFaible.toFixed(2)}</span>
           </div>
           <button type="submit" className={styles.boutonSauvegarde}>

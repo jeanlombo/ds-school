@@ -130,7 +130,7 @@ export default async function DetailPaiement({ params, searchParams }: Props) {
 
       <section className={styles.ficheEleve}>
         <div>
-          <small>Élève</small>
+          <small>Apprenant</small>
           <strong>{paiement.nom} {paiement.postnom ?? ""} {paiement.prenom}</strong>
         </div>
         <div><small>Matricule</small><strong>{paiement.matricule}</strong></div>

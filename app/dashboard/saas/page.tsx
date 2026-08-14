@@ -677,7 +677,7 @@ export default async function SaasPage() {
                         />
 
                         <label>
-                          Quota élèves
+                          Quota apprenants
                           à appliquer
                           quand
                           l'abonnement

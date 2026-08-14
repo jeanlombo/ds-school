@@ -133,7 +133,7 @@ export default async function Page({
 
       <section className={styles.panel}>
         <div className={styles.detailGrid}>
-          <div><small>Élève</small><strong>{evenement.nom_complet}</strong></div>
+          <div><small>Apprenant</small><strong>{evenement.nom_complet}</strong></div>
           <div><small>Matricule</small><strong>{evenement.matricule}</strong></div>
           <div><small>Classe</small><strong>{evenement.classe_nom ?? "—"}</strong></div>
           <div><small>Type</small><strong>{evenement.type_evenement}</strong></div>

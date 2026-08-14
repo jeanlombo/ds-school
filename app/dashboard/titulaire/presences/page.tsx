@@ -64,7 +64,7 @@ export default async function Page({
     <AdminShell
       utilisateur={contexte.utilisateur}
       titre={`Présences — ${contexte.classeNom}`}
-      description="Saisie quotidienne limitée aux élèves de votre classe."
+      description="Saisie quotidienne limitée aux apprenants de votre classe."
     >
       {params.succes && (
         <div className={styles.succes}>
@@ -103,7 +103,7 @@ export default async function Page({
           <table>
             <thead>
               <tr>
-                <th>Élève</th>
+                <th>Apprenant</th>
                 <th>Matricule</th>
                 <th>Statut</th>
                 <th>Observation</th>

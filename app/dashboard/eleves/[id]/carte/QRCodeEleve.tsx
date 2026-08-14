@@ -37,7 +37,7 @@ export default function QRCodeEleve({
       })
       .catch((cause) => {
         console.error(
-          "Impossible de générer le QR Code de l’élève :",
+          "Impossible de générer le QR Code de l’apprenant :",
           cause
         );
 

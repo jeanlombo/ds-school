@@ -144,7 +144,7 @@ export default async function NouveauPaiement({ searchParams }: Props) {
     <AdminShell
       utilisateur={utilisateur}
       titre="Nouveau paiement scolaire"
-      description="Recherchez l’élève, sélectionnez les frais et enregistrez le paiement."
+      description="Recherchez l’apprenant, sélectionnez les frais et enregistrez le paiement."
     >
       <RetourDashboard />
 
@@ -169,7 +169,7 @@ export default async function NouveauPaiement({ searchParams }: Props) {
               autoFocus
             />
           </div>
-          <button type="submit">Rechercher l’élève</button>
+          <button type="submit">Rechercher l’apprenant</button>
         </form>
 
         {recherche && !eleve && (
@@ -193,7 +193,7 @@ export default async function NouveauPaiement({ searchParams }: Props) {
 
             {!eleves.length && (
               <div className={styles.vide}>
-                Aucun élève ne correspond à la recherche.
+                Aucun apprenant ne correspond à la recherche.
               </div>
             )}
           </div>
@@ -204,7 +204,7 @@ export default async function NouveauPaiement({ searchParams }: Props) {
         <>
           <section className={styles.ficheEleve}>
             <div>
-              <small>Élève</small>
+              <small>Apprenant</small>
               <strong>
                 {eleve.nom} {eleve.postnom ?? ""} {eleve.prenom}
               </strong>

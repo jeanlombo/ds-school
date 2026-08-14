@@ -87,7 +87,7 @@ export default async function Page({
                 <tr>
                   <th>Rang</th>
                   <th>Matricule</th>
-                  <th>Élève</th>
+                  <th>Apprenant</th>
                   <th>Moyenne</th>
                   <th>Mention</th>
                   <th>Bulletin</th>

@@ -215,7 +215,7 @@ export default async function DetailRecu({
 
         <section className={styles.identiteRecu}>
           <div>
-            <small>Élève</small>
+            <small>Apprenant</small>
             <strong>
               {recu.nom} {recu.postnom ?? ""} {recu.prenom}
             </strong>

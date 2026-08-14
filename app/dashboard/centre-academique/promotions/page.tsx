@@ -123,7 +123,7 @@ export default async function Page({ searchParams }: Props) {
     <AdminShell
       utilisateur={utilisateur}
       titre="Promotion automatique"
-      description="Préparez et exécutez le passage des élèves vers l’année scolaire suivante."
+      description="Préparez et exécutez le passage des apprenants vers l’année scolaire suivante."
     >
       <div className={styles.page}>
         <RetourDashboard />
@@ -223,7 +223,7 @@ export default async function Page({ searchParams }: Props) {
           <article>
             <Users />
             <div>
-              <small>Élèves analysés</small>
+              <small>Apprenants analysés</small>
               <strong>{lignes.length}</strong>
             </div>
           </article>

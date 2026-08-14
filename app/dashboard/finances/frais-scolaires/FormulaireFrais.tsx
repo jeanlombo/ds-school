@@ -97,7 +97,7 @@ const libellesNature: Record<string, string> = {
   LABORATOIRE: "Laboratoire",
   BIBLIOTHEQUE: "Bibliothèque",
   DOSSIER: "Ouverture de dossier",
-  CARTE_ELEVE: "Carte d’élève",
+  CARTE_ELEVE: "Carte d’apprenant",
   DOCUMENT_SCOLAIRE: "Document scolaire",
   TRANSFERT: "Transfert",
   ATTESTATION: "Attestation",
@@ -424,7 +424,7 @@ export default function FormulaireFrais({
               }}
             />
             Choisissez « Toutes les classes » si le même
-            montant doit s’appliquer à tous les élèves de
+            montant doit s’appliquer à tous les apprenants de
             l’année scolaire sélectionnée.
           </p>
         </section>

@@ -65,7 +65,7 @@ export default function PromotionClient(props: Props) {
     const contenu = [
       [
         "Matricule",
-        "Élève",
+        "Apprenant",
         "Rang",
         "Moyenne",
         "Mention",
@@ -160,7 +160,7 @@ export default function PromotionClient(props: Props) {
               <tr>
                 <th>Rang</th>
                 <th>Matricule</th>
-                <th>Élève</th>
+                <th>Apprenant</th>
                 <th>Moyenne</th>
                 <th>Mention</th>
                 <th>Complétude</th>
@@ -223,7 +223,7 @@ export default function PromotionClient(props: Props) {
             <p>
               Cette opération crée ou met à jour les inscriptions de{" "}
               {props.anneeCibleNom}, actualise le statut de l’inscription source
-              et ajoute une trace dans l’historique de chaque élève.
+              et ajoute une trace dans l’historique de chaque apprenant.
             </p>
           </div>
         </div>

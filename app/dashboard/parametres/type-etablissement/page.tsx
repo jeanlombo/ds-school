@@ -24,7 +24,7 @@ export default async function TypeEtablissement({
     <AdminShell
       utilisateur={utilisateur}
       titre="Type d’établissement"
-      description="Choisissez le vocabulaire et le modèle académique de l’établissement. Pour Primaire + Secondaire + Université, utilisez Structure mixte."
+      description="Définissez le modèle académique. En mode mixte, la terminologie s’adapte automatiquement à la section de chaque inscription."
     >
       {query.succes && (
         <div className={styles.message}>Configuration enregistrée avec succès.</div>

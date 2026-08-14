@@ -108,7 +108,7 @@ export default async function SaisieNotesPage({ params, searchParams }: Props) {
       <form action={enregistrer} className={styles.tableCarte}>
         {inscriptions.length === 0 ? (
           <div className={styles.vide}>
-            <h3>Aucun élève inscrit</h3>
+            <h3>Aucun apprenant inscrit</h3>
           </div>
         ) : (
           <div className={styles.tableResponsive}>
@@ -116,7 +116,7 @@ export default async function SaisieNotesPage({ params, searchParams }: Props) {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Élève</th>
+                  <th>Apprenant</th>
                   <th>Matricule</th>
                   <th>Note / {Number(evaluation.bareme).toFixed(2)}</th>
                   <th>Absent</th>

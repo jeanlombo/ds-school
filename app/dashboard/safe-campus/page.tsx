@@ -120,7 +120,7 @@ export default async function SafeCampusDashboard() {
             </Link>
 
             <Link href="/dashboard/safe-campus/cartes">
-              Gérer les cartes élèves
+              Gérer les cartes apprenants
             </Link>
 
             <Link href="/dashboard/safe-campus/parametres-horaires">

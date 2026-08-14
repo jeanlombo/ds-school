@@ -150,7 +150,7 @@ export default async function PagePaiements({ searchParams }: Props) {
             <input
               name="q"
               defaultValue={recherche}
-              placeholder="Élève, matricule, reçu ou référence..."
+              placeholder="Apprenant, matricule, reçu ou référence..."
             />
           </div>
 
@@ -180,7 +180,7 @@ export default async function PagePaiements({ searchParams }: Props) {
               <tr>
                 <th>Paiement</th>
                 <th>Date</th>
-                <th>Élève</th>
+                <th>Apprenant</th>
                 <th>Classe</th>
                 <th>Montant</th>
                 <th>Mode</th>

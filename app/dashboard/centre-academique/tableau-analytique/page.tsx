@@ -291,7 +291,7 @@ export default async function Page({ searchParams }: Props) {
             </span>
             <h2>Pilotez la réussite scolaire avec des données fiables</h2>
             <p>
-              Analyse consolidée des classes, matières, enseignants et élèves
+              Analyse consolidée des classes, matières, enseignants et apprenants
               pour {periode?.nom ?? "la période sélectionnée"}.
             </p>
           </div>
@@ -348,7 +348,7 @@ export default async function Page({ searchParams }: Props) {
               <Users size={23} />
             </span>
             <div>
-              <small>Élèves inscrits</small>
+              <small>Apprenants inscrits</small>
               <strong>{totalEleves}</strong>
               <em>{elevesAvecResultats} avec résultats</em>
             </div>
@@ -383,7 +383,7 @@ export default async function Page({ searchParams }: Props) {
             <div>
               <small>Taux de réussite</small>
               <strong>{tauxReussite.toFixed(1)}%</strong>
-              <em>{admis} élève(s) admis</em>
+              <em>{admis} apprenant(s) admis</em>
             </div>
           </article>
 
@@ -428,7 +428,7 @@ export default async function Page({ searchParams }: Props) {
                     <div>
                       <strong>{element.nom}</strong>
                       <small>
-                        {element.eleves} élève(s) · réussite{" "}
+                        {element.eleves} apprenant(s) · réussite{" "}
                         {element.reussite.toFixed(1)}%
                       </small>
                     </div>
@@ -536,7 +536,7 @@ export default async function Page({ searchParams }: Props) {
             <div className={styles.panelEntete}>
               <div>
                 <span className={styles.eyebrow}>Top 10</span>
-                <h3>Meilleurs élèves</h3>
+                <h3>Meilleurs apprenants</h3>
               </div>
               <Trophy size={22} />
             </div>
@@ -572,9 +572,9 @@ export default async function Page({ searchParams }: Props) {
           <div className={styles.alertes}>
             <article>
               <strong>{elevesEnDifficulte.length}</strong>
-              <span>Élèves sous le seuil de 50 %</span>
+              <span>Apprenants sous le seuil de 50 %</span>
               <p>
-                Les élèves les plus fragiles sont affichés dans le tableau
+                Les apprenants les plus fragiles sont affichés dans le tableau
                 ci-dessous.
               </p>
             </article>
@@ -582,7 +582,7 @@ export default async function Page({ searchParams }: Props) {
               <strong>{notesIncompletes}</strong>
               <span>Dossiers de notes incomplets</span>
               <p>
-                Élèves dont toutes les évaluations publiées ne sont pas encore
+                Apprenants dont toutes les évaluations publiées ne sont pas encore
                 renseignées.
               </p>
             </article>
@@ -599,7 +599,7 @@ export default async function Page({ searchParams }: Props) {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Élève</th>
+                  <th>Apprenant</th>
                   <th>Classe</th>
                   <th>Moyenne</th>
                   <th>Complétude</th>
@@ -629,7 +629,7 @@ export default async function Page({ searchParams }: Props) {
             </table>
             {elevesEnDifficulte.length === 0 && (
               <div className={styles.vide}>
-                Aucun élève en difficulté pour la sélection actuelle.
+                Aucun apprenant en difficulté pour la sélection actuelle.
               </div>
             )}
           </div>

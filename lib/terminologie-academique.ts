@@ -1,94 +1,92 @@
+export type TypeEtablissement =
+  | "PRIMAIRE"
+  | "SECONDAIRE"
+  | "UNIVERSITE"
+  | "INSTITUT_SUPERIEUR"
+  | "MIXTE"
+  | string;
+
 export type TerminologieAcademique = {
-  universite: boolean;
-  personne: string;
-  personneMaj: string;
-  personnePluriel: string;
-  personnePlurielMaj: string;
   masculin: string;
   feminin: string;
+  personne: string;
+  personnePluriel: string;
   structure: string;
-  structureMaj: string;
+  structurePluriel: string;
   periode: string;
-  periodeMaj: string;
-  dossier: string;
   carte: string;
-  etablissement: string;
-  responsables: string;
+  documentResultats: string;
 };
 
-function normaliser(valeur?: string | null) {
-  return (valeur || "")
+function normaliser(valeur?: string | null): string {
+  return (valeur ?? "")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .trim()
-    .toLowerCase();
+    .toUpperCase();
 }
 
-export function sectionEstSuperieure(sectionNom?: string | null): boolean {
-  const s = normaliser(sectionNom);
-  return [
-    "universite",
-    "universitaire",
-    "institut superieur",
-    "institut supérieur",
-    "enseignement superieur",
-    "enseignement supérieur",
-    "faculte",
-    "faculté",
-    "licence",
-    "master",
-    "doctorat",
-    "graduat",
-  ].some((mot) => s.includes(normaliser(mot)));
+export function typeAcademiqueSection(
+  sectionNom?: string | null,
+  typeEtablissement?: TypeEtablissement | null
+): "SCOLAIRE" | "SUPERIEUR" {
+  const section = normaliser(sectionNom);
+  const type = normaliser(typeEtablissement);
+
+  const superieur =
+    section.includes("UNIVERS") ||
+    section.includes("INSTITUT SUPER") ||
+    section.includes("SUPERIEUR") ||
+    section.includes("FACULTE") ||
+    type === "UNIVERSITE" ||
+    type === "INSTITUT_SUPERIEUR";
+
+  // Dans une structure MIXTE, la section de l'inscription reste prioritaire.
+  if (type === "MIXTE" && section) {
+    return superieur ? "SUPERIEUR" : "SCOLAIRE";
+  }
+
+  return superieur ? "SUPERIEUR" : "SCOLAIRE";
 }
 
 export function terminologieSection(
   sectionNom?: string | null,
-  typeEtablissement?: string | null
+  typeEtablissement?: TypeEtablissement | null
 ): TerminologieAcademique {
-  const superieur =
-    sectionEstSuperieure(sectionNom) ||
-    (!sectionNom && sectionEstSuperieure(typeEtablissement));
-
-  if (superieur) {
+  if (typeAcademiqueSection(sectionNom, typeEtablissement) === "SUPERIEUR") {
     return {
-      universite: true,
-      personne: "étudiant",
-      personneMaj: "Étudiant",
-      personnePluriel: "étudiants",
-      personnePlurielMaj: "Étudiants",
       masculin: "Étudiant",
       feminin: "Étudiante",
-      structure: "promotion",
-      structureMaj: "Promotion",
-      periode: "année académique",
-      periodeMaj: "Année académique",
-      dossier: "dossier étudiant",
+      personne: "Étudiant",
+      personnePluriel: "étudiants",
+      structure: "Promotion",
+      structurePluriel: "Promotions",
+      periode: "Année académique",
       carte: "Carte d’étudiant",
-      etablissement: "établissement d’enseignement supérieur",
-      responsables: "Personne de contact / responsable",
+      documentResultats: "Relevé de notes",
     };
   }
 
   return {
-    universite: false,
-    personne: "élève",
-    personneMaj: "Élève",
+    masculin: "Élève",
+    feminin: "Élève",
+    personne: "Élève",
     personnePluriel: "élèves",
-    personnePlurielMaj: "Élèves",
-    masculin: "Garçon",
-    feminin: "Fille",
-    structure: "classe",
-    structureMaj: "Classe",
-    periode: "année scolaire",
-    periodeMaj: "Année scolaire",
-    dossier: "dossier scolaire",
-    carte: "Carte scolaire",
-    etablissement: "école",
-    responsables: "Parents et tuteur",
+    structure: "Classe",
+    structurePluriel: "Classes",
+    periode: "Année scolaire",
+    carte: "Carte d’élève",
+    documentResultats: "Bulletin",
   };
 }
 
-export function terminologieEtablissement(typeEtablissement?: string | null) {
-  return terminologieSection(null, typeEtablissement);
+export function libelleApprenantGlobal(typeEtablissement?: TypeEtablissement | null) {
+  const type = normaliser(typeEtablissement);
+  if (type === "UNIVERSITE" || type === "INSTITUT_SUPERIEUR") {
+    return { singulier: "Étudiant", pluriel: "Étudiants" };
+  }
+  if (type === "PRIMAIRE" || type === "SECONDAIRE") {
+    return { singulier: "Élève", pluriel: "Élèves" };
+  }
+  return { singulier: "Apprenant", pluriel: "Apprenants" };
 }

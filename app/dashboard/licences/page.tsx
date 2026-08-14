@@ -428,7 +428,7 @@ export default async function LicencesPage({
 
               <div className={styles.resumeLicence}>
                 <span>
-                  Élèves{" "}
+                  Apprenants{" "}
                   <b>
                     {usage.eleves.utilise}/
                     {usage.eleves.illimite
@@ -477,7 +477,7 @@ export default async function LicencesPage({
             <div className={styles.contenuCarte}>
               <div className={styles.usage}>
                 <span>
-                  Élèves{" "}
+                  Apprenants{" "}
                   <b>
                     {usage.eleves.utilise}/
                     {usage.eleves.illimite
@@ -592,7 +592,7 @@ export default async function LicencesPage({
                 </label>
 
                 <label>
-                  Maximum élèves
+                  Maximum apprenants
                   <input
                     type="number"
                     min="0"
@@ -717,7 +717,7 @@ export default async function LicencesPage({
                         licence.elevesIllimite
                       }
                     />
-                    Élèves illimités
+                    Apprenants illimités
                   </label>
 
                   <label>
@@ -768,7 +768,7 @@ export default async function LicencesPage({
                   Motif de la modification
                   <input
                     name="motif"
-                    placeholder="Ex. Négociation commerciale : 300 → 500 élèves"
+                    placeholder="Ex. Négociation commerciale : 300 → 500 apprenants"
                   />
                 </label>
 

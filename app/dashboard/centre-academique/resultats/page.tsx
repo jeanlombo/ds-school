@@ -138,7 +138,7 @@ export default async function Page({ searchParams }: Props) {
                   <Users size={22} />
                 </span>
                 <div>
-                  <small>Élèves évalués</small>
+                  <small>Apprenants évalués</small>
                   <strong>{synthese.lignes.length}</strong>
                 </div>
               </article>
@@ -178,7 +178,7 @@ export default async function Page({ searchParams }: Props) {
               <div className={styles.enteteTableau}>
                 <div>
                   <span className={styles.eyebrow}>Vue générale</span>
-                  <h3>Résultats des élèves</h3>
+                  <h3>Résultats des apprenants</h3>
                 </div>
                 <div className={styles.resumeDecision}>
                   <span>{synthese.admis} admis</span>
@@ -192,7 +192,7 @@ export default async function Page({ searchParams }: Props) {
                     <tr>
                       <th>Rang</th>
                       <th>Matricule</th>
-                      <th>Élève</th>
+                      <th>Apprenant</th>
                       <th>Moyenne</th>
                       <th>Complétude</th>
                       <th>Mention</th>

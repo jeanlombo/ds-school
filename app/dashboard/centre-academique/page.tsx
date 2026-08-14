@@ -138,7 +138,7 @@ export default async function Page() {
     {
       href: "/dashboard/centre-academique/promotions",
       titre: "Promotions automatiques",
-      description: "Faire passer les élèves vers l’année suivante sans doublon.",
+      description: "Faire passer les apprenants vers l’année suivante sans doublon.",
       icone: ArrowUpRight,
     },
     {
@@ -243,7 +243,7 @@ export default async function Page() {
         <article>
           <BookOpenCheck />
           <div>
-            <small>Élèves inscrits</small>
+            <small>Apprenants inscrits</small>
             <strong>{eleves}</strong>
           </div>
         </article>

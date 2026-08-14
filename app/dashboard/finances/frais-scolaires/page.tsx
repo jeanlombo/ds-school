@@ -225,7 +225,7 @@ export default async function PageFraisScolaires({ searchParams }: Props) {
                     <div className={styles.vide}>
                       <BadgeDollarSign size={42} />
                       <h2>Aucun frais scolaire trouvé</h2>
-                      <p>Créez le premier frais pour préparer ensuite les paiements des élèves.</p>
+                      <p>Créez le premier frais pour préparer ensuite les paiements des apprenants.</p>
                       <Link href="/dashboard/finances/frais-scolaires/nouveau">Créer un frais scolaire</Link>
                     </div>
                   </td>

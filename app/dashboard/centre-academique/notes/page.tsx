@@ -138,7 +138,7 @@ export default async function Page({ searchParams }: Props) {
               <span><Filter size={17} /> Sélection académique</span>
               <h2>Choisir une évaluation</h2>
             </div>
-            <small>Utilisez Entrée ou ↓ pour passer rapidement à l’élève suivant.</small>
+            <small>Utilisez Entrée ou ↓ pour passer rapidement à l’apprenant suivant.</small>
           </div>
 
           <form className={styles.filtres}>
@@ -173,7 +173,7 @@ export default async function Page({ searchParams }: Props) {
           <section className={styles.vide}>
             <BookOpenCheck size={48} />
             <h2>Aucune évaluation sélectionnée</h2>
-            <p>Choisissez une évaluation pour afficher les élèves et commencer la saisie.</p>
+            <p>Choisissez une évaluation pour afficher les apprenants et commencer la saisie.</p>
           </section>
         ) : (
           <section className={styles.carnetCarte}>
@@ -200,7 +200,7 @@ export default async function Page({ searchParams }: Props) {
               />
             ) : (
               <div className={styles.videCompact}>
-                Aucun élève inscrit dans cette classe pour cette année scolaire.
+                Aucun apprenant inscrit dans cette classe pour cette année scolaire.
               </div>
             )}
           </section>

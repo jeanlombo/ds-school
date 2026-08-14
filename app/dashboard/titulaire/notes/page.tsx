@@ -147,7 +147,7 @@ export default async function Page({
             <table>
               <thead>
                 <tr>
-                  <th>Élève</th>
+                  <th>Apprenant</th>
                   <th>Matricule</th>
                   <th>Note</th>
                   <th>Absent</th>

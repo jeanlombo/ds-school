@@ -189,7 +189,7 @@ export default async function PageRecus({
             <input
               name="q"
               defaultValue={recherche}
-              placeholder="Reçu, paiement, élève ou référence..."
+              placeholder="Reçu, paiement, apprenant ou référence..."
             />
           </div>
 
@@ -228,7 +228,7 @@ export default async function PageRecus({
               <tr>
                 <th>Reçu</th>
                 <th>Date</th>
-                <th>Élève</th>
+                <th>Apprenant</th>
                 <th>Classe</th>
                 <th>Montant</th>
                 <th>Mode</th>

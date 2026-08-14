@@ -95,7 +95,7 @@ export default async function Page({ searchParams }: Props) {
       {ligne && inscription ? (
         <section className={styles.panel}>
           <div className={styles.infos}>
-            <div><small>Élève</small><strong>{ligne.nomComplet}</strong></div>
+            <div><small>Apprenant</small><strong>{ligne.nomComplet}</strong></div>
             <div><small>Moyenne</small><strong>{ligne.moyenne.toFixed(2)} %</strong></div>
             <div><small>Rang</small><strong>#{ligne.rang}</strong></div>
             <div><small>Mention</small><strong>{ligne.mention}</strong></div>

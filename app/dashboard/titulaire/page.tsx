@@ -63,7 +63,7 @@ export default async function Page() {
           <span>TABLEAU DE BORD TITULAIRE</span>
           <h2>{contexte.classeNom}</h2>
           <p>
-            Gérez les élèves, présences, notes,
+            Gérez les apprenants, présences, notes,
             observations et bulletins de votre classe.
           </p>
         </div>
@@ -74,7 +74,7 @@ export default async function Page() {
         <article>
           <UsersRound />
           <div>
-            <small>Élèves</small>
+            <small>Apprenants</small>
             <strong>{eleves}</strong>
           </div>
         </article>
@@ -108,8 +108,8 @@ export default async function Page() {
       <section className={styles.grilleModules}>
         <Link href="/dashboard/titulaire/eleves">
           <UsersRound />
-          <h3>Mes élèves</h3>
-          <p>Consulter uniquement les élèves de la classe.</p>
+          <h3>Mes apprenants</h3>
+          <p>Consulter uniquement les apprenants de la classe.</p>
         </Link>
 
         <Link href="/dashboard/titulaire/presences">

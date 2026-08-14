@@ -191,7 +191,7 @@ export default async function Page({ searchParams }: Props) {
               <thead>
                 <tr>
                   <th>Numéro</th>
-                  <th>Élève</th>
+                  <th>Apprenant</th>
                   <th>Type</th>
                   <th>Année / classe</th>
                   <th>Date</th>

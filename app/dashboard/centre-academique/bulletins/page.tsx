@@ -59,7 +59,7 @@ export default async function Page({ searchParams }: Props) {
             <h2>Bulletins académiques Premium</h2>
             <p>
               Sélectionnez une classe et une période pour produire les bulletins
-              individuels des élèves.
+              individuels des apprenants.
             </p>
           </div>
           <FileText size={76} />
@@ -102,7 +102,7 @@ export default async function Page({ searchParams }: Props) {
           <section className={styles.panel}>
             <div className={styles.entete}>
               <div>
-                <span className={styles.eyebrow}>Liste des élèves</span>
+                <span className={styles.eyebrow}>Liste des apprenants</span>
                 <h3>
                   {classe?.nom} · {periode?.nom}
                 </h3>
@@ -118,7 +118,7 @@ export default async function Page({ searchParams }: Props) {
                   <tr>
                     <th>Rang</th>
                     <th>Matricule</th>
-                    <th>Élève</th>
+                    <th>Apprenant</th>
                     <th>Moyenne</th>
                     <th>Mention</th>
                     <th>Décision</th>

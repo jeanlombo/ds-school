@@ -132,7 +132,7 @@ export default async function PageParents({ searchParams }: Props) {
     <AdminShell
       utilisateur={utilisateur}
       titre="Gestion des parents"
-      description="Dossiers parents, comptes d'accès et liaisons avec les élèves."
+      description="Dossiers parents, comptes d'accès et liaisons avec les apprenants."
       action={
         <Link href="/dashboard/parents/nouveau" className={styles.primaire}>
           <UserPlus size={17} />
@@ -172,7 +172,7 @@ export default async function PageParents({ searchParams }: Props) {
         <article>
           <UserRoundCog />
           <div>
-            <small>Élèves liés</small>
+            <small>Apprenants liés</small>
             <strong>{Number(enfantsLies[0]?.total ?? 0)}</strong>
           </div>
         </article>

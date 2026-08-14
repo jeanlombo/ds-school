@@ -28,7 +28,7 @@ export default function BarreActions({
     const entetes = [
       "Classe",
       "Section",
-      "Élèves",
+      "Apprenants",
       "Moyenne",
       "Taux de réussite",
       "Évaluations publiées",

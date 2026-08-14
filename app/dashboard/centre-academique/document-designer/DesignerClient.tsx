@@ -85,7 +85,7 @@ const configurationInitiale: Configuration = {
     {
       id: "eleve",
       type: "texte",
-      contenu: "Élève : Jean Exemple · Matricule : DS-2026-001",
+      contenu: "Apprenant : Jean Exemple · Matricule : DS-2026-001",
       visible: true,
       alignement: "left",
       taille: 14,
@@ -410,7 +410,7 @@ export default function DesignerClient({ modeles }: { modeles: Modele[] }) {
                 <section className={styles.observation}>
                   <strong>Observation de la direction</strong>
                   <p>
-                    Travail satisfaisant. L’élève est encouragé à poursuivre ses
+                    Travail satisfaisant. L’apprenant est encouragé à poursuivre ses
                     efforts.
                   </p>
                 </section>

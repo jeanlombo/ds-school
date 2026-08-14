@@ -80,7 +80,7 @@ export default async function Page({ searchParams }: Props) {
               {periode ? ` · ${periode.nom}` : ""}
             </h2>
             <p>
-              Les élèves ayant exactement la même moyenne obtiennent le même
+              Les apprenants ayant exactement la même moyenne obtiennent le même
               rang. Le rang suivant respecte leur position réelle.
             </p>
           </div>
@@ -167,7 +167,7 @@ export default async function Page({ searchParams }: Props) {
               <div className={styles.enteteTableau}>
                 <div>
                   <span className={styles.eyebrow}>Classement complet</span>
-                  <h3>{synthese.lignes.length} élève(s) classé(s)</h3>
+                  <h3>{synthese.lignes.length} apprenant(s) classé(s)</h3>
                 </div>
                 <span className={styles.tauxBadge}>
                   Réussite : {synthese.tauxReussite.toFixed(1)}%
@@ -179,7 +179,7 @@ export default async function Page({ searchParams }: Props) {
                   <thead>
                     <tr>
                       <th>Position</th>
-                      <th>Élève</th>
+                      <th>Apprenant</th>
                       <th>Matricule</th>
                       <th>Moyenne générale</th>
                       <th>Mention</th>

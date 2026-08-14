@@ -29,13 +29,13 @@ export default async function Page() {
   return (
     <AdminShell
       utilisateur={contexte.utilisateur}
-      titre={`Mes élèves — ${contexte.classeNom}`}
+      titre={`Mes apprenants — ${contexte.classeNom}`}
       description="Liste strictement limitée à votre classe titulaire."
     >
       <section className={styles.panel}>
         <h2>
           <UsersRound size={20} />
-          {inscriptions.length} élève(s)
+          {inscriptions.length} apprenant(s)
         </h2>
 
         <div className={styles.tableWrap}>
@@ -43,7 +43,7 @@ export default async function Page() {
             <thead>
               <tr>
                 <th>Matricule</th>
-                <th>Élève</th>
+                <th>Apprenant</th>
                 <th>Sexe</th>
                 <th>Statut</th>
                 <th>Action</th>
