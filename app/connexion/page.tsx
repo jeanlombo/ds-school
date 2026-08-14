@@ -44,7 +44,7 @@ export default function Connexion() {
 
       <section className="auth-presentation">
         <Link href="/" className="auth-retour"><ArrowLeft size={18} /> Retour à l’accueil</Link>
-        <div className="auth-marque"><span><GraduationCap size={28} /></span><div><strong>DS School</strong><small>PREMIUM</small></div></div>
+        <div className="auth-marque"><span><GraduationCap size={28} /></span><div><strong>DS School</strong><small>VERSION 1.0</small></div></div>
         <div className="auth-argument">
           <span className="auth-badge"><ShieldCheck size={16} /> ESPACE SÉCURISÉ</span>
           <h1>Pilotez votre établissement avec sérénité.</h1>
