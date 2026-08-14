@@ -470,7 +470,7 @@ export default function AdminShell({
 
             <div>
               <strong>DS School</strong>
-              <small>PREMIUM</small>
+              <small>VERSION 1.0</small>
             </div>
           </Link>
 
@@ -585,7 +585,7 @@ export default function AdminShell({
         <div className={styles.entete}>
           <div>
             <span>
-              DS SCHOOL PREMIUM
+              DS SCHOOL
             </span>
 
             <h1>{titre}</h1>
