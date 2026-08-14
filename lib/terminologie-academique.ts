@@ -1,14 +1,108 @@
-export type FamilleAcademique="SCOLAIRE"|"SUPERIEUR"|"MIXTE";
-export type TerminologieAcademique={famille:FamilleAcademique;apprenant:string;apprenants:string;apprenantMin:string;apprenantsMin:string;parentResponsable:string;parentsResponsables:string;structure:string;structures:string;matiereCours:string;matieresCours:string;bulletinReleve:string;inscription:string;inscriptions:string;carte:string;fiche:string};
-const normaliser=(v?:string|null)=>(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toUpperCase();
-export function estSuperieur(section?:string|null){const s=normaliser(section);return s.includes("UNIVERS")||s.includes("INSTITUT SUPERIEUR")||s.includes("SUPERIEUR")||["ISP","IST","ISC","ISDR"].includes(s)}
-export function estScolaire(section?:string|null){const s=normaliser(section);return s.includes("PRIMAIRE")||s.includes("SECONDAIRE")||s.includes("HUMANITE")||s.includes("MATERNELLE")}
-export function familleDepuisSection(section?:string|null):FamilleAcademique{if(estSuperieur(section))return"SUPERIEUR";if(estScolaire(section))return"SCOLAIRE";return"MIXTE"}
-export function terminologieAcademique(section?:string|null):TerminologieAcademique{
- const famille=familleDepuisSection(section);
- if(famille==="SUPERIEUR")return{famille,apprenant:"Étudiant",apprenants:"Étudiants",apprenantMin:"étudiant",apprenantsMin:"étudiants",parentResponsable:"Responsable / Tuteur",parentsResponsables:"Responsables / Tuteurs",structure:"Promotion",structures:"Promotions",matiereCours:"Cours",matieresCours:"Cours",bulletinReleve:"Relevé de notes",inscription:"Inscription académique",inscriptions:"Inscriptions académiques",carte:"Carte étudiant",fiche:"Fiche d'inscription académique"};
- if(famille==="SCOLAIRE")return{famille,apprenant:"Élève",apprenants:"Élèves",apprenantMin:"élève",apprenantsMin:"élèves",parentResponsable:"Parent / Tuteur",parentsResponsables:"Parents / Tuteurs",structure:"Classe",structures:"Classes",matiereCours:"Matière",matieresCours:"Matières",bulletinReleve:"Bulletin",inscription:"Inscription scolaire",inscriptions:"Inscriptions scolaires",carte:"Carte élève",fiche:"Fiche d'inscription"};
- return{famille:"MIXTE",apprenant:"Élève / Étudiant",apprenants:"Élèves / Étudiants",apprenantMin:"élève / étudiant",apprenantsMin:"élèves / étudiants",parentResponsable:"Parent / Tuteur / Responsable",parentsResponsables:"Parents / Tuteurs / Responsables",structure:"Classe / Promotion",structures:"Classes / Promotions",matiereCours:"Matière / Cours",matieresCours:"Matières / Cours",bulletinReleve:"Bulletin / Relevé de notes",inscription:"Inscription",inscriptions:"Inscriptions",carte:"Carte élève / étudiant",fiche:"Fiche d'inscription"};
+/**
+ * Terminologie académique dynamique de DS School.
+ *
+ * Important :
+ * - les noms techniques Prisma/routes restent "eleve", "classe", etc. pour ne pas casser la base ;
+ * - l'interface adapte uniquement les libellés visibles selon la section.
+ */
+
+export type TerminologieAcademique = {
+  personne: string;
+  personneMaj: string;
+  masculin: string;
+  feminin: string;
+  personnes: string;
+  personnesMaj: string;
+  structure: string;
+  structureMaj: string;
+  periode: string;
+  periodeMaj: string;
+  carte: string;
+  dossier: string;
+  responsables: string;
+  inscription: string;
+};
+
+function normaliser(valeur?: string | null) {
+  return (valeur || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
 }
-export const terminologiePourClasse=terminologieAcademique;
-export const TERMINOLOGIE_GLOBALE=terminologieAcademique(null);
+
+export function terminologieSection(
+  section?: string | null,
+  typeEtablissement?: string | null
+): TerminologieAcademique {
+  const contexte = `${normaliser(section)} ${normaliser(typeEtablissement)}`;
+
+  const superieur =
+    contexte.includes("universit") ||
+    contexte.includes("superieur") ||
+    contexte.includes("institut") ||
+    contexte.includes("faculte") ||
+    contexte.includes("haute ecole");
+
+  if (superieur) {
+    return {
+      personne: "étudiant",
+      personneMaj: "Étudiant",
+      masculin: "Étudiant",
+      feminin: "Étudiante",
+      personnes: "étudiants",
+      personnesMaj: "Étudiants",
+      structure: "promotion",
+      structureMaj: "Promotion",
+      periode: "année académique",
+      periodeMaj: "Année académique",
+      carte: "Carte d’étudiant",
+      dossier: "dossier étudiant",
+      responsables: "Personnes de contact",
+      inscription: "Inscription académique",
+    };
+  }
+
+  const secondaire =
+    contexte.includes("secondaire") ||
+    contexte.includes("humanit") ||
+    contexte.includes("college") ||
+    contexte.includes("lycee");
+
+  if (secondaire) {
+    return {
+      personne: "élève",
+      personneMaj: "Élève",
+      masculin: "Élève",
+      feminin: "Élève",
+      personnes: "élèves",
+      personnesMaj: "Élèves",
+      structure: "classe",
+      structureMaj: "Classe",
+      periode: "année scolaire",
+      periodeMaj: "Année scolaire",
+      carte: "Carte d’élève",
+      dossier: "dossier élève",
+      responsables: "Parents / responsables",
+      inscription: "Inscription scolaire",
+    };
+  }
+
+  // Primaire et autres structures scolaires.
+  return {
+    personne: "élève",
+    personneMaj: "Élève",
+    masculin: "Élève",
+    feminin: "Élève",
+    personnes: "élèves",
+    personnesMaj: "Élèves",
+    structure: "classe",
+    structureMaj: "Classe",
+    periode: "année scolaire",
+    periodeMaj: "Année scolaire",
+    carte: "Carte d’élève",
+    dossier: "dossier élève",
+    responsables: "Parents / responsables",
+    inscription: "Inscription scolaire",
+  };
+}

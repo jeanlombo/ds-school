@@ -27,7 +27,7 @@ export default async function NouvelApprenant({ searchParams }: Props) {
   const matricule = `${ecole.code}-${new Date().getFullYear()}-${String(compteur + 1).padStart(5, "0")}`;
   const aujourdHui = new Date().toISOString().slice(0,10);
 
-  return <AdminShell utilisateur={utilisateur} titre="Nouvelle inscription" description="Créez le dossier administratif, académique, familial et médical de l’apprenant." action={<Link href="/dashboard/eleves" className={styles.boutonSecondaire}><ArrowLeft size={18}/> Retour aux apprenants</Link>}>
+  return <AdminShell utilisateur={utilisateur} titre="Nouvelle inscription" description="Créez le dossier administratif, académique, familial et médical de l’apprenant." action={<Link href="/dashboard/eleves" className={styles.boutonSecondaire}><ArrowLeft size={18}/> Retour au répertoire</Link>}>
     {erreur && <div className={elevesStyles.erreur}>{erreur}</div>}
     <form action={creerEleve} className={elevesStyles.formulaireLong} encType="multipart/form-data">
       <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UserRound/></span><div><h2>Informations personnelles</h2><p>Identité officielle de l’apprenant et photo utilisée sur sa carte scolaire ou d’étudiant.</p></div></div></div><div className={styles.panneauCorps}>
@@ -53,7 +53,7 @@ export default async function NouvelApprenant({ searchParams }: Props) {
         <div className={`${styles.champ} ${styles.champLarge}`}><label>Établissement de provenance</label><input name="ancienneEcole" placeholder="Nom de l’établissement précédent"/></div>
       </div></div></section>
 
-      <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UsersRound/></span><div><h2>Responsables / personnes de contact</h2><p>Renseignez les parents, le tuteur ou toute autre personne de contact selon le niveau de l’apprenant.</p></div></div></div><div className={styles.panneauCorps}>
+      <section className={styles.panneau}><div className={styles.panneauEntete}><div className={elevesStyles.titreSection}><span><UsersRound/></span><div><h2>Responsables / personnes de contact</h2><p>Renseignez les parents, le tuteur ou les personnes de contact selon la section sélectionnée.</p></div></div></div><div className={styles.panneauCorps}>
         <div className={elevesStyles.responsablesGrille}>{["pere","mere","tuteur"].map((type)=><fieldset key={type} className={elevesStyles.responsable}><legend>{type === "pere" ? "Père" : type === "mere" ? "Mère" : "Tuteur"}</legend><label>Nom complet<input name={`${type}Nom`}/></label><label>Téléphone<input name={`${type}Telephone`}/></label><label>E-mail<input type="email" name={`${type}Email`}/></label><label>Profession<input name={`${type}Profession`}/></label><label>Adresse<input name={`${type}Adresse`}/></label></fieldset>)}</div>
         <div className={styles.champ}><label>Responsable principal</label><select name="responsablePrincipal" defaultValue="tuteur"><option value="pere">Père</option><option value="mere">Mère</option><option value="tuteur">Tuteur</option></select></div>
       </div></section>
@@ -65,7 +65,7 @@ export default async function NouvelApprenant({ searchParams }: Props) {
         <div className={styles.champ}><label>Allergies</label><textarea name="allergies"/></div>
         <div className={`${styles.champ} ${styles.champLarge}`}><label>Handicap ou besoin particulier</label><textarea name="handicap"/></div>
       </div></div></section>
-      <div className={elevesStyles.barreValidation}><span>Les champs marqués d’un astérisque sont obligatoires.</span><BoutonSoumission texte="Enregistrer l’apprenant" icone={<Save size={18}/>}/></div>
+      <div className={elevesStyles.barreValidation}><span>Les champs marqués d’un astérisque sont obligatoires.</span><BoutonSoumission texte="Enregistrer l’inscription" icone={<Save size={18}/>}/></div>
     </form>
   </AdminShell>;
 }
