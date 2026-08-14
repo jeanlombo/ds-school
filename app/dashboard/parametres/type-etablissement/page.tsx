@@ -47,7 +47,8 @@ export default async function TypeEtablissement({
             <div className={`${styles.champ} ${styles.champLarge}`}>
               <label>Type d’établissement *</label>
               <select name="typeEtablissement" defaultValue={ecole.typeEtablissement} required>
-                <option value="PRIMAIRE">École primaire</option>\n                <option value="SECONDAIRE">École secondaire / Humanités</option>
+                <option value="PRIMAIRE">École primaire</option>
+                <option value="SECONDAIRE">École secondaire / Humanités</option>
                 <option value="UNIVERSITE">Université / Institut supérieur</option>
                 <option value="MIXTE">Structure mixte : Primaire + Secondaire + Université / Institut supérieur</option>
               </select>
