@@ -1,108 +1,49 @@
-/**
- * Terminologie académique dynamique de DS School.
- *
- * Important :
- * - les noms techniques Prisma/routes restent "eleve", "classe", etc. pour ne pas casser la base ;
- * - l'interface adapte uniquement les libellés visibles selon la section.
- */
-
 export type TerminologieAcademique = {
-  personne: string;
-  personneMaj: string;
-  masculin: string;
-  feminin: string;
-  personnes: string;
-  personnesMaj: string;
-  structure: string;
-  structureMaj: string;
-  periode: string;
-  periodeMaj: string;
-  carte: string;
-  dossier: string;
-  responsables: string;
-  inscription: string;
+  type: "scolaire" | "superieur";
+  apprenant: string; apprenantPluriel: string;
+  classe: string; classePluriel: string;
+  annee: string; inscription: string; carte: string;
+  dossier: string; responsables: string; frais: string;
 };
 
-function normaliser(valeur?: string | null) {
-  return (valeur || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase();
+const SCOLAIRE: TerminologieAcademique = {
+  type:"scolaire", apprenant:"Élève", apprenantPluriel:"Élèves",
+  classe:"Classe", classePluriel:"Classes", annee:"Année scolaire",
+  inscription:"Inscription scolaire", carte:"Carte scolaire",
+  dossier:"Dossier scolaire", responsables:"Parents / Responsables",
+  frais:"Frais scolaires"
+};
+
+const SUPERIEUR: TerminologieAcademique = {
+  type:"superieur", apprenant:"Étudiant", apprenantPluriel:"Étudiants",
+  classe:"Promotion", classePluriel:"Promotions", annee:"Année académique",
+  inscription:"Inscription académique", carte:"Carte d’étudiant",
+  dossier:"Dossier académique", responsables:"Contacts / Responsables",
+  frais:"Frais académiques"
+};
+
+function normaliser(v?: string|null) {
+  return (v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
 }
 
-export function terminologieSection(
-  section?: string | null,
-  typeEtablissement?: string | null
-): TerminologieAcademique {
-  const contexte = `${normaliser(section)} ${normaliser(typeEtablissement)}`;
-
-  const superieur =
-    contexte.includes("universit") ||
-    contexte.includes("superieur") ||
-    contexte.includes("institut") ||
-    contexte.includes("faculte") ||
-    contexte.includes("haute ecole");
-
-  if (superieur) {
-    return {
-      personne: "étudiant",
-      personneMaj: "Étudiant",
-      masculin: "Étudiant",
-      feminin: "Étudiante",
-      personnes: "étudiants",
-      personnesMaj: "Étudiants",
-      structure: "promotion",
-      structureMaj: "Promotion",
-      periode: "année académique",
-      periodeMaj: "Année académique",
-      carte: "Carte d’étudiant",
-      dossier: "dossier étudiant",
-      responsables: "Personnes de contact",
-      inscription: "Inscription académique",
-    };
-  }
-
-  const secondaire =
-    contexte.includes("secondaire") ||
-    contexte.includes("humanit") ||
-    contexte.includes("college") ||
-    contexte.includes("lycee");
-
-  if (secondaire) {
-    return {
-      personne: "élève",
-      personneMaj: "Élève",
-      masculin: "Élève",
-      feminin: "Élève",
-      personnes: "élèves",
-      personnesMaj: "Élèves",
-      structure: "classe",
-      structureMaj: "Classe",
-      periode: "année scolaire",
-      periodeMaj: "Année scolaire",
-      carte: "Carte d’élève",
-      dossier: "dossier élève",
-      responsables: "Parents / responsables",
-      inscription: "Inscription scolaire",
-    };
-  }
-
-  // Primaire et autres structures scolaires.
-  return {
-    personne: "élève",
-    personneMaj: "Élève",
-    masculin: "Élève",
-    feminin: "Élève",
-    personnes: "élèves",
-    personnesMaj: "Élèves",
-    structure: "classe",
-    structureMaj: "Classe",
-    periode: "année scolaire",
-    periodeMaj: "Année scolaire",
-    carte: "Carte d’élève",
-    dossier: "dossier élève",
-    responsables: "Parents / responsables",
-    inscription: "Inscription scolaire",
-  };
+export function estSectionSuperieure(section?: {nom?:string|null;code?:string|null}|string|null) {
+  const brut=typeof section==="string"?section:`${section?.nom||""} ${section?.code||""}`;
+  const v=normaliser(brut);
+  return ["universite","institut superieur","faculte","licence","master","doctorat","lmd"]
+    .some(m=>v.includes(normaliser(m)));
 }
+
+export function terminologieSection(section?: {nom?:string|null;code?:string|null}|string|null) {
+  return estSectionSuperieure(section)?SUPERIEUR:SCOLAIRE;
+}
+
+export function terminologieClasse(classe?: {section?:{nom?:string|null;code?:string|null}|null}|null) {
+  return terminologieSection(classe?.section);
+}
+
+export const terminologieGlobale = {
+  apprenant:"Apprenant", apprenantPluriel:"Apprenants",
+  inscription:"Inscription", dossier:"Dossier apprenant",
+  carte:"Carte d’identification", responsables:"Responsables / Contacts",
+  frais:"Frais"
+};
