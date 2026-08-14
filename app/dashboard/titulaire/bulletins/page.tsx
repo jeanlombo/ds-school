@@ -42,8 +42,8 @@ export default async function Page({
   return (
     <AdminShell
       utilisateur={contexte.utilisateur}
-      titre={`Bulletins — ${contexte.classeNom}`}
-      description="Bulletins limités à votre classe titulaire."
+      titre={`Résultats — ${contexte.classeNom}`}
+      description="Documents de résultats limités à votre classe titulaire."
     >
       <section className={styles.panel}>
         <form method="get" className={styles.filtres}>

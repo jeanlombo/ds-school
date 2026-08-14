@@ -64,8 +64,8 @@ export default async function Page({ searchParams }: Props) {
   return (
     <AdminShell
       utilisateur={contexte.utilisateur}
-      titre="Bulletins scolaires"
-      description="Bulletins publiés et autorisés pour votre enfant."
+      titre="Documents de résultats"
+      description="Documents de résultats publiés et autorisés pour votre enfant."
     >
       <section className={styles.panel}>
         <form method="get" className={styles.filtres}>

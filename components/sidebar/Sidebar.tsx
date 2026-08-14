@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 const menus = [
-  ["Tableau de bord", "/dashboard"], ["Élèves", "/eleves"], ["Enseignants", "/enseignants"],
-  ["Classes", "/classes"], ["Inscriptions", "/inscriptions"], ["Présences", "/presences"],
-  ["Notes", "/notes"], ["Bulletins", "/bulletins"], ["Paiements", "/paiements"],
+  ["Tableau de bord", "/dashboard"], ["Apprenants", "/eleves"], ["Enseignants", "/enseignants"],
+  ["Classes / Promotions", "/classes"], ["Inscriptions", "/inscriptions"], ["Présences", "/presences"],
+  ["Notes", "/notes"], ["Résultats", "/bulletins"], ["Paiements", "/paiements"],
   ["Rapports", "/rapports"], ["Utilisateurs", "/utilisateurs"], ["Paramètres", "/parametres"]
 ];
 

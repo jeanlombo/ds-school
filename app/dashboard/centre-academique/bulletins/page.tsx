@@ -8,6 +8,7 @@ import { obtenirUtilisateurConnecte } from "@/lib/session";
 import RetourDashboard from "../RetourDashboard";
 import { calculerResultats } from "../resultats/calculs";
 import styles from "./bulletins.module.css";
+import { terminologieSection, terminologieNeutre } from "@/lib/terminologie-academique";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,8 @@ export default async function Page({ searchParams }: Props) {
   const [classes, periodes] = await Promise.all([
     prisma.classe.findMany({
       where: { ecoleId: ecole.id, statut: "active" },
-      orderBy: { nom: "asc" },
+      include: { section: true },
+      orderBy: [{ section: { nom: "asc" } }, { nom: "asc" }],
     }),
     prisma.periodeAcademique.findMany({
       where: { anneeScolaire: { ecoleId: ecole.id } },
@@ -43,12 +45,13 @@ export default async function Page({ searchParams }: Props) {
 
   const classe = classes.find((element) => element.id === classeId);
   const periode = periodes.find((element) => element.id === periodeId);
+  const t = classe ? terminologieSection(classe.section.nom, ecole.typeEtablissement) : terminologieNeutre();
 
   return (
     <AdminShell
       utilisateur={utilisateur}
-      titre="Bulletins scolaires"
-      description="Prévisualisez et imprimez les bulletins à partir des résultats publiés."
+      titre="Documents de résultats"
+      description="Prévisualisez et imprimez le document adapté au cycle : bulletin scolaire ou relevé de notes."
     >
       <div className={styles.page}>
         <RetourDashboard />
@@ -56,9 +59,9 @@ export default async function Page({ searchParams }: Props) {
         <section className={styles.hero}>
           <div>
             <span className={styles.eyebrow}>Production documentaire</span>
-            <h2>Bulletins académiques Premium</h2>
+            <h2>Documents académiques Premium</h2>
             <p>
-              Sélectionnez une classe et une période pour produire les bulletins
+              Sélectionnez une classe / promotion et une période pour produire les documents
               individuels des apprenants.
             </p>
           </div>
@@ -68,12 +71,12 @@ export default async function Page({ searchParams }: Props) {
         <section className={styles.panel}>
           <form className={styles.filters}>
             <label>
-              <span>Classe</span>
+              <span>Classe / Promotion</span>
               <select name="classeId" defaultValue={classeId || ""} required>
-                <option value="">Choisir une classe</option>
+                <option value="">Choisir une classe / promotion</option>
                 {classes.map((element) => (
                   <option key={element.id} value={element.id}>
-                    {element.nom}
+                    {element.nom} — {element.section.nom}
                   </option>
                 ))}
               </select>
@@ -93,7 +96,7 @@ export default async function Page({ searchParams }: Props) {
 
             <button className={styles.btn} type="submit">
               <Search size={18} />
-              Afficher les bulletins
+              Afficher les documents
             </button>
           </form>
         </section>
@@ -102,13 +105,13 @@ export default async function Page({ searchParams }: Props) {
           <section className={styles.panel}>
             <div className={styles.entete}>
               <div>
-                <span className={styles.eyebrow}>Liste des apprenants</span>
+                <span className={styles.eyebrow}>Liste des {t.personnePluriel}</span>
                 <h3>
                   {classe?.nom} · {periode?.nom}
                 </h3>
               </div>
               <span className={styles.compteur}>
-                {synthese.lignes.length} bulletin(s)
+                {synthese.lignes.length} document(s)
               </span>
             </div>
 
@@ -118,11 +121,11 @@ export default async function Page({ searchParams }: Props) {
                   <tr>
                     <th>Rang</th>
                     <th>Matricule</th>
-                    <th>Apprenant</th>
+                    <th>{t.personneMaj}</th>
                     <th>Moyenne</th>
                     <th>Mention</th>
                     <th>Décision</th>
-                    <th>Bulletin</th>
+                    <th>Document</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -172,10 +175,10 @@ export default async function Page({ searchParams }: Props) {
             {synthese.lignes.length === 0 && (
               <div className={styles.vide}>
                 <FileText size={46} />
-                <h3>Aucun bulletin disponible</h3>
+                <h3>Aucun document disponible</h3>
                 <p>
                   Publiez les évaluations et enregistrez les notes avant de
-                  produire les bulletins.
+                  produire les documents.
                 </p>
               </div>
             )}

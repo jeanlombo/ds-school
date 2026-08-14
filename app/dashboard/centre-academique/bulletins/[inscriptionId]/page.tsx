@@ -7,6 +7,7 @@ import { obtenirUtilisateurConnecte } from "@/lib/session";
 import { calculerResultats } from "../../resultats/calculs";
 import BoutonImprimer from "./BoutonImprimer";
 import styles from "../bulletins.module.css";
+import { terminologieSection } from "@/lib/terminologie-academique";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +33,7 @@ export default async function Page({ params, searchParams }: Props) {
   const [classe, periode, modele, synthese] = await Promise.all([
     prisma.classe.findFirst({
       where: { id: classeId, ecoleId: ecole.id },
+      include: { section: true },
     }),
     prisma.periodeAcademique.findFirst({
       where: { id: periodeId, anneeScolaire: { ecoleId: ecole.id } },
@@ -51,6 +53,7 @@ export default async function Page({ params, searchParams }: Props) {
   if (!ligne || !classe || !periode) notFound();
 
   const couleur = modele?.couleurPrincipale || "#1d4ed8";
+  const t = terminologieSection(classe.section.nom, ecole.typeEtablissement);
 
   return (
     <main className={styles.documentPage}>
@@ -72,11 +75,11 @@ export default async function Page({ params, searchParams }: Props) {
           <div className={styles.logoEcole}>DS</div>
           <div className={styles.identiteEcole}>
             <span>DS SCHOOL ENTERPRISE</span>
-            <h1>BULLETIN SCOLAIRE</h1>
+            <h1>{t.documentResultats.toUpperCase()}</h1>
             <p>Excellence · Discipline · Innovation</p>
           </div>
           <div className={styles.anneeBloc}>
-            <small>Année scolaire</small>
+            <small>{t.periodeMaj}</small>
             <strong>{periode.anneeScolaire.libelle}</strong>
           </div>
         </header>
@@ -91,7 +94,7 @@ export default async function Page({ params, searchParams }: Props) {
             <strong>{ligne.matricule}</strong>
           </div>
           <div>
-            <small>Classe</small>
+            <small>{t.structureMaj}</small>
             <strong>{classe.nom}</strong>
           </div>
           <div>
@@ -102,14 +105,14 @@ export default async function Page({ params, searchParams }: Props) {
 
         <section className={styles.sectionBulletin}>
           <div className={styles.titreSection}>
-            <h2>Résultats par matière</h2>
-            <span>{ligne.matieres.length} matière(s)</span>
+            <h2>Résultats par {t.cours}</h2>
+            <span>{ligne.matieres.length} {t.cours}(s)</span>
           </div>
 
           <table className={styles.tableBulletin}>
             <thead>
               <tr>
-                <th>Matière</th>
+                <th>{t.coursMaj}</th>
                 <th>Évaluations</th>
                 <th>Moyenne</th>
                 <th>Appréciation</th>
@@ -167,7 +170,7 @@ export default async function Page({ params, searchParams }: Props) {
             <h3>Observation de la direction</h3>
             <p>
               {ligne.decision === "Admis"
-                ? "Résultats satisfaisants. L’apprenant est encouragé à poursuivre ses efforts."
+                ? `Résultats satisfaisants. ${t.personneMaj} est encouragé(e) à poursuivre ses efforts.`
                 : "Des efforts supplémentaires et un accompagnement renforcé sont recommandés."}
             </p>
           </div>
