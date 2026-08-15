@@ -86,7 +86,7 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/annees-scolaires",
-    label: "Années scolaires",
+    label: "Années scolaires / académiques",
     icon: CalendarDays,
     permission: "ANNEES_SCOLAIRES_VOIR",
   },
@@ -100,42 +100,42 @@ const liens: LienMenu[] = [
 
   {
     href: "/dashboard/classes",
-    label: "Classes",
+    label: "Classes / Promotions",
     icon: School,
     permission: "CLASSES_VOIR",
   },
 
   {
     href: "/dashboard/eleves",
-    label: "Élèves",
+    label: "Apprenants",
     icon: UsersRound,
     permission: "ELEVES_VOIR",
   },
 
   {
     href: "/dashboard/parents",
-    label: "Parents",
+    label: "Parents / Contacts",
     icon: UserRoundCog,
     permission: "PARENTS_VOIR",
   },
 
   {
     href: "/dashboard/suivi-parent",
-    label: "Suivi et communication Parent",
+    label: "Suivi apprenants / responsables",
     icon: Bell,
     permission: "SUIVI_PARENT_VOIR",
   },
 
   {
     href: "/dashboard/enseignants",
-    label: "Enseignants",
+    label: "Enseignants / Professeurs",
     icon: UserRoundCheck,
     permission: "ENSEIGNANTS_VOIR",
   },
 
   {
     href: "/dashboard/matieres",
-    label: "Matières",
+    label: "Matières / Cours",
     icon: BookOpen,
     permission: "MATIERES_VOIR",
   },
